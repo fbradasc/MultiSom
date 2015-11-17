@@ -36,7 +36,7 @@
     //#define BI
     //#define TRI
     //#define QUADP
-    //#define QUADX
+    #define QUADX
     //#define Y4
     //#define Y6
     //#define HEX6
@@ -171,6 +171,7 @@
       //#define L3G4200D
       //#define MPU6050       //combo + ACC
       //#define LSM330        //combo + ACC
+      #define MPU9250       //combo + ACC + magnetometer
       
       /* I2C accelerometer */
       //#define MMA7455
@@ -183,7 +184,7 @@
       //#define MMA8451Q
 
       /* I2C barometer */
-      //#define BMP085
+      #define BMP085
       //#define MS561101BA
 
       /* I2C magnetometer */
@@ -206,8 +207,11 @@
       //#define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] = -Y; imu.gyroADC[PITCH] =  X; imu.gyroADC[YAW] = Z;}
       //#define FORCE_MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  X; imu.magADC[PITCH]  =  Y; imu.magADC[YAW]  = Z;}
 
+
+
+
       /* Board orientation shift */
-      /* If you have frame designed only for + mode and you cannot rotate FC phisycally for flying in X mode (or vice versa)
+      /* If you have frame designed only for + mode and you cannot rotate FC physically for flying in X mode (or vice versa)
        * you can use one of of this options for virtual sensors rotation by 45 deegres, then set type of multicopter according to flight mode.
        * Check motors order and directions of motors rotation for matching with new front point!  Uncomment only one option! */
       //#define SENSORS_TILT_45DEG_RIGHT        // rotate the FRONT 45 degres clockwise
