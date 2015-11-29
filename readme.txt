@@ -1,11 +1,12 @@
-HarotWii is a 100% MultiWii 2.4 version with some additional features such as:
-1. Can connect to Baseflight and Cleanflight configurators.
-	This version though is concentrating on Baseflight since Cleanflight is using a different flight modes and other cool features that Baseflight doesn't have.
+## Ardhat MultiWii Flight Controller 
 
-2. Added new board called Gizduino and RCTimer CRIUS v2 AIOP. 
-	RCTimer's CRIUS is using a different barometer board "MS561101BA". The default one that was using "BMP085"
-	Gizduino - http://www.e-gizmo.com/KIT/categ/pmaster.php?dpage=/KIT/categ/kitcontrol.htm
-	Test flight video here https://www.youtube.com/watch?v=A6NAJDCVOtA
+is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional features:
+
+1. Connects to Cleanflight browser configurator (does not support CLI or servos tab)
+
+2. Supports Ardhat board type
+
+2. Supports Invensys MPU9250 combo IMU
 
 3. Supports generic sonar module such as HC-SR04, SRF04, DYP-ME007
 	Check config.h SECTION 9 for PIN assignments
@@ -34,9 +35,5 @@ HarotWii is a 100% MultiWii 2.4 version with some additional features such as:
 7. PID Controller
 	PID controller codes are now in separate .cpp file called "PIDControllers.cpp" for future PID controllers
 	
-*Baseflight Configurator*
-You can connect HarotWii to Baseflight configurator but there are some limitations such as in these tabs:
-Configuration - Mixer, Serial Receiver, Battery Voltage, Board Alignment, GPS, Current Sensor
-PID Tuning - 0.64 release now supports individual axis rates. You can still set Pitch and Roll rates by changing the Roll rate. That will automatically update the Pitch rate as well.
-Servos tab - not working
-CLI
+
+All credits to the MultiWii developers and programmers, and specially Nullstr1ng for the Cleanflight port.
