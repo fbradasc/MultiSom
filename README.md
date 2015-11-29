@@ -1,5 +1,5 @@
 ## Ardhat MultiWii Flight Controller 
-===========
+
 
 is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional features:
 
