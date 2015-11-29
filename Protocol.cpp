@@ -11,6 +11,12 @@
 #include "Protocol.h"
 #include "RX.h"
 
+#if defined(CLEANFLIGHT)
+#include "target.h"
+#include "version.h"
+#include "platform.h"
+#endif
+
 /************************************** MultiWii Serial Protocol *******************************************************/
 // Multiwii Serial Protocol 0 
 #define MSP_VERSION              0
@@ -19,6 +25,112 @@
 //range id [50-99] won't be assigned and can therefore be used for any custom multiwii fork without further MSP id conflict
 
 #define MSP_PRIVATE              1     //in+out message      to be used for a generic framework : MSP + function code (LIST/GET/SET) + data. no code yet
+
+
+#if defined(CLEANFLIGHT)
+/* stripped off from cleanflight*/
+/* https://github.com/cleanflight/cleanflight/blob/master/src/main/io/serial_msp.c */
+#define MSP_PROTOCOL_VERSION 0
+#define API_VERSION_MAJOR                   1 // increment when major changes are made
+#define API_VERSION_MINOR                   5 // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+
+#define API_VERSION_LENGTH                  2
+
+#define MULTIWII_IDENTIFIER "MWII";
+#define CLEANFLIGHT_IDENTIFIER "CLFL"
+#define BASEFLIGHT_IDENTIFIER "BAFL";
+
+#define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 4
+static const char *flightControllerIdentifier = CLEANFLIGHT_IDENTIFIER; // 4 UPPER CASE alpha numeric characters that identify the flight controller.
+
+#define FLIGHT_CONTROLLER_VERSION_LENGTH    3
+#define FLIGHT_CONTROLLER_VERSION_MASK      0xFFF
+
+const char *boardIdentifier = TARGET_BOARD_IDENTIFIER;
+#define BOARD_IDENTIFIER_LENGTH             4 // 4 UPPER CASE alpha numeric characters that identify the board being used.
+#define BOARD_HARDWARE_REVISION_LENGTH      2
+
+#define MSP_API_VERSION                 1    //out message
+#define MSP_FC_VARIANT                  2    //out message
+#define MSP_FC_VERSION                  3    //out message
+#define MSP_BOARD_INFO                  4    //out message
+#define MSP_BUILD_INFO                  5    //out message
+
+//
+// MSP commands for Cleanflight original features
+//
+#define MSP_CHANNEL_FORWARDING          32    //out message         Returns channel forwarding settings
+#define MSP_SET_CHANNEL_FORWARDING      33    //in message          Channel forwarding settings
+
+#define MSP_MODE_RANGES                 34    //out message         Returns all mode ranges
+#define MSP_SET_MODE_RANGE              35    //in message          Sets a single mode range
+
+#define MSP_FEATURE                     36
+#define MSP_SET_FEATURE                 37
+
+#define MSP_BOARD_ALIGNMENT             38
+#define MSP_SET_BOARD_ALIGNMENT         39
+
+#define MSP_CURRENT_METER_CONFIG        40
+#define MSP_SET_CURRENT_METER_CONFIG    41
+
+#define MSP_MIXER                       42
+#define MSP_SET_MIXER                   43
+
+#define MSP_RX_CONFIG                   44
+#define MSP_SET_RX_CONFIG               45
+
+#define MSP_LED_COLORS                  46
+#define MSP_SET_LED_COLORS              47
+
+#define MSP_LED_STRIP_CONFIG            48
+#define MSP_SET_LED_STRIP_CONFIG        49
+
+#define MSP_RSSI_CONFIG                 50
+#define MSP_SET_RSSI_CONFIG             51
+
+#define MSP_ADJUSTMENT_RANGES           52
+#define MSP_SET_ADJUSTMENT_RANGE        53
+
+// private - only to be used by the configurator, the commands are likely to change
+#define MSP_CF_SERIAL_CONFIG            54
+#define MSP_SET_CF_SERIAL_CONFIG        55
+
+#define MSP_VOLTAGE_METER_CONFIG        56
+#define MSP_SET_VOLTAGE_METER_CONFIG    57
+
+#define MSP_SONAR_ALTITUDE              58 //out message get sonar altitude [cm]
+
+#define MSP_PID_CONTROLLER              59
+#define MSP_SET_PID_CONTROLLER          60
+//
+// Baseflight MSP commands (if enabled they exist in Cleanflight)
+//
+#define MSP_RX_MAP                      64 //out message get channel map (also returns number of channels total)
+#define MSP_SET_RX_MAP                  65 //in message set rx map, numchannels to set comes from MSP_RX_MAP
+
+// FIXME - Provided for backwards compatibility with configurator code until configurator is updated.
+// DEPRECATED - DO NOT USE "MSP_BF_CONFIG" and MSP_SET_BF_CONFIG.  In Cleanflight, isolated commands already exist and should be used instead.
+#define MSP_BF_CONFIG                      66 //out message baseflight-specific settings that aren't covered elsewhere
+#define MSP_SET_BF_CONFIG                  67 //in message baseflight-specific settings save
+
+#define MSP_REBOOT                      68 //in message reboot settings
+
+// BASEFLIGHT
+#define MSP_BF_BUILD_INFO               69 //out message build date as well as some space for future expansion
+
+#define MSP_DATAFLASH_SUMMARY           70 //out message - get description of dataflash chip
+#define MSP_DATAFLASH_READ              71 //out message - get content of dataflash chip
+#define MSP_DATAFLASH_ERASE             72 //in message - erase dataflash chip
+
+// Additional commands that are not compatible with MultiWii
+#define MSP_UID                  160    //out message         Unique device ID
+#define MSP_ACC_TRIM             240    //out message         get acc angle trim values
+#define MSP_SET_ACC_TRIM         239    //in message          set acc angle trim values
+#define MSP_GPSSVINFO            164    //out message         get Signal Strength (only U-Blox)
+#define MSP_GPSDEBUGINFO         166    //out message         get GPS debugging data (only U-Blox)
+#endif
+
 
 #define MSP_IDENT                100   //out message         multitype + multiwii version + protocol version + capability variable
 #define MSP_STATUS               101   //out message         cycletime & errors_count & sensor present & box activation & current setting number
@@ -72,6 +184,10 @@
 #define MSP_DEBUGMSG             253   //out message         debug string buffer
 #define MSP_DEBUG                254   //out message         debug1,debug2,debug3,debug4
 
+#define MSP_SUPRESS_DATA_FROM_RX 150
+#define MSP_GYRO_CALIBRATION     151
+
+
 #ifdef DEBUGMSG
   #define DEBUG_MSG_BUFFER_SIZE 128
   static char debug_buf[DEBUG_MSG_BUFFER_SIZE];
@@ -81,7 +197,10 @@
   static void debugmsg_serialize(uint8_t l);
 #endif
 
-static uint8_t CURRENTPORT=0;
+static uint32_t enabledFeatures = 0;
+
+static uint8_t CURRENTPORT = 0;
+static uint8_t USE_CLEANFLIGHT_REPLIES = 0;
 
 #define INBUF_SIZE 64
 static uint8_t inBuf[INBUF_SIZE][UART_NUMBER];
@@ -176,6 +295,10 @@ enum MSP_protocol_bytes {
   HEADER_CMD
 };
 
+void featureSet(uint32_t mask) {
+	enabledFeatures |= mask;
+}
+
 void serialCom() {
   uint8_t c,cc,port,state,bytesTXBuff;
   static uint8_t offset[UART_NUMBER];
@@ -260,13 +383,107 @@ void serialCom() {
 }
 
 void evaluateCommand(uint8_t c) {
-  uint32_t tmp=0; 
+	uint32_t i, tmp = 0, junk;
+	uint8_t zczxczxczxc = 0;
+	const char *build = __DATE__;
 
   switch(c) {
     // adding this message as a comment will return an error status for MSP_PRIVATE (end of switch), allowing third party tools to distinguish the implementation of this message
     //case MSP_PRIVATE:
     //  headSerialError();tailSerialReply(); // we don't have any custom msp currently, so tell the gui we do not use that
     //  break;
+#if defined(CLEANFLIGHT)
+	case MSP_API_VERSION:
+		headSerialReply(1 + API_VERSION_LENGTH);
+		serialize8(MSP_PROTOCOL_VERSION);
+		serialize8(API_VERSION_MAJOR);
+		serialize8(API_VERSION_MINOR);
+		tailSerialReply();
+
+		USE_CLEANFLIGHT_REPLIES = 1;
+
+		break;
+	case MSP_FC_VARIANT:
+		headSerialReply(FLIGHT_CONTROLLER_IDENTIFIER_LENGTH);
+
+		for (i = 0; i < FLIGHT_CONTROLLER_IDENTIFIER_LENGTH; i++) {
+			serialize8(flightControllerIdentifier[i]);
+		}
+		tailSerialReply();
+
+		break;
+	case MSP_FC_VERSION:
+		headSerialReply(FLIGHT_CONTROLLER_VERSION_LENGTH);
+
+		serialize8(FC_VERSION_MAJOR);
+		serialize8(FC_VERSION_MINOR);
+		serialize8(FC_VERSION_PATCH_LEVEL);
+		tailSerialReply();
+
+		break;
+
+	case MSP_BOARD_INFO:
+		headSerialReply(
+			BOARD_IDENTIFIER_LENGTH +
+			BOARD_HARDWARE_REVISION_LENGTH
+			);
+		for (i = 0; i < BOARD_IDENTIFIER_LENGTH; i++) {
+			serialize8(boardIdentifier[i]);
+		}
+
+//#ifdef NAZE
+//		serialize16(hardwareRevision);
+//#else
+		serialize16(0); // No other build targets currently have hardware revision detection.
+//#endif
+
+		tailSerialReply();
+
+		break;
+
+	case MSP_BF_BUILD_INFO: // BASEFLIGHT
+		headSerialReply(11 + 4 + 4);
+		for (i = 0; i < 11; i++)
+			serialize8(build[i]); // MMM DD YYYY as ascii, MMM = Jan/Feb... etc
+		serialize32(0); // future exp
+		serialize32(0); // future exp
+		tailSerialReply();
+
+	case MSP_BUILD_INFO: // CLEANFLIGHT
+		headSerialReply(11 + 4 + 4);
+		for (i = 0; i < 11; i++)
+			serialize8(build[i]); // MMM DD YYYY as ascii, MMM = Jan/Feb... etc
+		serialize32(0); // future exp
+		serialize32(0); // future exp
+
+		/*headSerialReply(
+			BUILD_DATE_LENGTH +
+			BUILD_TIME_LENGTH +
+			GIT_SHORT_REVISION_LENGTH
+			);
+
+		for (i = 0; i < BUILD_DATE_LENGTH; i++) {
+			serialize8(buildDate[i]);
+		}
+		for (i = 0; i < BUILD_TIME_LENGTH; i++) {
+			serialize8(buildTime[i]);
+		}
+
+		for (i = 0; i < GIT_SHORT_REVISION_LENGTH; i++) {
+			serialize8(shortGitRevision[i]);
+		}*/
+
+		tailSerialReply();
+		break;
+#endif
+	case MSP_SUPRESS_DATA_FROM_RX:
+		supress_data_from_rx = read8();
+
+		headSerialReply(1);
+		serialize8((uint8_t)supress_data_from_rx);
+		tailSerialReply();
+
+		break;
     case MSP_SET_RAW_RC:
       s_struct_w((uint8_t*)&rcSerial,16);
       rcSerialCount = 50; // 1s transition 
@@ -316,10 +533,25 @@ void evaluateCommand(uint8_t c) {
       break;
     case MSP_MISC:
       struct {
-        uint16_t a,b,c,d,e,f;
-        uint32_t g;
-        uint16_t h;
-        uint8_t  i,j,k,l;
+#if defined(CLEANFLIGHT)
+			uint16_t a, b, c, d, e;
+			uint8_t f;
+			uint8_t g;
+			uint8_t h;
+
+			uint8_t i;
+			uint8_t j;
+			uint8_t k;
+
+			uint16_t l;
+
+			uint8_t  m, n, o, p;
+#else
+			uint16_t a, b, c, d, e, f;
+			uint32_t g;
+			uint16_t h;
+			uint8_t  i, j, k, l;
+#endif
       } misc;
       misc.a = intPowerTrigger1;
       misc.b = conf.minthrottle;
@@ -330,6 +562,44 @@ void evaluateCommand(uint8_t c) {
       #else  
         misc.e = 0;
       #endif
+
+#if defined(CLEANFLIGHT)
+#if GPS
+		//serialize8(masterConfig.gpsConfig.provider); // gps_type
+		//serialize8(0); // TODO gps_baudrate (an index, cleanflight uses a uint32_t
+		//serialize8(masterConfig.gpsConfig.sbasMode); // gps_ubx_sbas
+#else
+		//f serialize8(0); // gps_type
+		//g serialize8(0); // TODO gps_baudrate (an index, cleanflight uses a uint32_t
+		//h serialize8(0); // gps_ubx_sbas
+		misc.f = 0;
+		misc.g = 1;
+		misc.h = 0;
+#endif
+		// i serialize8(masterConfig.batteryConfig.multiwiiCurrentMeterOutput);
+		// j serialize8(masterConfig.rxConfig.rssi_channel);
+		// k serialize8(0);
+
+		misc.i = 0;
+		misc.j = 0;
+		misc.k = 0;
+
+	#if MAG
+		misc.l = conf.mag_declination;
+	#else
+		misc.l = 0;
+	#endif
+	#ifdef VBAT
+		misc.m = conf.vbatscale;
+		misc.n = conf.vbatlevel_warn1;
+		misc.o = conf.vbatlevel_warn2;
+		misc.p = conf.vbatlevel_crit;
+	#else
+		misc.m = 0; misc.n = 0; misc.o = 0; misc.p = 0;
+	#endif
+
+		s_struct((uint8_t*) &misc, 32);
+#else
       #ifdef LOG_PERMANENT
         misc.f = plog.arm;
         misc.g = plog.lifetime + (plog.armed_time / 1000000); // <- computation must be moved outside from serial
@@ -350,14 +620,15 @@ void evaluateCommand(uint8_t c) {
         misc.i = 0;misc.j = 0;misc.k = 0;misc.l = 0;
       #endif
       s_struct((uint8_t*)&misc,22);
+#endif
       break;
     #endif
-    #if defined (DYNBALANCE)
+//    #if defined (DYNBALANCE)
     case MSP_SET_MOTOR:
       mspAck();
-      s_struct_w((uint8_t*)&motor,16);
+      s_struct_w((uint8_t*)&motor_disarmed,16);
     break;
-    #endif
+//    #endif
     #ifdef MULTIPLE_CONFIGURATION_PROFILES
     case MSP_SELECT_SETTING:
       if(!f.ARMED) {
@@ -451,6 +722,12 @@ void evaluateCommand(uint8_t c) {
       #if defined(OSD_SWITCH)
         if(rcOptions[BOXOSD]) tmp |= 1<<BOXOSD;
       #endif
+      #if defined(INFLIGHT_PID_TUNING)
+		if (f.PIDTUNE_MODE) tmp |= 1 << BOXPIDTUNE;
+      #endif
+      #if SONAR
+		if (f.SONAR_MODE) tmp |= 1 << BOXSONAR;
+      #endif
       if(f.ARMED) tmp |= 1<<BOXARM;
       st.flag             = tmp;
       st.set              = global_conf.currentSet;
@@ -523,6 +800,19 @@ void evaluateCommand(uint8_t c) {
       msp_raw_gps.g     = GPS_ground_course;
       s_struct((uint8_t*)&msp_raw_gps,16);
       break;
+	case MSP_GPSSVINFO:
+		headSerialReply(1 + (GPS_numCh * 4));
+		
+		serialize8(GPS_numCh);
+		for (i = 0; i < GPS_numCh; i++){
+			serialize8(GPS_svinfo_chn[i]);
+			serialize8(GPS_svinfo_svid[i]);
+			serialize8(GPS_svinfo_quality[i]);
+			serialize8(GPS_svinfo_cno[i]);
+		}
+		tailSerialReply();
+
+		break;
     case MSP_COMP_GPS:
       struct {
         uint16_t a;
@@ -671,6 +961,15 @@ void evaluateCommand(uint8_t c) {
     case MSP_PIDNAMES:
       serializeNames(pidnames);
       break;
+#if defined(CLEANFLIGHT)
+	case MSP_PID_CONTROLLER:
+		headSerialReply(1);
+		//s_struct((uint8_t *) PID_CONTROLLER, 7);
+		serialize8(PID_CONTROLLER - 1);
+		tailSerialReply();
+
+		break;
+#endif
     case MSP_BOX:
       #if EXTAUX
         s_struct((uint8_t*)&conf.activate[0],4*CHECKBOXITEMS);
@@ -698,6 +997,12 @@ void evaluateCommand(uint8_t c) {
       if(!f.ARMED) calibratingA=512;
       mspAck();
       break;
+#if GYRO
+	case MSP_GYRO_CALIBRATION:
+		if (!f.ARMED) calibratingG = 512;
+		mspAck();
+		break;
+#endif
     #if MAG
       case MSP_MAG_CALIBRATION:
       if(!f.ARMED) f.CALIBRATE_MAG = 1;
@@ -717,6 +1022,74 @@ void evaluateCommand(uint8_t c) {
     case MSP_DEBUG:
       s_struct((uint8_t*)&debug,8);
       break;
+#if defined(CLEANFLIGHT)
+	case MSP_BF_CONFIG:
+		// baseflight
+		//headSerialReply(1 + 4 + 1 + 2 + 2 + 2 + 2 + 2 + 2 + 2);
+		headSerialReply(1 + 4 + 1 + 2 + 2 + 2 + 2 + 2 + 2 + 2);
+		serialize8((uint8_t) MULTITYPE); // QUADX
+		
+		// features
+		serialize32(1 << 4 | 1 << 9 | 1 << 2); // MOTOR_STOP, FEATURE_SONAR, FEATURE_INFLIGHT_ACC_CAL
+		//serialize32((uint32_t)0); // MOTOR_STOP, FEATURE_SONAR
+
+		// rx provider
+		serialize8((uint8_t) 0);
+
+		// board alignment
+		serialize16((uint16_t) 0);
+		serialize16((uint16_t) 0);
+		serialize16((uint16_t) 0);
+
+		// battery
+		serialize16((uint16_t) 0);
+		serialize16((uint16_t) 0);
+
+		// motor_pwn_rate
+		serialize16((uint16_t) 0);
+
+		// pitch and roll rate
+		// serialize8((uint8_t) s_struct((uint8_t*) &, 7););
+		serialize8((uint8_t) conf.rollPitchRate);
+		serialize8((uint8_t) conf.rollPitchRate);
+
+		/* ? baseflight
+		serialize16(mcfg.currentscale);
+		serialize16(mcfg.currentoffset);
+		serialize16(mcfg.motor_pwm_rate);
+		serialize8(cfg.rollPitchRate[0]);
+		serialize8(cfg.rollPitchRate[1]);
+		*/
+
+		// battery
+		/*serialize16((uint16_t) 0);
+		serialize16((uint16_t) 0);*/
+
+		tailSerialReply();
+
+		break;
+	case MSP_CF_SERIAL_CONFIG:
+		headSerialReply(
+			((sizeof(uint8_t) +sizeof(uint16_t) +(sizeof(uint8_t) * 4)) * 4)
+			);
+		for (i = 0; i < 4; i++) {
+			serialize8(0);
+			serialize16(0);
+			serialize8(0);
+			serialize8(0);
+			serialize8(0);
+			serialize8(0);
+		}
+		tailSerialReply();
+		break;
+	case MSP_UID:
+		headSerialReply(12);
+		serialize32(U_ID_0);
+		serialize32(U_ID_1);
+		serialize32(U_ID_2);
+		tailSerialReply();
+		break;
+#endif
     #ifdef DEBUGMSG
     case MSP_DEBUGMSG:
       {

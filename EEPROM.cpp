@@ -65,6 +65,10 @@ bool readEEPROM() {
   return true;    // setting is OK
 }
 
+void write(int, uint8_t) {
+
+}
+
 void writeGlobalSet(uint8_t b) {
   global_conf.checksum = calculate_sum((uint8_t*)&global_conf, sizeof(global_conf));
   eeprom_write_block((const void*)&global_conf, (void*)0, sizeof(global_conf));

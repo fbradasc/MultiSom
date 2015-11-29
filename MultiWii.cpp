@@ -25,7 +25,7 @@ March  2015     V2.4
 #include "Serial.h"
 #include "GPS.h"
 #include "Protocol.h"
-#include "Telemetry.h"
+#include "PIDControllers.h"
 
 #include <avr/pgmspace.h>
 
@@ -97,6 +97,12 @@ const char boxnames[] PROGMEM = // names for dynamic generation of config GUI
   "MISSION;"
   "LAND;"
 #endif
+#if defined(INFLIGHT_PID_TUNING)
+  "PID TUNE;"
+#endif
+#if SONAR
+  "SONAR;"
+#endif
   ;
 
 const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way, you can rely on an ID number to identify a BOX function.
@@ -152,8 +158,36 @@ const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way
   20, //"MISSION;"
   21, //"LAND;"
 #endif
-  };
+#if defined(INFLIGHT_PID_TUNING)
+  22, //"PID CALIB;"
+#endif
+#if SONAR
+  23, //"SONAR;"
+#endif
+};
 
+
+// ******************
+// rc functions
+// ******************
+#define ROL_LO  (1<<(2*ROLL))
+#define ROL_CE  (3<<(2*ROLL))
+#define ROL_HI  (2<<(2*ROLL))
+#define PIT_LO  (1<<(2*PITCH))
+#define PIT_CE  (3<<(2*PITCH))
+#define PIT_HI  (2<<(2*PITCH))
+#define YAW_LO  (1<<(2*YAW))
+#define YAW_CE  (3<<(2*YAW))
+#define YAW_HI  (2<<(2*YAW))
+#define THR_LO  (1<<(2*THROTTLE))
+#define THR_CE  (3<<(2*THROTTLE))
+#define THR_HI  (2<<(2*THROTTLE))
+
+#if defined(INFLIGHT_PID_TUNING)
+#define AUX2_LO  (1<<(AUX2))
+#define AUX2_CE  (3<<(AUX2))
+#define AUX2_HI  (2<<(AUX2))
+#endif
 
 uint32_t currentTime = 0;
 uint16_t previousTime = 0;
@@ -161,13 +195,25 @@ uint16_t cycleTime = 0;     // this is the number in micro second to achieve a f
 uint16_t calibratingA = 0;  // the calibration is done in the main loop. Calibrating decreases at each cycle down to 0, then we enter in a normal mode.
 uint16_t calibratingB = 0;  // baro calibration = get new ground pressure value
 uint16_t calibratingG;
-int16_t  magHold,headFreeModeHold; // [-180;+180]
+#if SONAR
+uint16_t calibratingS = 0;
+#endif
+int16_t  magHold, headFreeModeHold; // [-180;+180]
 uint8_t  vbatMin = VBATNOMINAL;  // lowest battery voltage in 0.1V steps
 uint8_t  rcOptions[CHECKBOXITEMS];
 int32_t  AltHold; // in cm
 int16_t  sonarAlt;
 int16_t  BaroPID = 0;
 int16_t  errorAltitudeI = 0;
+
+#if defined(INFLIGHT_PID_TUNING)
+uint8_t		isin_inflight_calib = 0;
+uint16_t	old_AUX1_val = 0;
+
+uint16_t	new_pid = 0;
+uint16_t	new_i = 0;
+uint16_t	aux_pos = 0;
+#endif
 
 // **************
 // gyro+acc IMU
@@ -272,6 +318,7 @@ int16_t failsafeEvents = 0;
 volatile int16_t failsafeCnt = 0;
 
 int16_t rcData[RC_CHANS];    // interval [1000;2000]
+int8_t supress_data_from_rx = 0;// 
 int16_t rcSerial[8];         // interval [1000;2000] - is rcData coming from MSP
 int16_t rcCommand[4];        // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW
 uint8_t rcSerialCount = 0;   // a counter to select legacy RX when there is no more MSP rc serial data
@@ -294,6 +341,7 @@ uint16_t lookupThrottleRC[11];// lookup table for expo & mid THROTTLE
 // *************************
 int16_t axisPID[3];
 int16_t motor[8];
+int16_t motor_disarmed[8];
 int16_t servo[8] = {1500,1500,1500,1500,1500,1500,1500,1000};
 
 // ************************
@@ -703,14 +751,23 @@ void setup() {
     GPS_set_pids();
   #endif
   previousTime = micros();
-  #if defined(GIMBAL)
-   calibratingA = 512;
-  #endif
-  calibratingG = 512;
+#if defined(GIMBAL)
+  calibratingA = 512;
+#endif
+
+#if defined(SKIP_GYRO_CALIB)
+  calibratingG = 0;
+#else
+  calibratingG = 512; // calibration GYRO at startup
+#endif
+
   calibratingB = 200;  // 10 seconds init_delay + 200 * 25 ms = 15 seconds before ground pressure settles
-  #if defined(POWERMETER)
-    for(uint8_t j=0; j<=PMOTOR_SUM; j++) pMeter[j]=0;
-  #endif
+#if SONAR
+  calibratingS = 10;
+#endif
+#if defined(POWERMETER)
+  for (uint8_t j = 0; j <= PMOTOR_SUM; j++) pMeter[j] = 0;
+#endif
   /************************************/
   #if GPS
     #if defined(GPS_SERIAL)
@@ -784,6 +841,9 @@ void go_arm() {
         #if BARO
           calibratingB = 10; // calibrate baro to new ground level (10 * 25 ms = ~250 ms non blocking)
         #endif
+#if SONAR
+	  calibratingS = 10;
+#endif
       #endif
       #ifdef LCD_TELEMETRY // reset some values when arming
         #if BARO
@@ -825,6 +885,141 @@ void go_disarm() {
     #endif
   }
 }
+
+#if defined(INFLIGHT_PID_TUNING)
+/* --------------------------------------------------------------------------------- */
+/* ----------------- EXPERIMENTAL INFLIGHT ROLL + PITCH PID TUNING ----------------- */
+/* --------------------------------------------------------------------------------- */
+void go_inflight_pid_tuning() {
+	if (f.PIDTUNE_MODE)
+	{
+		//if (f.ARMED && f.ANGLE_MODE)
+		if (f.ARMED)
+		{
+			/*
+			AUX3 - you must use your Tx's pot
+			AUX2 - use your Tx's 3 way switch
+			*/
+			uint16_t potauxval = rcData[AUX3];
+			uint16_t pidsel = rcData[AUX2];
+
+			// flag that we're in calibration
+			isin_inflight_calib = 1;
+
+			// set the old AUX3 value once
+			// MAKE SURE BEFORE ARMING, THE AUX3 IS AT THE LOWEST POINT!!
+			if (old_AUX1_val == 0) old_AUX1_val = potauxval;
+
+			new_pid = 0;
+			new_i = 0;
+			aux_pos = 0;
+
+			if (potauxval < old_AUX1_val) { // make sure new_i is at always 0
+				new_i = 0;
+			}
+			else {
+				// get the difference from the new AUX3 value and old AUX3 value;
+				new_i = (potauxval - old_AUX1_val);
+			}
+
+			//debug[0] = old_AUX1_val; //old_AUX1_val;
+			//debug[1] = potauxval; //new_p;
+			//debug[2] = new_i; //rcData[AUX1 + 2];
+
+			// set safe values
+			if (new_i < 0) {
+				new_i = 0;
+			}
+			else if (new_i > 1000) {
+				new_i = 1000;
+			}
+
+			//debug[3] = new_i; //rcData[AUX1 + 2];
+
+			// check for 3 way switch position
+			aux_pos >>= 2;
+			if (pidsel > MINCHECK) aux_pos |= 0x20;     // check for MIN
+			if (pidsel < MAXCHECK) aux_pos |= 0x40;     // check for MAX
+
+			new_pid = new_i;
+
+			if (aux_pos == AUX2_LO)
+			{
+				new_pid = new_pid / 5;
+				if (new_pid > 200) new_pid = 200;
+
+				switch (INFLIGHT_PID_TUNING_TYPE) {
+				case 0:
+					conf.pid[ROLL].P8 = new_pid + 1;
+					conf.pid[PITCH].P8 = new_pid + 1;
+					break;
+				case 1:
+					conf.pid[PITCH].P8 = new_pid + 1;
+					break;
+				case 2:
+					conf.pid[ROLL].P8 = new_pid + 1;
+					break;
+				case 3:
+					conf.pid[PIDALT].P8 = new_pid + 1;
+					break;
+				}
+			}
+			else if (aux_pos == AUX2_CE)
+			{
+				new_pid = new_pid / 4;
+				if (new_pid > 250) new_pid = 250;
+				switch (INFLIGHT_PID_TUNING_TYPE) {
+				case 0:
+					conf.pid[ROLL].I8 = new_pid + 1;
+					conf.pid[PITCH].I8 = new_pid + 1;
+					break;
+				case 1:
+					conf.pid[PITCH].I8 = new_pid + 1;
+					break;
+				case 2:
+					conf.pid[ROLL].I8 = new_pid + 1;
+					break;
+				case 3:
+					conf.pid[PIDALT].I8 = new_pid + 1;
+					break;
+				}
+			}
+			else if (aux_pos == AUX2_HI)
+			{
+				new_pid = new_pid / 10;
+				if (new_pid > 100) new_pid = 100;
+
+				switch (INFLIGHT_PID_TUNING_TYPE) {
+				case 0:
+					conf.pid[ROLL].D8 = new_pid + 1;
+					conf.pid[PITCH].D8 = new_pid + 1;
+					break;
+				case 1:
+					conf.pid[PITCH].D8 = new_pid + 1;
+					break;
+				case 2:
+					conf.pid[ROLL].D8 = new_pid + 1;
+					break;
+				case 3:
+					conf.pid[PIDALT].D8 = new_pid + 1;
+					break;
+				case 4:
+					conf.rollPitchRate = new_pid + 1;
+					break;
+				}
+			}
+		}
+	}
+
+	if (!f.ARMED && !f.PIDTUNE_MODE) {
+		if (isin_inflight_calib == 1) {
+			isin_inflight_calib = 0;
+			old_AUX1_val = 0;
+			writeParams(1);
+		}
+	}
+}
+#endif
 
 // ******** Main Loop *********
 void loop () {
@@ -924,6 +1119,16 @@ void loop () {
         #endif
       } else {                        // actions during not armed
         i=0;
+				/* START - ARMING */
+#ifdef ALLOW_ARM_DISARM_VIA_TX_YAW
+				if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_HI + PIT_CE + ROL_CE) go_arm();      // Arm via YAW
+#endif
+#ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
+				if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_HI) go_arm();      // Arm via ROLL
+#endif
+				/* END - ARMING */
+
+				/* START - CALIBRATIONS */
         if (rcSticks == THR_LO + YAW_LO + PIT_LO + ROL_CE) {    // GYRO calibration
           calibratingG=512;
           #if GPS 
@@ -932,7 +1137,16 @@ void loop () {
           #if BARO
             calibratingB=10;  // calibrate baro to new ground level (10 * 25 ms = ~250 ms non blocking)
           #endif
+#if SONAR
+					calibratingS = 10;
+#endif
         }
+#if ACC
+				else if (rcSticks == THR_HI + YAW_LO + PIT_LO + ROL_CE) calibratingA = 512;   // throttle=max, yaw=left, pitch=min
+#endif
+#if MAG
+				else if (rcSticks == THR_HI + YAW_HI + PIT_LO + ROL_CE) f.CALIBRATE_MAG = 1;  // throttle=max, yaw=right, pitch=min
+#endif
         #if defined(INFLIGHT_ACC_CALIBRATION)  
          else if (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_HI) {    // Inflight ACC calibration START/STOP
             if (AccInflightCalibrationMeasurementDone){                // trigger saving into eeprom after landing
@@ -947,6 +1161,7 @@ void loop () {
             }
          } 
         #endif
+				/* END - CALIBRATIONS */
         #ifdef MULTIPLE_CONFIGURATION_PROFILES
           if      (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_LO) i=1;    // ROLL left  -> Profile 1
           else if (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_CE) i=2;    // PITCH up   -> Profile 2
@@ -959,6 +1174,7 @@ void loop () {
             SET_ALARM(ALRM_FAC_TOGGLE, i);
           }
         #endif
+				/* START - LCD */
         if (rcSticks == THR_LO + YAW_HI + PIT_HI + ROL_CE) {            // Enter LCD config
           #if defined(LCD_CONF)
             configurationLoop(); // beginning LCD configuration
@@ -991,6 +1207,9 @@ void loop () {
             LCDclear();
           }
         #endif
+				/* END - LCD */
+
+				/* START - ACCELEROMETER TRIMS */
         #if ACC
           else if (rcSticks == THR_HI + YAW_LO + PIT_LO + ROL_CE) calibratingA=512;     // throttle=max, yaw=left, pitch=min
         #endif
@@ -1002,33 +1221,132 @@ void loop () {
         else if (rcSticks == THR_HI + YAW_CE + PIT_LO + ROL_CE) {conf.angleTrim[PITCH]-=2; i=1;}
         else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_HI) {conf.angleTrim[ROLL] +=2; i=1;}
         else if (rcSticks == THR_HI + YAW_CE + PIT_CE + ROL_LO) {conf.angleTrim[ROLL] -=2; i=1;}
-        if (i) {
-          writeParams(1);
-          rcDelayCommand = 0;    // allow autorepetition
-          #if defined(LED_RING)
-            blinkLedRing();
-          #endif
-        }
-      }
-    }
-    #if defined(LED_FLASHER)
-      led_flasher_autoselect_sequence();
-    #endif
-    
-    #if defined(INFLIGHT_ACC_CALIBRATION)
-      if (AccInflightCalibrationArmed && f.ARMED && rcData[THROTTLE] > MINCHECK && !rcOptions[BOXARM] ){ // Copter is airborne and you are turning it off via boxarm : start measurement
-        InflightcalibratingA = 50;
-        AccInflightCalibrationArmed = 0;
-      }  
-      if (rcOptions[BOXCALIB]) {      // Use the Calib Option to activate : Calib = TRUE Meausrement started, Land and Calib = 0 measurement stored
-        if (!AccInflightCalibrationActive && !AccInflightCalibrationMeasurementDone){
-          InflightcalibratingA = 50;
-        }
-      }else if(AccInflightCalibrationMeasurementDone && !f.ARMED){
-        AccInflightCalibrationMeasurementDone = 0;
-        AccInflightCalibrationSavetoEEProm = 1;
-      }
-    #endif
+				/* END - ACCELEROMETER TRIMS */
+				/* START - DISARMED PID tuning
+				/*
+				 ROLL and PITCH PID tuning when disarmed
+				 THR_HI, THR_LO
+				 YAW_LO, YAW_CE, YAW_HI
+
+				 ROL_LO, ROL_CE, ROL_HI
+				 PIT_LO, PIT_CE, PIT_HI
+				 */
+				uint8_t PID_INC = 1;
+
+				// ROLL PID
+				// PPPPPPPP
+				if (rcSticks == THR_CE + YAW_LO + PIT_HI + ROL_LO) // increase P
+				{
+					conf.pid[ROLL].P8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_LO + PIT_LO + ROL_LO) // decrease P
+				{
+					conf.pid[ROLL].P8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				// IIIIIIIII
+				else if (rcSticks == THR_CE + YAW_LO + PIT_HI + ROL_CE) // increase I
+				{
+					conf.pid[ROLL].I8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_LO + PIT_LO + ROL_CE) // decrease I
+				{
+					conf.pid[ROLL].I8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				// DDDDDDDDD
+				else if (rcSticks == THR_CE + YAW_LO + PIT_HI + ROL_HI) // increase D
+				{
+					conf.pid[ROLL].D8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_LO + PIT_LO + ROL_HI) // decrease D
+				{
+					conf.pid[ROLL].D8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+
+				// PITCHC PID
+				// PPPPPPPP
+				if (rcSticks == THR_CE + YAW_HI + PIT_HI + ROL_LO) // increase P
+				{
+					conf.pid[PITCH].P8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_HI + PIT_LO + ROL_LO) // decrease P
+				{
+					conf.pid[PITCH].P8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				// IIIIIIIII
+				else if (rcSticks == THR_CE + YAW_HI + PIT_HI + ROL_CE) // increase I
+				{
+					conf.pid[PITCH].I8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_HI + PIT_LO + ROL_CE) // decrease I
+				{
+					conf.pid[PITCH].I8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				// DDDDDDDDD
+				else if (rcSticks == THR_CE + YAW_HI + PIT_HI + ROL_HI) // increase D
+				{
+					conf.pid[PITCH].D8 += PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				else if (rcSticks == THR_CE + YAW_HI + PIT_LO + ROL_HI) // decrease D
+				{
+					conf.pid[PITCH].D8 -= PID_INC;
+					blinkLED(2, 40, 1);
+					i = 1;
+				}
+				/*PID tuning end */
+
+
+				if (i) {
+					writeParams(1);
+					rcDelayCommand = 0;    // allow autorepetition
+#if defined(LED_RING)
+					blinkLedRing();
+#endif
+				}
+			}
+		} // end RC delay command
+
+
+#if defined(LED_FLASHER)
+		led_flasher_autoselect_sequence();
+#endif
+
+#if defined(INFLIGHT_ACC_CALIBRATION)
+		if (AccInflightCalibrationArmed && f.ARMED && rcData[THROTTLE] > MINCHECK && !rcOptions[BOXARM]) { // Copter is airborne and you are turning it off via boxarm : start measurement
+			InflightcalibratingA = 50;
+			AccInflightCalibrationArmed = 0;
+		}
+		if (rcOptions[BOXCALIB]) {      // Use the Calib Option to activate : Calib = TRUE Meausrement started, Land and Calib = 0 measurement stored
+			if (!AccInflightCalibrationActive && !AccInflightCalibrationMeasurementDone) {
+				InflightcalibratingA = 50;
+			}
+		}
+		else if (AccInflightCalibrationMeasurementDone && !f.ARMED) {
+			AccInflightCalibrationMeasurementDone = 0;
+			AccInflightCalibrationSavetoEEProm = 1;
+		}
+#endif
 
     #if defined(EXTENDED_AUX_STATES)
     uint32_t auxState = 0;
@@ -1077,6 +1395,37 @@ void loop () {
       }
     #endif
 
+#if defined(INFLIGHT_PID_TUNING)
+		if (rcOptions[BOXPIDTUNE]) {
+			f.PIDTUNE_MODE = 1;
+		}
+		else {
+			f.PIDTUNE_MODE = 0;
+		}
+#endif
+
+#if SONAR
+		if (rcOptions[BOXSONAR]) {
+			if (f.SONAR_MODE == 0) {
+				f.SONAR_MODE = 1;
+
+				AltHold = alt.EstAlt;
+
+#if defined(ALT_HOLD_THROTTLE_MIDPOINT)
+				initialThrottleHold = ALT_HOLD_THROTTLE_MIDPOINT;
+#else
+				initialThrottleHold = rcCommand[THROTTLE];
+#endif
+
+				errorAltitudeI = 0;
+				BaroPID = 0;
+				f.THROTTLE_IGNORED = 0;
+			}
+		}
+		else {
+			f.SONAR_MODE = 0;
+		}
+#endif
     if (rcOptions[BOXARM] == 0) f.OK_TO_ARM = 1;
     #if !defined(GPS_LED_INDICATOR)
       if (f.ANGLE_MODE || f.HORIZON_MODE) {STABLEPIN_ON;} else {STABLEPIN_OFF;}
@@ -1098,6 +1447,7 @@ void loop () {
             #endif
             errorAltitudeI = 0;
             BaroPID=0;
+            f.THROTTLE_IGNORED = 0;
           }
         } else {
           f.BARO_MODE = 0;
@@ -1233,6 +1583,10 @@ void loop () {
 
     #endif //GPS
 
+#if defined(INFLIGHT_PID_TUNING)
+		// call inflight pid tuning
+		go_inflight_pid_tuning();
+#endif
     #if defined(FIXEDWING) || defined(HELICOPTER)
       if (rcOptions[BOXPASSTHRU]) {f.PASSTHRU_MODE = 1;}
       else {f.PASSTHRU_MODE = 0;}
@@ -1249,7 +1603,7 @@ void loop () {
       case 1:
         taskOrder++;
         #if BARO
-          if (Baro_update() != 0) break; // for MS baro: I2C set and get: 220 us  -  presure and temperature computation 160 us
+          if (Baro_update() != 0) break; // for MS baro: I2C set and get: 220 us  -  pressure and temperature computation 160 us
         #endif
       case 2:
         taskOrder++;
@@ -1330,11 +1684,15 @@ void loop () {
     if (f.SMALL_ANGLES_25 || (f.GPS_mode != 0)) rcCommand[YAW] -= dif*conf.pid[PIDMAG].P8 >> 5;  //Always correct maghold in GPS mode
   } else magHold = att.heading;
 
-  #if BARO && (!defined(SUPPRESS_BARO_ALTHOLD))
+  #if (BARO || SONAR) && (!defined(SUPPRESS_BARO_ALTHOLD))
   /* Smooth alt change routine , for slow auto and aerophoto modes (in general solution from alexmos). It's slowly increase/decrease 
   * altitude proportional to stick movement (+/-100 throttle gives about +/-50 cm in 1 second with cycle time about 3-4ms)
   */
-  if (f.BARO_MODE) {
+#if SONAR
+	if (f.BARO_MODE || f.SONAR_MODE) {
+#else
+	if (f.BARO_MODE) {
+#endif
     static uint8_t isAltHoldChanged = 0;
     static int16_t AltHoldCorr = 0;
 
@@ -1360,7 +1718,13 @@ void loop () {
       AltHold = alt.EstAlt;
       isAltHoldChanged = 0;
     }
-    rcCommand[THROTTLE] = initialThrottleHold + BaroPID;
+		else if ((abs(rcCommand[THROTTLE] - initialThrottleHold) < ALT_HOLD_THROTTLE_NEUTRAL_ZONE) && !f.THROTTLE_IGNORED){
+			BaroPID = 0;
+		}
+		rcCommand[THROTTLE] = initialThrottleHold + BaroPID;
+		
+		/*debug[2] = BaroPID;
+		debug[3] = rcCommand[THROTTLE];*/
   }
   #endif //BARO
 

@@ -1078,6 +1078,13 @@ bool GPS_newFrame(uint8_t c) {
 /***********************       UBLOX                         **************************/
 /**************************************************************************************/
 #if defined(UBLOX)
+#define GPS_SV_MAXSATS 16;
+//uint8_t  GPS_numCh = 0;								  // number of channels
+//uint8_t GPS_svinfo_chn[16];     // Channel number
+//uint8_t GPS_svinfo_svid[16];    // Satellite ID
+//uint8_t GPS_svinfo_quality[16]; // Bitfield Qualtity
+//uint8_t GPS_svinfo_cno[16];     // Carrier to Noise Ratio (Signal Strength)
+
 const char UBLOX_INIT[] PROGMEM = {                                                  // PROGMEM array must be outside any function !!!
   0xB5,0x62,0x06,0x01,0x03,0x00,0xF0,0x05,0x00,0xFF,0x19,                            //disable all default NMEA messages
   0xB5,0x62,0x06,0x01,0x03,0x00,0xF0,0x03,0x00,0xFD,0x15,
@@ -1139,6 +1146,23 @@ struct ubx_nav_velned {
   uint32_t speed_accuracy;
   uint32_t heading_accuracy;
 };
+typedef struct {
+	uint8_t chn;                // Channel number, 255 for SVx not assigned to channel
+	uint8_t svid;               // Satellite ID
+	uint8_t flags;              // Bitmask
+	uint8_t quality;            // Bitfield
+	uint8_t cno;                // Carrier to Noise Ratio (Signal Strength) // dbHz, 0-55.
+	uint8_t elev;               // Elevation in integer degrees
+	int16_t azim;               // Azimuth in integer degrees
+	int32_t prRes;              // Pseudo range residual in centimetres
+} ubx_nav_svinfo_channel;
+typedef struct {
+	uint32_t time;              // GPS Millisecond time of week
+	uint8_t numCh;              // Number of channels
+	uint8_t globalFlags;        // Bitmask, Chip hardware generation 0:Antaris, 1:u-blox 5, 2:u-blox 6
+	uint16_t reserved2;         // Reserved
+	ubx_nav_svinfo_channel channel[16];         // 16 satellites * 12 byte
+} ubx_nav_svinfo;
 
 enum ubs_protocol_bytes {
   PREAMBLE1 = 0xb5,
@@ -1152,6 +1176,7 @@ enum ubs_protocol_bytes {
   MSG_STATUS = 0x3,
   MSG_SOL = 0x6,
   MSG_VELNED = 0x12,
+  MSG_SVINFO = 0x30,
   MSG_CFG_PRT = 0x00,
   MSG_CFG_RATE = 0x08,
   MSG_CFG_SET_RATE = 0x01,
@@ -1174,6 +1199,7 @@ static union {
   ubx_nav_posllh posllh;
   ubx_nav_solution solution;
   ubx_nav_velned velned;
+  ubx_nav_svinfo svinfo;
   uint8_t bytes[];
  } _buffer;
 
@@ -1224,9 +1250,11 @@ bool GPS_newFrame(uint8_t data){
 
   uint8_t st  = _step+1;
   bool    ret = false;
+
+  uint32_t i;
   
-  if (st == 2)
-    if (PREAMBLE2 != data) st--; // in case of faillure of the 2nd header byte, still test the first byte
+  if (st == 2) if (PREAMBLE2 != data) st--; // in case of faillure of the 2nd header byte, still test the first byte
+
   if (st == 1) {
     if(PREAMBLE1 != data) st--;
   } else if (st == 3) { // CLASS byte, not used, assume it is CLASS_NAV
@@ -1251,6 +1279,7 @@ bool GPS_newFrame(uint8_t data){
   } else if (st == 9) {
     st = 0;
     if (_ck_b == data) { // good checksum
+		debug[2] = _msg_id;
       if (_msg_id == MSG_POSLLH) {
         if(f.GPS_FIX) {
           GPS_coord[LON] = _buffer.posllh.longitude;
@@ -1267,6 +1296,32 @@ bool GPS_newFrame(uint8_t data){
         GPS_speed         = _buffer.velned.speed_2d;  // cm/s
         GPS_ground_course = (uint16_t)(_buffer.velned.heading_2d / 10000);  // Heading 2D deg * 100000 rescaled to deg * 10 //not used for the moment
       }
+	  else if (_msg_id == MSG_SVINFO) {
+		  /**gpsPacketLogChar = LOG_UBLOX_SVINFO;
+		  GPS_numCh = _buffer.svinfo.numCh;
+		  if (GPS_numCh > 16)
+			  GPS_numCh = 16;
+		  for (i = 0; i < GPS_numCh; i++){
+			  GPS_svinfo_chn[i] = _buffer.svinfo.channel[i].chn;
+			  GPS_svinfo_svid[i] = _buffer.svinfo.channel[i].svid;
+			  GPS_svinfo_quality[i] = _buffer.svinfo.channel[i].quality;
+			  GPS_svinfo_cno[i] = _buffer.svinfo.channel[i].cno;
+		  }
+		  GPS_svInfoReceivedCount++;*/
+
+		  GPS_numCh = _buffer.svinfo.numCh;
+		  if (GPS_numCh > 16)
+			  GPS_numCh = 16;
+
+		  
+
+		  for (i = 0; i < GPS_numCh; i++) {
+			  GPS_svinfo_chn[i] = _buffer.svinfo.channel[i].chn;
+			  GPS_svinfo_svid[i] = _buffer.svinfo.channel[i].svid;
+			  GPS_svinfo_quality[i] = _buffer.svinfo.channel[i].quality;
+			  GPS_svinfo_cno[i] = _buffer.svinfo.channel[i].cno;
+		  }
+	  }
     }
   }
   _step = st;

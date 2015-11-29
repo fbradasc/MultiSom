@@ -292,7 +292,12 @@ void getEstimatedAttitude(){
     value += deadband;                  \
   }
 
-#if BARO
+
+
+#if BARO || SONAR
+static int32_t  BaroHome = 0;
+static int32_t  lastSonarAlt = 0;
+
 uint8_t getEstimatedAltitude(){
   int32_t  BaroAlt;
   static float baroGroundTemperatureScale,logBaroGroundPressureSum;
@@ -315,7 +320,82 @@ uint8_t getEstimatedAltitude(){
   // see: https://code.google.com/p/ardupilot-mega/source/browse/libraries/AP_Baro/AP_Baro.cpp
   BaroAlt = ( logBaroGroundPressureSum - log(baroPressureSum) ) * baroGroundTemperatureScale;
 
-  alt.EstAlt = (alt.EstAlt * 6 + BaroAlt ) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+  //alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+
+#if SONAR
+  if (f.SONAR_MODE) {
+	  if (calibratingS > 0) {
+		  if (!f.ARMED) { //init offset till motors not armed
+			  //alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC); // additional LPF to reduce baro noise (faster by 30 µs)
+
+			  BaroHome = (alt.EstAlt * 6 + BaroAlt * 2) >> 3; // play with optimal coef. here
+		  }
+
+		  calibratingS--;
+	  }
+  }
+#endif
+
+  
+
+#if BARO && !SONAR
+  alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+#elif SONAR && !BARO
+  alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC);
+#elif SONAR && BARO
+  //if (f.SONAR_MODE && f.BARO_MODE) {
+	 // if (sonarAlt < SONAR_MAX_HOLD) {
+		//  // use sonar reading if below the SONAR_MAX_HOLD
+		//  alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC); // SONAR
+	 // }
+	 // else {
+		//  // use baro reading if greater than SONAR_MAX_HOLD
+		//  alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 4;	// BARO
+	 // }
+  //}
+  //else if (f.SONAR_MODE && !f.BARO_MODE){
+	 // if (sonarAlt > SONAR_MAX_HOLD) {
+		//sonarAlt = SONAR_MAX_HOLD;
+	 // }
+
+	 // alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC); // SONAR
+  //}
+  //else if (f.BARO_MODE && !f.SONAR_MODE) {
+	 // alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 4;	// BARO
+  //}
+
+  if (sonarAlt > SONAR_MAX_HOLD) {
+	  sonarAlt = SONAR_MAX_HOLD;
+  }
+
+  alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC); // SONAR
+
+  
+  //if (sonarAlt < SONAR_BARO_FUSION_LC) {
+	 // alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + (BaroHome + sonarAlt) * (1 - SONAR_BARO_LPF_LC); // additional LPF to reduce baro noise (faster by 30 µs)
+  //}
+  //else if (sonarAlt < SONAR_BARO_FUSION_HC) {
+	 // float fade = SONAR_BARO_FUSION_RATIO;
+	 // if (fade == 0.0) fade = ((float) (SONAR_BARO_FUSION_HC - sonarAlt)) / (SONAR_BARO_FUSION_HC - SONAR_BARO_FUSION_LC);
+	 // fade = constrain(fade, 0.0f, 1.0f);
+
+	 // // LOG: will LPF should be faded too ? sonar is less sloppy than baro and will be oversmoothed
+	 // // LOG: try same as baro alone 6/4 ratio (same as above about smoothing)
+	 // alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_HC + ((BaroHome + sonarAlt) * fade + (BaroAlt) * (1 - fade)) * (1 - SONAR_BARO_LPF_HC);
+  //}
+  //else {
+	 // alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+  //}
+  
+
+  //alt.EstAlt = alt.EstAlt * SONAR_BARO_LPF_LC + sonarAlt * (1 - SONAR_BARO_LPF_LC); // SONAR
+  //alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 4;	// BARO
+#endif
+
+  debug[0] = sonarAlt; // raw sonar altitude
+  //debug[1] = BaroAlt; // barometer altitude
+  debug[1] = alt.EstAlt;
+
   #if (defined(VARIOMETER) && (VARIOMETER != 2)) || !defined(SUPPRESS_BARO_ALTHOLD)
     //P
     int16_t error16 = constrain(AltHold - alt.EstAlt, -300, 300);
@@ -352,4 +432,4 @@ uint8_t getEstimatedAltitude(){
   #endif
   return 1;
 }
-#endif //BARO
+#endif //BARO || SONAR

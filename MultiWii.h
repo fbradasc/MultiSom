@@ -21,6 +21,9 @@ extern uint16_t cycleTime;
 extern uint16_t calibratingA;
 extern uint16_t calibratingB;
 extern uint16_t calibratingG;
+#if SONAR
+extern uint16_t calibratingS;
+#endif
 extern int16_t  magHold,headFreeModeHold;
 extern uint8_t  vbatMin;
 extern uint8_t  rcOptions[CHECKBOXITEMS];
@@ -60,12 +63,14 @@ extern int16_t angle[2];
 
 extern int16_t axisPID[3];
 extern int16_t motor[8];
+extern int16_t motor_disarmed[8];
 extern int16_t servo[8];
 
 extern int16_t failsafeEvents;
 extern volatile int16_t failsafeCnt;
 
 extern int16_t rcData[RC_CHANS];
+extern int8_t supress_data_from_rx;
 extern int16_t rcSerial[8];
 extern int16_t rcCommand[4];
 extern uint8_t rcSerialCount;

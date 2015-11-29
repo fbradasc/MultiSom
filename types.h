@@ -83,6 +83,12 @@ enum box {
     BOXGPSNAV,
     BOXLAND,
   #endif
+  #if defined(INFLIGHT_PID_TUNING)
+    BOXPIDTUNE,
+  #endif
+  #if SONAR
+	BOXSONAR,
+  #endif
   CHECKBOXITEMS
 };
 
@@ -135,7 +141,7 @@ typedef struct {
   uint8_t VARIO_MODE :1;
 #endif
   uint8_t GPS_mode: 2;               // 0-3 NONE,HOLD, HOME, NAV (see GPS_MODE_* defines
-#if BARO || GPS
+#if BARO || GPS || SONAR			 // SONAR update
   uint8_t THROTTLE_IGNORED : 1;      // If it is 1 then ignore throttle stick movements in baro mode;
 #endif
 #if GPS
@@ -146,10 +152,16 @@ typedef struct {
   uint8_t LAND_COMPLETED: 1;
   uint8_t LAND_IN_PROGRESS: 1;
 #endif
+#if defined(INFLIGHT_PID_TUNING)
+  uint8_t PIDTUNE_MODE :1;
+#endif
+#if SONAR
+  uint8_t SONAR_MODE : 1;
+#endif
 } flags_struct_t;
 
 typedef struct {
-  uint8_t currentSet;
+  uint8_t currentSet; // profile number
   int16_t accZero[3];
   int16_t magZero[3];
   uint16_t flashsum;

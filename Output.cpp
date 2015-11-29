@@ -489,7 +489,8 @@ void writeMotors() { // [1000;2000] => [125;250]
 /**************************************************************************************/
 void writeAllMotors(int16_t mc) {   // Sends commands to all motors
   for (uint8_t i =0;i<NUMBER_MOTOR;i++) {
-    motor[i]=mc;
+    motor[i] = mc;
+	motor_disarmed[i] = mc;
   }
   writeMotors();
 }
@@ -1126,9 +1127,9 @@ int16_t get_middle(uint8_t nr) {
 void mixTable() {
   int16_t maxMotor;
   uint8_t i;
-  #if defined(DYNBALANCE)
-    return;
-  #endif
+//  #if defined(DYNBALANCE)
+//    return;
+//  #endif
   #define PIDMIX(X,Y,Z) rcCommand[THROTTLE] + axisPID[ROLL]*X + axisPID[PITCH]*Y + YAW_DIRECTION * axisPID[YAW]*Z
   #define SERVODIR(n,b) ((conf.servoConf[n].rate & b) ? -1 : 1)
 
@@ -1573,6 +1574,9 @@ void mixTable() {
       #endif
       if (!f.ARMED)
         motor[i] = MINCOMMAND;
+		if (!f.ARMED) {
+			motor[i] = motor_disarmed[i];
+		}
     }
 
   /****************                      Powermeter Log                    ******************/

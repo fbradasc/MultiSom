@@ -1,6 +1,12 @@
 #ifndef GPS_H_
 #define GPS_H_
 
+extern uint8_t GPS_numCh;								  // number of channels
+extern uint8_t GPS_svinfo_chn[16];     // Channel number
+extern uint8_t GPS_svinfo_svid[16];    // Satellite ID
+extern uint8_t GPS_svinfo_quality[16]; // Bitfield Qualtity
+extern uint8_t GPS_svinfo_cno[16];     // Carrier to Noise Ratio (Signal Strength)
+
 //Function prototypes for GPS frame parsing
 bool GPS_newFrame(uint8_t c);
 extern uint8_t GPS_Frame;            // a valid GPS_Frame was detected, and data is ready for nav computation

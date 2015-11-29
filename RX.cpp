@@ -468,32 +468,56 @@ void computeRC() {
   #if !defined(OPENLRSv2MULTI)
     rc4ValuesIndex++;
     if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH-1) rc4ValuesIndex = 0;
-    for (chan = 0; chan < RC_CHANS; chan++) {
-      rcDataTmp = readRawRC(chan);
+    for (chan = 0; chan < RC_CHANS; chan++) 
+	{
+	if (!supress_data_from_rx) {
+		rcDataTmp = readRawRC(chan);
+	}
+	else if(supress_data_from_rx) {
+		rcDataTmp = rcSerial[chan];
+	}
       #if defined(FAILSAFE)
         failsafeGoodCondition = rcDataTmp>FAILSAFE_DETECT_TRESHOLD || chan > 3 || !f.ARMED; // update controls channel only if pulse is above FAILSAFE_DETECT_TRESHOLD
-      #endif                                                                                // In disarmed state allow always update for easer configuration.
-      #if defined(SPEKTRUM) || defined(SBUS) || defined(SUMD) // no averaging for Spektrum & SBUS & SUMD signal
-        if(failsafeGoodCondition)  rcData[chan] = rcDataTmp;
-      #else
-        if(failsafeGoodCondition) {
-          rcDataMean = rcDataTmp;
-          for (a=0;a<AVERAGING_ARRAY_LENGTH-1;a++) rcDataMean += rcData4Values[chan][a];
-          rcDataMean = (rcDataMean+(AVERAGING_ARRAY_LENGTH/2))/AVERAGING_ARRAY_LENGTH;
-          if ( rcDataMean < (uint16_t)rcData[chan] -3)  rcData[chan] = rcDataMean+2;
-          if ( rcDataMean > (uint16_t)rcData[chan] +3)  rcData[chan] = rcDataMean-2;
-          rcData4Values[chan][rc4ValuesIndex] = rcDataTmp;
-        }
-      #endif
-      if (chan<8 && rcSerialCount > 0) { // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
-        rcSerialCount --;
-        #if defined(FAILSAFE)
-          failsafeCnt = 0;
-        #endif
-        if (rcSerial[chan] >900) {rcData[chan] = rcSerial[chan];} // only relevant channels are overridden
-      }
-    }
-  #endif
+      #endif 
+                                                        // In disarmed state allow always update for easer configuration.
+#if defined(SPEKTRUM) || defined(SBUS) || defined(SUMD) // no averaging for Spektrum & SBUS & SUMD signal
+		if(failsafeGoodCondition)  rcData[chan] = rcDataTmp;
+#else
+		if (failsafeGoodCondition) {
+			rcDataMean = rcDataTmp;
+			for (a = 0; a < AVERAGING_ARRAY_LENGTH - 1; a++) rcDataMean += rcData4Values[chan][a];
+			rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2)) / AVERAGING_ARRAY_LENGTH;
+			if (rcDataMean < (uint16_t) rcData[chan] - 3)  rcData[chan] = rcDataMean + 2;
+			if (rcDataMean >(uint16_t)rcData[chan] + 3)  rcData[chan] = rcDataMean - 2;
+			rcData4Values[chan][rc4ValuesIndex] = rcDataTmp;
+		}
+
+//		if (!supress_data_from_rx) {
+//			
+//		}
+//		else if (supress_data_from_rx){
+//			//if (chan<8 && rcSerialCount > 0) { // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+//			if (chan < 8) { // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+//				//rcSerialCount--;
+//
+//#if defined(FAILSAFE)
+//				failsafeCnt = 0;
+//#endif
+//				if (rcSerial[chan] > 900) {
+//					rcDataMean = rcSerial[chan];
+//					for (a = 0; a < AVERAGING_ARRAY_LENGTH - 1; a++) rcDataMean += rcData4Values[chan][a];
+//					rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2)) / AVERAGING_ARRAY_LENGTH;
+//					if (rcDataMean < (uint16_t)rcData[chan] - 3)  rcData[chan] = rcDataMean + 2;
+//					if (rcDataMean >(uint16_t)rcData[chan] + 3)  rcData[chan] = rcDataMean - 2;
+//					rcData4Values[chan][rc4ValuesIndex] = rcDataTmp;
+//
+//					//if (rcSerial[chan] > 900) { rcData[chan] = rcSerial[chan]; } // only relevant channels are overridden
+//				}
+//			}
+//		}
+#endif
+	}
+#endif
 }
 
 

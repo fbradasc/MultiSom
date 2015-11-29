@@ -17,6 +17,7 @@
  * 7 - TUNING & DEVELOPER - if you know what you are doing; you have been warned
  *     - (ESCs calibration, Dynamic Motor/Prop Balancing, Diagnostics,Memory savings.....)
  * 8 - DEPRECATED - these features will be removed in some future release
+ * 9 - ADDITIONAL PARAMETERS
  */
 
 /* Notes:
@@ -160,6 +161,8 @@
       //#define MultiWii_32U4_SE_no_baro // Hextronik MultiWii_32U4_SE without the MS561101BA to free flash-memory for other functions
       //#define Flyduino9DOF       // Flyduino 9DOF IMU MPU6050+HMC5883l
       //#define Nano_Plane         // Multiwii Plane version with tail-front LSM330 sensor http://www.radiosait.ru/en/page_5324.html
+      //#define Gizduino	   // Gizduino (Arduino Uno) + ITG3200 + ADXL345 (http://www.e-gizmo.com/KIT/6dof.html)
+      #define Ardhat		
       
     /***************************    independent sensors    ********************************/
       /* leave it commented if you already checked a specific board above */
@@ -171,7 +174,7 @@
       //#define L3G4200D
       //#define MPU6050       //combo + ACC
       //#define LSM330        //combo + ACC
-      #define MPU9250       //combo + ACC + magnetometer
+      //#define MPU9250       //combo + ACC + magnetometer
       
       /* I2C accelerometer */
       //#define MMA7455
@@ -184,7 +187,7 @@
       //#define MMA8451Q
 
       /* I2C barometer */
-      #define BMP085
+      //#define BMP085
       //#define MS561101BA
 
       /* I2C magnetometer */
@@ -366,7 +369,7 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
       /* The following lines apply only for specific receiver with only one PPM sum signal, on digital PIN 2
          Select the right line depending on your radio brand. Feel free to modify the order in your PPM order is different */
       //#define SERIAL_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
-      //#define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
+      #define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
       //#define SERIAL_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
       //#define SERIAL_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
       //#define SERIAL_SUM_PPM         THROTTLE,YAW,ROLL,PITCH,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //Modelcraft
@@ -1226,6 +1229,59 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
   //#define D12_POWER      // Use D12 on PROMINI to power sensors. Will disable servo[4] on D12
   /* disable use of the POWER PIN (allready done if the option RCAUXPIN12 is selected) */
   #define DISABLE_POWER_PIN
+  
+#pragma region SECTION 9 - ADDITIONAL PARAMETERS
+/*************************************************************************************************/
+/*****************                                                                 ***************/
+/****************  SECTION  9 - ADDITIONAL PARAMETERS                                      *******/
+/*****************                                                                 ***************/
+/*************************************************************************************************/
+
+#pragma region // FUNCTIONS
+/*************************    INFLIGHT ROLL & PITCH PID Calibration    ***************************/
+#define INFLIGHT_PID_TUNING
+#define INFLIGHT_PID_TUNING_TYPE 0 // 0 for PITCH and ROLL
+								   // 1 for PITCH
+								   // 2 for ROLL
+                                   // 3 for PIDALT ALT
+								   // 4 for PITCH and ROLL rate	
+
+/*************************       CLEANFLIGHT STUFF      *****************************/
+// support baseflight GCS.
+#define CLEANFLIGHT
+
+/*************************       AUTOTUNE      *****************************/
+// not yet implemented
+#define AUTOTUNE
+// END OF FUNCTIONS
+#pragma endregion
+
+#pragma region // SENSORS
+/*************************       SKIP GYRO CALIBRATION AT STARTUP      *****************************/
+// #define SKIP_GYRO_CALIB
+
+// ***********************       GENERIC SONAR       ***********************
+// SONAR!! http://www.multiwii.com/forum/viewtopic.php?f=7&t=1033&start=170#p36603
+/* Generic sonar: hc-sr04, srf04, dyp-me007, all generic sonar with echo/pulse pin
+default pulse is PH6/12, echo is PB4/11
+*/
+//#define SONAR_GENERIC_ECHOPULSE 
+#define SONAR_GENERIC_SCALE 58				//scale for ranging conversion (hcsr04 is 58)
+#define SONAR_GENERIC_MAX_RANGE 500			//cm (could be more)
+#define SONAR_GENERIC_TRIGGER_PIN 12		// motor 12
+#define SONAR_GENERIC_ECHO_PIN 11			// motor 11
+
+/************************* Sonar alt hold / precision / ground collision keeper *******/
+#define SONAR_MAX_HOLD 400					//cm, kind of error delimiter, for now to avoid rocket climbing, only usefull if no baro
+
+//if using baro + sonar       
+#define SONAR_BARO_FUSION_LC 100			//cm, baro/sonar readings fusion, low cut, below = full sonar
+#define SONAR_BARO_FUSION_HC SONAR_MAX_HOLD //cm, baro/sonar readings fusion, high cut, above = full baro
+#define SONAR_BARO_FUSION_RATIO 0.0			//0.0-1.0,  baro/sonar readings fusion, amount of each sensor value, 0 = proportionnel between LC and HC
+#define SONAR_BARO_LPF_LC 0.9f 
+#define SONAR_BARO_LPF_HC 0.9f
+#pragma endregion
+#pragma endregion
 
 /*************************************************************************************************/
 /****           END OF CONFIGURABLE PARAMETERS                                                ****/
