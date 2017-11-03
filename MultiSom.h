@@ -6,8 +6,8 @@
 #include "types.h"
 #include "Alarms.h"
 
-#define MINCHECK 1100
-#define MAXCHECK 1900
+#define MINCHECK 1100   // minimum throttle set check
+#define MAXCHECK 1900   // maximum throttle set check
 
 extern volatile unsigned long timer0_overflow_count;
 
@@ -61,6 +61,12 @@ extern int16_t angle[2];
   extern int32_t baroPressureSum;
 #endif
 
+#if defined(AIRSPEED)
+  extern float airPressureRaw;
+  extern float airPressureOffset;
+  extern uint16_t airspeedSpeed; //needs to be set anyway, as it is called in serial communication and therefore needs to be defined.
+#endif
+
 extern int16_t axisPID[3];
 extern int16_t motor[8];
 extern int16_t motor_disarmed[8];
@@ -111,10 +117,10 @@ extern uint16_t lookupThrottleRC[11];
 
 extern gps_conf_struct GPS_conf;
 
-extern int16_t  GPS_angle[2];           // the angles that must be applied for GPS correction
+extern int16_t  GPS_angle[3];           // the angles that must be applied for GPS correction
 extern int32_t  GPS_coord[2];
-extern int32_t  GPS_home[2];
-extern int32_t  GPS_hold[2];
+extern int32_t  GPS_home[3];
+extern int32_t  GPS_hold[3];
 extern int32_t  GPS_prev[2];
 extern int32_t  GPS_poi[2];             // Coordinates of the current poi
 extern int32_t  GPS_directionToPoi;     // direction to the actual poi (used to set heading to poi)
@@ -126,8 +132,14 @@ extern uint16_t GPS_speed;              // GPS speed         - unit: cm/s
 extern uint8_t  GPS_update;             // a binary toogle to distinct a GPS position update
 extern uint16_t GPS_ground_course;      //                   - unit: degree*10
 extern uint32_t GPS_time;
+extern uint32_t GPS_FAIL_timer;
 
 extern uint8_t  GPS_mode;               // contains the current selected gps flight mode
+
+// FixedWing Gps
+extern int16_t  GPS_FwTarget;                             // Gps correction for Fixed wing
+extern int16_t  GPS_AltErr;                              // Gps correction for Fixed wing
+extern int16_t  NAV_Thro;
 
 extern uint8_t NAV_error;                 //Last error situation of the nav engine
 extern uint8_t NAV_state;                 //State of the nav engine
@@ -182,6 +194,7 @@ extern mission_step_struct mission_step;
 
 #define LAT  0
 #define LON  1
+#define ALT  2
 
 extern int16_t  nav[2];
 

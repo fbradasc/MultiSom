@@ -6,7 +6,7 @@
 #include "LCD.h"
 #include "Output.h"
 #include "GPS.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "Serial.h"
 #include "Protocol.h"
 #include "RX.h"
@@ -154,6 +154,8 @@ const char *boardIdentifier = TARGET_BOARD_IDENTIFIER;
 #define MSP_BOXIDS               119   //out message         get the permanent IDs associated to BOXes
 #define MSP_SERVO_CONF           120   //out message         Servo settings
 
+#define MSP_PIPAK                188
+
 #define MSP_NAV_STATUS           121   //out message         Returns navigation status
 #define MSP_NAV_CONFIG           122   //out message         Returns navigation parameters
 
@@ -214,6 +216,7 @@ void evaluateCommand(uint8_t c);
 static uint8_t read8()  {
   return inBuf[indRX[CURRENTPORT]++][CURRENTPORT]&0xff;
 }
+#if GPS
 static uint16_t read16() {
   uint16_t t = read8();
   t+= (uint16_t)read8()<<8;
@@ -224,6 +227,7 @@ static uint32_t read32() {
   t+= (uint32_t)read16()<<16;
   return t;
 }
+#endif
 
 static void serialize8(uint8_t a) {
   SerialSerialize(CURRENTPORT,a);
@@ -295,6 +299,12 @@ enum MSP_protocol_bytes {
   HEADER_CMD
 };
 
+void msp_push(uint8_t uart, uint8_t msp){
+  CURRENTPORT=uart; 
+  cmdMSP[CURRENTPORT]=msp;
+  evaluateCommand(msp);
+}
+
 void featureSet(uint32_t mask) {
 	enabledFeatures |= mask;
 }
@@ -304,9 +314,11 @@ void serialCom() {
   static uint8_t offset[UART_NUMBER];
   static uint8_t dataSize[UART_NUMBER];
   static uint8_t c_state[UART_NUMBER];
+#if defined(GPS_SERIAL)
   uint32_t timeMax; // limit max time in this function in case of GPS
 
   timeMax = micros();
+#endif
   for(port=0;port<UART_NUMBER;port++) {
     CURRENTPORT=port;
     #define RX_COND
@@ -366,8 +378,9 @@ void serialCom() {
             if (GPS_update == 1) GPS_update = 0; else GPS_update = 1; //Blink GPS update
             GPS_last_frame_seen = timeMax;
             GPS_Frame = 1;
+            GPS_FAIL_timer=millis();
           }
-  
+  //  TODO!!!  This check fails if GPS is lost..  TODO!!!
           // Check for stalled GPS, if no frames seen for 1.2sec then consider it LOST
           if ((timeMax - GPS_last_frame_seen) > 1200000) {
             //No update since 1200ms clear fix...
@@ -383,8 +396,8 @@ void serialCom() {
 }
 
 void evaluateCommand(uint8_t c) {
-	uint32_t i, tmp = 0, junk;
-	uint8_t zczxczxczxc = 0;
+	uint32_t i, tmp = 0 /*, junk */;
+	// uint8_t zczxczxczxc = 0;
 	const char *build = __DATE__;
 
   switch(c) {
@@ -486,7 +499,7 @@ void evaluateCommand(uint8_t c) {
 		break;
     case MSP_SET_RAW_RC:
       s_struct_w((uint8_t*)&rcSerial,16);
-      rcSerialCount = 50; // 1s transition 
+      rcSerialCount = 150; // 1s transition 
       break;
     case MSP_SET_PID:
       mspAck();
@@ -696,6 +709,9 @@ void evaluateCommand(uint8_t c) {
             tmp |= 1<<BOXGPSNAV;
             break;
         }
+        #if defined(FIXEDWING) 
+          if(f.CRUISE_MODE) tmp |= 1<<BOXCRUISE;
+        #endif
       #endif
       #if defined(FIXEDWING) || defined(HELICOPTER)
         if(f.PASSTHRU_MODE) tmp |= 1<<BOXPASSTHRU;
@@ -722,7 +738,7 @@ void evaluateCommand(uint8_t c) {
       #if defined(OSD_SWITCH)
         if(rcOptions[BOXOSD]) tmp |= 1<<BOXOSD;
       #endif
-      #if defined(INFLIGHT_PID_TUNING)
+      #if defined(INFLIGHT_PID_TUNING) and GPS
 		if (f.PIDTUNE_MODE) tmp |= 1 << BOXPIDTUNE;
       #endif
       #if SONAR
@@ -752,6 +768,7 @@ void evaluateCommand(uint8_t c) {
     case MSP_MOTOR:
       s_struct((uint8_t*)&motor,16);
       break;
+#ifndef SLIM_WING
     case MSP_ACC_TRIM:
       headSerialReply(4);
       s_struct_partial((uint8_t*)&conf.angleTrim[PITCH],2);
@@ -763,10 +780,12 @@ void evaluateCommand(uint8_t c) {
       s_struct_w((uint8_t*)&conf.angleTrim[PITCH],2);
       s_struct_w((uint8_t*)&conf.angleTrim[ROLL],2);
       break;
+#endif
     case MSP_RC:
       s_struct((uint8_t*)&rcData,RC_CHANS*2);
       break;
     #if GPS
+#ifndef SLIM_WING
     case MSP_SET_RAW_GPS:
       struct {
         uint8_t a,b;
@@ -784,6 +803,7 @@ void evaluateCommand(uint8_t c) {
       GPS_speed = set_set_raw_gps.f;
       GPS_update |= 2;              // New data signalisation to GPS functions
       break;
+#endif
     case MSP_RAW_GPS:
       struct {
         uint8_t a,b;
@@ -824,6 +844,24 @@ void evaluateCommand(uint8_t c) {
       msp_comp_gps.c     = GPS_update & 1;
       s_struct((uint8_t*)&msp_comp_gps,5);
       break;
+   case MSP_PIPAK:
+   struct {
+        uint32_t a,b;
+        int16_t c,d;
+      } msp_pipak;
+        msp_pipak.a     = GPS_coord[LAT];
+        msp_pipak.b     = GPS_coord[LON];
+        msp_pipak.c     = alt.EstAlt;
+        msp_pipak.d     = alt.vario;
+      s_struct((uint8_t*)&msp_pipak,12);
+//      headSerialReply(12);
+//      serialize32(GPS_coord[LAT]);
+//      serialize32(GPS_coord[LON]);
+//      serialize16(alt.EstAlt);
+//      serialize16(alt.vario);
+//      tailSerialReply();
+      break;
+
     #if defined(USE_MSP_WP)
     case MSP_SET_NAV_CONFIG:
       mspAck();
@@ -1030,8 +1068,8 @@ void evaluateCommand(uint8_t c) {
 		serialize8((uint8_t) MULTITYPE); // QUADX
 		
 		// features
-		serialize32(1 << 4 | 1 << 9 | 1 << 2); // MOTOR_STOP, FEATURE_SONAR, FEATURE_INFLIGHT_ACC_CAL
-		//serialize32((uint32_t)0); // MOTOR_STOP, FEATURE_SONAR
+		serialize32(1 << FEATURE_MOTOR_STOP_BIT | 1 << FEATURE_SONAR_BIT | 1 << FEATURE_INFLIGHT_ACC_CAL_BIT);
+		//serialize32((uint32_t)0);
 
 		// rx provider
 		serialize8((uint8_t) 0);
@@ -1182,6 +1220,11 @@ void SerialWrite16(uint8_t port, int16_t val)
   serialize16(val);UartSendData(port);
 }
 
+void SerialWrite32(uint8_t port, int32_t val)
+{
+  CURRENTPORT=port;
+  serialize32(val);UartSendData(port);
+}
 
 #ifdef DEBUGMSG
 void debugmsg_append_str(const char *str) {
@@ -1214,5 +1257,8 @@ static void debugmsg_serialize(uint8_t l) {
   }
 }
 #else
-void debugmsg_append_str(const char *str) {};
+void debugmsg_append_str(const char *str)
+{
+  (void)str;
+}
 #endif

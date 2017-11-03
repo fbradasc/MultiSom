@@ -19,7 +19,7 @@
 #include "config.h"
 #include "def.h"
 #include "types.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "Sensors.h"
 #include "Serial.h"
 #include "Telemetry.h"
@@ -229,7 +229,11 @@ void inline send_GPS_speed(void)
          #if defined KILOMETER_HOUR                                        // OPENTX specific format in kilometers per hour => factor 36/100 (will be devided by 10 later)
              temp = (GPS_speed * 36) / 10; 
          #else                                                             // FRSKY specific format in knots => factor ~50 (will be devided by 10 later)
+           #if defined(Ardhat)
              temp = (GPS_speed * 40) / 203; 
+           #else
+              temp = (GPS_speed * 40 + 102) / 203;                       // FRSKY specific format in knots => factor ~50 (102 for rounding purpose)
+           #endif
          #endif
          Data_GPS_speed_bp = temp / 10;                                    // here comes the devision by 10
          Data_GPS_speed_ap = temp - Data_GPS_speed_bp * 10;

@@ -4,7 +4,7 @@
 #include "def.h"
 #include "types.h"
 #include "EEPROM.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "Alarms.h"
 #include "GPS.h"
 
@@ -214,11 +214,17 @@ void LoadDefaults() {
   #ifdef FIXEDWING
     conf.dynThrPID = 50;
     conf.rcExpo8   =  0;
+    #if GPS
+      conf.pid[PIDALT].P8   = 30;conf.pid[PIDALT].I8  = 20;conf.pid[PIDALT].D8   = 45;
+      conf.pid[PIDNAVR].P8  = 20;conf.pid[PIDNAVR].I8 = 20;conf.pid[PIDNAVR].D8  = 45;
+	  conf.pid[YAW].I8      = 0;
+    #endif
   #endif
   update_constants(); // this will also write to eeprom
 }
 
 #ifdef LOG_PERMANENT
+#ifndef LOG_PERMANENT_SD_ONLY
 void readPLog(void) {
   eeprom_read_block((void*)&plog, (void*)(E2END - 4 - sizeof(plog)), sizeof(plog));
   if(calculate_sum((uint8_t*)&plog, sizeof(plog)) != plog.checksum) {
@@ -235,7 +241,8 @@ void writePLog(void) {
   plog.checksum = calculate_sum((uint8_t*)&plog, sizeof(plog));
   eeprom_write_block((const void*)&plog, (void*)(E2END - 4 - sizeof(plog)), sizeof(plog));
 }
-#endif
+#endif // LOG_PERMANENT_SD_ONLY
+#endif // LOG_PERMANENT
 
 #if GPS
 

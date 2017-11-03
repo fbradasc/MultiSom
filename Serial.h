@@ -23,5 +23,6 @@ void    SerialSerialize(uint8_t port,uint8_t a);
 void    UartSendData(uint8_t port);
 
 void SerialWrite16(uint8_t port, int16_t val);
+void SerialWrite32(uint8_t port, int32_t val);
 
 #endif /* SERIAL_H_ */

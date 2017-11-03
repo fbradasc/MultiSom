@@ -2,7 +2,7 @@
 #include "config.h"
 #include "def.h"
 #include "Serial.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 
 static volatile uint8_t serialHeadRX[UART_NUMBER],serialTailRX[UART_NUMBER];
 static uint8_t serialBufferRX[RX_BUFFER_SIZE][UART_NUMBER];
@@ -76,6 +76,7 @@ static uint8_t serialBufferTX[TX_BUFFER_SIZE][UART_NUMBER];
 #endif
 
 void UartSendData(uint8_t port) {
+  (void)port;
   #if defined(PROMINI)
     UCSR0B |= (1<<UDRIE0);
   #endif
@@ -170,7 +171,8 @@ void store_uart_in_buf(uint8_t data, uint8_t portnum) {
 
   uint8_t h = serialHeadRX[portnum];
   serialBufferRX[h++][portnum] = data;
-  if (h >= RX_BUFFER_SIZE) h = 0;
+  h++;
+  h %= RX_BUFFER_SIZE;
   serialHeadRX[portnum] = h;
 }
 
@@ -201,7 +203,8 @@ uint8_t SerialRead(uint8_t port) {
   uint8_t t = serialTailRX[port];
   uint8_t c = serialBufferRX[t][port];
   if (serialHeadRX[port] != t) {
-    if (++t >= RX_BUFFER_SIZE) t = 0;
+    t++;
+    t %= RX_BUFFER_SIZE;
     serialTailRX[port] = t;
   }
   return c;

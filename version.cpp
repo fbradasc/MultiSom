@@ -1,4 +1,4 @@
 //char *targetName = __TARGET__;
-char *shortGitRevision = "1234"; //__REVISION__;
-char *buildDate = __DATE__;
-char *buildTime = __TIME__;
+const char *shortGitRevision = (const char *)"1234"; //__REVISION__;
+const char *buildDate = (const char *)__DATE__;
+const char *buildTime = (const char *)__TIME__;

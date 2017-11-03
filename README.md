@@ -1,4 +1,4 @@
-## Ardhat MultiWii Flight Controller 
+## Ardhat MultiSom UUV Navigation Controller 
 
 
 is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional features:
@@ -36,5 +36,29 @@ is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional 
 7. PID Controller
 	PID controller codes are now in separate .cpp file called "PIDControllers.cpp" for future PID controllers
 	
+----------------------------------------------------------------------------------
+
+This is a development branch merged with multiwii-2.4-fixedwing which is a branch
+of MultiWii 2.4 forked by Martin Espinoza <martin.espinoza@gmail.com>
+
+It is forked from a fork by PatrikE for FixedWing RTH Version 2015-04-31
+For almost all relevant information, see
+http://fotoflygarn.blogspot.com/2014/04/multiwii-gps-airplane.html
+
+This fork includes SD logging based on wareck's Multiwii_Nav_V2.3 fork 
+https://github.com/wareck/Multiwii_Nav_V2.3
+But it uses the current, modern SdFat interface.
+
+Use with WinGui from EosBandi for setting waypoints.
+http://eosbandi.com/downloads/
+
+Since my TX (HK-T6A V2) is impossible to calibrate properly, I have included
+PWM scaling factor code from http://mifi.no/blog/?p=95
+However I applied one factor to all sticks, and inserted the code into a
+different location which I hope will work for all RX except OLRS. Use the
+end point values in the TX to make all channels output the same maximums,
+then set the STICK_SCALING_FACTOR in config.h. I am using 1.15.
+
+----------------------------------------------------------------------------------
 
 All credits to the MultiWii developers and programmers, and specially Nullstr1ng for the Cleanflight port.

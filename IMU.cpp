@@ -2,7 +2,7 @@
 #include "config.h"
 #include "def.h"
 #include "types.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "IMU.h"
 #include "Sensors.h"
 
@@ -13,7 +13,9 @@ void computeIMU () {
   static int16_t gyroADCprevious[3] = {0,0,0};
   static int16_t gyroADCinter[3];
 
+  #ifdef LCD_TELEMETRY
   uint16_t timeInterleave = 0;
+  #endif
   #if ACC
     ACC_getADC();
     getEstimatedAttitude();
@@ -23,11 +25,13 @@ void computeIMU () {
   #endif
   for (axis = 0; axis < 3; axis++)
     gyroADCinter[axis] =  imu.gyroADC[axis];
+  #ifdef LCD_TELEMETRY
   timeInterleave=micros();
+  #endif
   annexCode();
+  #ifdef LCD_TELEMETRY
   uint8_t t=0;
   while((int16_t)(micros()-timeInterleave)<650) t=1; //empirical, interleaving delay between 2 consecutive reads
-  #ifdef LCD_TELEMETRY
     if (!t) annex650_overrun_count++;
   #endif
   #if GYRO
@@ -295,8 +299,10 @@ void getEstimatedAttitude(){
 
 
 #if BARO || SONAR
+#if SONAR
 static int32_t  BaroHome = 0;
-static int32_t  lastSonarAlt = 0;
+#endif
+// static int32_t  lastSonarAlt = 0;
 
 uint8_t getEstimatedAltitude(){
   int32_t  BaroAlt;
@@ -320,7 +326,9 @@ uint8_t getEstimatedAltitude(){
   // see: https://code.google.com/p/ardupilot-mega/source/browse/libraries/AP_Baro/AP_Baro.cpp
   BaroAlt = ( logBaroGroundPressureSum - log(baroPressureSum) ) * baroGroundTemperatureScale;
 
-  //alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+#if !defined(Ardhat)
+  alt.EstAlt = (alt.EstAlt * 6 + BaroAlt) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
+#endif
 
 #if SONAR
   if (f.SONAR_MODE) {

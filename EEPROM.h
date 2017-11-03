@@ -10,6 +10,7 @@ void writeParams(uint8_t b);
 void LoadDefaults();
 void readPLog(void);
 void writePLog(void);
+uint8_t calculate_sum(uint8_t *cb, uint8_t siz);
 
 #if defined(GPS)
 //EEPROM functions for storing and restoring waypoints 

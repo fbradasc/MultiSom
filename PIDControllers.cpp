@@ -4,7 +4,7 @@
 #include "types.h"
 #include "IMU.h"
 #include "EEPROM.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "PIDControllers.h"
 
 int32_t prop = 0;
@@ -84,6 +84,7 @@ void PIDControllersClass::One(int16_t errorAngleI[2], int16_t errorGyroI[3], int
 
 	//YAW
 #define GYRO_P_MAX 300
+#undef GYRO_I_MAX
 #define GYRO_I_MAX 250
 
 	rc = mul(rcCommand[YAW], (2 * conf.yawRate + 30)) >> 5;
@@ -111,6 +112,7 @@ void PIDControllersClass::AlexK(int32_t errorGyroI[3]) {
 	int16_t deltaSum;
 	int16_t AngleRateTmp, RateError;
 
+    #undef GYRO_I_MAX
 	#define GYRO_I_MAX 256
 	#define ACC_I_MAX 256
 	prop = min(max(abs(rcCommand[PITCH]), abs(rcCommand[ROLL])), 500); // range [0;500]
@@ -188,6 +190,7 @@ void PIDControllersClass::ReWrite(int32_t errorGyroI[3]) {
 	int16_t deltaSum;
 	int16_t AngleRateTmp, RateError;
 
+#undef GYRO_I_MAX
 #define GYRO_I_MAX 256
 #define ACC_I_MAX 256
 
@@ -270,7 +273,7 @@ void PIDControllersClass::ReWrite(int32_t errorGyroI[3]) {
 }
 
 void PIDControllersClass::LuxFloat(int32_t errorGyroI[3]) {
-	
+	(void)errorGyroI;
 }
 
 PIDControllersClass PIDControllers;

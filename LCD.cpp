@@ -2,7 +2,7 @@
 #include "config.h"
 #include "def.h"
 #include "types.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "Alarms.h"
 #include "EEPROM.h"
 #include "Output.h"
@@ -2672,6 +2672,7 @@ void toggle_telemetry(uint8_t t) {
 
 #ifdef LOG_PERMANENT
   void dumpPLog(uint8_t full) {
+    (void)full;
     #ifdef HAS_LCD
       /*LCDclear();*/ LCDnextline();
       LCDprintChar("LastOff   "); LCDprintChar(plog.running ? "KO" : "ok");  LCDnextline();

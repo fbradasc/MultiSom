@@ -2,7 +2,7 @@
 #include "config.h"
 #include "def.h"
 #include "types.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "LCD.h"
 #include "Sensors.h"
 #include "Alarms.h"
@@ -117,7 +117,9 @@ void alarmHandler(void){
 }
 
 void alarmPatternComposer(){ 
-  static char resource = 0;
+  #if defined(BUZZER) || defined(PILOTLAMP)
+    static char resource = 0;
+  #endif
   // patternDecode(length1,length2,length3,beeppause,endpause,loop)
   #if defined(BUZZER)
     resource = 1;                                                                                  //buzzer selected

@@ -2,7 +2,7 @@
 #include "config.h"
 #include "def.h"
 #include "types.h"
-#include "MultiWii.h"
+#include "MultiSom.h"
 #include "Alarms.h"
 #include "EEPROM.h"
 #include "IMU.h"
@@ -153,7 +153,7 @@ uint8_t i2c_readReg(uint8_t add, uint8_t reg) {
 void GYRO_Common() {
   static int16_t previousGyroADC[3] = {0,0,0};
   static int32_t g[3];
-  uint8_t axis, tilt=0;
+  uint8_t axis /*, tilt=0 */;
 
   #if defined MMGYRO       
     // Moving Average Gyros by Magnetron1
@@ -165,6 +165,12 @@ void GYRO_Common() {
   #endif
 
   if (calibratingG>0) {
+    #if defined(FIXEDWING) && defined(SERVO_FIELD_TRIM)
+      if (imu.accSmooth[2] < -ACC_1G / 2  && calibratingG==1){
+          for(int i=PRI_SERVO_FROM-1;i<PRI_SERVO_TO;i++) conf.servoConf[i].middle = constrain(servo[i],MIDRC-100,MIDRC+100);
+          writeParams(0);
+      }
+    #endif
     for (axis = 0; axis < 3; axis++) {
       if (calibratingG == 512) { // Reset g[axis] at start of calibration
         g[axis]=0;
@@ -1641,9 +1647,35 @@ ISR(SONAR_GEP_EchoPin_PCINT_vect) {
 }
 #else
 void Sonar_init() {}
-uint8_t Sonar_update() {}
+uint8_t Sonar_update() { return 0; }
 #endif
 #endif
+
+#if defined(AIRSPEED)
+/* Inspired by ArduPilot code. Thanks guys! */
+
+void AirPressure_read(float &whereto) {
+//  whereto = ((analogRead(AIRSPEED_PIN) / 1024.0f) - 0.5f ) / 2.0f  +  whereto * 0.9f ;  // do not multiply by 5, assume 0.2 ratio for current reading
+  whereto = ((analogRead(AIRSPEED_PIN) / 1024.0f) - 0.5f )   +  whereto * 0.8f ;  // faster value update
+} //AirPressure_read
+
+void Airspeed_update() {
+  AirPressure_read(airPressureRaw);
+  if(airPressureRaw <= airPressureOffset) 
+    airspeedSpeed = 0;
+  else 
+    airspeedSpeed = sqrt((airPressureRaw - airPressureOffset) * AIRSPEED_FACTOR) * 100; // m/s * 100 = cm/s
+} //Airspeed_update
+
+void Airspeed_init() {
+  /* Reading airspeedRaw for some cycles/1s and storing as zero value */
+  for(uint8_t airspeedI=0; airspeedI < 100; airspeedI++){
+    delay(10);
+    AirPressure_read(airPressureOffset);
+  }
+} // Airspeed_Init
+
+#endif //AirSpeed
 
 
 void initS() {
@@ -1653,6 +1685,9 @@ void initS() {
   if (MAG)   Mag_init();
   if (ACC)   ACC_init();
   if (SONAR) Sonar_init();
+  #if defined(AIRSPEED)
+    Airspeed_init();
+  #endif
 }
 
 void initSensors() {
