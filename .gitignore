@@ -1,0 +1,14 @@
+*~
+*.swp
+*.o
+*.d
+tags
+*/tags
+**/tags
+tests/config
+tests/debug
+**/*.bak
+**/*.bck
+cscope.*
+.*
+.*~
