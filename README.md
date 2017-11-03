@@ -1,4 +1,4 @@
-## Ardhat MultiSom UUV Navigation Controller 
+## MultiSom UUV Navigation Controller 
 
 
 is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional features:
@@ -38,8 +38,8 @@ is a MultiWii 2.4 firmware derivative for ATmega328 et al, with some additional 
 	
 ----------------------------------------------------------------------------------
 
-This is a development branch merged with multiwii-2.4-fixedwing which is a branch
-of MultiWii 2.4 forked by Martin Espinoza <martin.espinoza@gmail.com>
+This is a development branch merging ArtHat and multiwii-2.4-fixedwing which are
+branches of MultiWii 2.4 forked by Francesco Bradascio <fbradasc@yahoo.it>
 
 It is forked from a fork by PatrikE for FixedWing RTH Version 2015-04-31
 For almost all relevant information, see
