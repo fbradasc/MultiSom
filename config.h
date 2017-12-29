@@ -12,7 +12,7 @@
  * 3 - RC SYSTEM SETUP
  * 4 - ALTERNATE CPUs & BOARDS - if you have
  * 5 - ALTERNATE SETUP - select alternate RX (SBUS, PPM, etc.), alternate ESC-range, etc. here
- * 6 - OPTIONAL FEATURES - enable nice to have features here (FlightModes, LCD, telemetry, battery monitor etc.)
+ * 6 - OPTIONAL FEATURES - enable nice to have features here (FlightModes, telemetry, battery monitor etc.)
  * 7 - TUNING & DEVELOPER - if you know what you are doing; you have been warned
  *     - (ESCs calibration, Dynamic Motor/Prop Balancing, Diagnostics,Memory savings.....)
  * 8 - DEPRECATED - these features will be removed in some future release
@@ -20,7 +20,7 @@
  */
 
 /* Notes:
- * 1. parameters marked with (*) in the comment are stored in eeprom and can be changed via serial monitor or LCD.
+ * 1. parameters marked with (*) in the comment are stored in eeprom and can be changed via serial monitor.
  * 2. parameters marked with (**) in the comment are stored in eeprom and can be changed via the GUI
  */
 
@@ -848,84 +848,11 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
     //#define ONLY_ALLOW_ARM_WITH_GPS_3DFIX      // Only allow FC arming if GPS has a 3D fix.
 
-  /**************************************************************************************/
-  /***********************        LCD/OLED - display settings       *********************/
-  /**************************************************************************************/
-
-    /* http://www.multiwii.com/wiki/index.php?title=Extra_features#LCD_.2F_OLED */
-
-    /*****************************   The type of LCD     **********************************/
-      /* choice of LCD attached for configuration and telemetry, see notes below */
-      //#define LCD_DUMMY       // No Physical LCD attached.  With this & LCD_CONF defined, TX sticks still work to set gains, by watching LED blink.  
-      //#define LCD_SERIAL3W    // Alex' initial variant with 3 wires, using rx-pin for transmission @9600 baud fixed
-      //#define LCD_TEXTSTAR    // SERIAL LCD: Cat's Whisker LCD_TEXTSTAR Module CW-LCD-02 (Which has 4 input keys for selecting menus)
-      //#define LCD_VT100       // SERIAL LCD: vt100 compatible terminal emulation (blueterm, putty, etc.)
-      //#define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
-      //#define LCD_ETPP        // I2C LCD: Eagle Tree Power Panel LCD, which is i2c (not serial)
-      //#define LCD_LCD03       // I2C LCD: LCD03, which is i2c
-      //#define LCD_LCD03S      // SERIAL LCD: LCD03 whit serial 9600 baud comunication enabled.
-      //#define OLED_I2C_128x64 // I2C LCD: OLED http://www.multiwii.com/forum/viewtopic.php?f=7&t=1350
-      //#define OLED_DIGOLE     // I2C OLED from http://www.digole.com/index.php?productID=550
-
-    /******************************   Display settings   ***********************************/
-      #define LCD_SERIAL_PORT 0    // must be 0 on Pro Mini and single serial boards; Set to your choice on any Mega based board
-
-      //#define SUPPRESS_OLED_I2C_128x64LOGO  // suppress display of OLED logo to save memory
-
     /* double font height for better readability. Reduces visible #lines by half.
      * The lower part of each page is accessible under the name of shifted keyboard letter :
      * 1 - ! , 2 - @ , 3 - # , 4 - $ , 5 - % , 6 - ^ , 7 - & , 8 - * , 9 - (
      * You must add both to your lcd.telemetry.* sequences
      */
-      //#define DISPLAY_FONT_DSIZE //currently only aplicable for OLED_I2C_128x64 and OLED_DIGOLE
-
-    /* style of display - AUTODETECTED via LCD_ setting - only activate to override defaults */
-      //#define DISPLAY_2LINES
-      //#define DISPLAY_MULTILINE
-      //#define MULTILINE_PRE 2  // multiline configMenu # pref lines
-      //#define MULTILINE_POST 6 // multiline configMenu # post lines
-      //#define DISPLAY_COLUMNS 16
-    /********************************    Navigation     ***********************************/
-    /* keys to navigate the LCD menu */
-      #define LCD_MENU_PREV 'p'
-      #define LCD_MENU_NEXT 'n'
-      #define LCD_VALUE_UP 'u'
-      #define LCD_VALUE_DOWN 'd'
-
-      #define LCD_MENU_SAVE_EXIT 's'
-      #define LCD_MENU_ABORT 'x'
-
-  /**************************************************************************************/
-  /***********************      LCD configuration menu         **************************/
-  /**************************************************************************************/
-
-    /* uncomment this line if you plan to use a LCD or OLED for tweaking parameters
-     * http://www.multiwii.com/wiki/index.php?title=Extra_features#Configuration_Menu */
-      //#define LCD_CONF
-
-    /* to include setting the aux switches for AUX1 -> AUX4 via LCD */
-      //#define LCD_CONF_AUX
-
-    /* optional exclude some functionality - uncomment to suppress unwanted aux channel configuration options */
-      //#define SUPPRESS_LCD_CONF_AUX2
-      //#define SUPPRESS_LCD_CONF_AUX34
-
-  /**************************************************************************************/
-  /***********************      LCD       telemetry            **************************/
-  /**************************************************************************************/
-
-    /* to monitor system values (battery level, loop time etc. with LCD 
-     * http://www.multiwii.com/wiki/index.php?title=LCD_Telemetry */
-
-    /********************************    Activation     ***********************************/
-    //#define LCD_TELEMETRY
-
-    /* to enable automatic hopping between a choice of telemetry pages uncomment this. */
-    //#define LCD_TELEMETRY_AUTO "123452679" // pages 1 to 9 in ascending order
-    //#define LCD_TELEMETRY_AUTO  "212232425262729" // strong emphasis on page 2
-
-    /* manual stepping sequence; first page of the sequence gets loaded at startup to allow non-interactive display */
-    //#define LCD_TELEMETRY_STEP "0123456789" // should contain a 0 to allow switching off.
 
     /* optional exclude some functionality - uncomment to suppress some unwanted telemetry pages */
     //#define SUPPRESS_TELEMETRY_PAGE_1
@@ -938,11 +865,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define SUPPRESS_TELEMETRY_PAGE_8 // alarms states
     //#define SUPPRESS_TELEMETRY_PAGE_9 // cycle & fails
     //#define SUPPRESS_TELEMETRY_PAGE_R // reset
-
-    /* optional override default items for some telemetry pages - for complete list of usable functions see LCD.h */
-    //#define LCD_TELEMETRY_PAGE1 { output_V, output_mAh, }
-    //#define LCD_TELEMETRY_PAGE2 { output_gyroX, output_gyroY, output_accZ, }
-    //#define LCD_TELEMETRY_PAGE9 { output_fails, output_annex, output_debug0, output_debug3, }
 
   /********************************************************************/
   /****                             RSSI                           ****/
@@ -1018,7 +940,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
   /********************************************************************/
 
     /* enable monitoring of the power consumption from battery (think of mAh)
-       allows to set alarm value in GUI or via LCD
+       allows to set alarm value in GUI
       Full description and howto here http://www.multiwii.com/wiki/index.php?title=Powermeter
        Two options:
        1 - hard: - (uses hardware sensor, after configuration gives very good results)
@@ -1100,7 +1022,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     /*
      * this name is displayed together with the MultiWii version number
      * upon powerup on the LCD.
-     * If you are without a DISPLAYD then You may enable LCD_TTY and
+     * If you are without a DISPLAY then You may enable LCD_TTY and
      * use arduino IDE's serial monitor to view the info.
      *
      * You must preserve the format of this string!
@@ -1206,8 +1128,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
       /* Remove handling of all commands of the New MultiWii Serial Protocol.
        * This will disable use of the GUI, winGUI, android apps and any other program that makes use of the MSP.
-       * You must find another way (like LCD_CONF) to tune the parameters or live with the defaults.
-       * If you run a LCD/OLED via i2c or serial/Bluetooth, this is safe to use */
+       * You must find another way (like LCD_CONF) to tune the parameters or live with the defaults. */
       //#define SUPPRESS_ALL_SERIAL_MSP // saves approx 2700 bytes
 
       /* Remove handling of other serial commands.
@@ -1272,13 +1193,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define DEBUG
     //#define DEBUG_FREE // will add 'F' command to show free memory
 
-    /* Use this to trigger LCD configuration without a TX - only for debugging - do NOT fly with this activated */
-    //#define LCD_CONF_DEBUG
-
-    /* Use this to trigger telemetry without a TX - only for debugging - do NOT fly with this activated */
-    //#define LCD_TELEMETRY_DEBUG    //This form rolls between all screens, LCD_TELEMETRY_AUTO must also be defined.
-    //#define LCD_TELEMETRY_DEBUG 6  //This form stays on the screen specified.
-
     /* Enable string transmissions from copter to GUI */
     //#define DEBUGMSG
 
@@ -1300,8 +1214,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
        time base is main loop cycle time - a value of 6 means to trigger the action every 6th run through the main loop
        example: with cycle time of approx 3ms, do action every 6*3ms=18ms
        value must be [1; 65535] */
-    #define LCD_TELEMETRY_FREQ 23       // to send telemetry data over serial 23 <=> 60ms <=> 16Hz (only sending interlaced, so 8Hz update rate)
-    #define LCD_TELEMETRY_AUTO_FREQ  967// to step to next telemetry page 967 <=> 3s
     #define PSENSOR_SMOOTH 16           // len of averaging vector for smoothing the PSENSOR readings; should be power of 2; set to 1 to disable
     #define VBAT_SMOOTH 16              // len of averaging vector for smoothing the VBAT readings; should be power of 2; set to 1 to disable
     #define RSSI_SMOOTH 16              // len of averaging vector for smoothing the RSSI readings; should be power of 2; set to 1 to disable

@@ -15,7 +15,6 @@
 #include "Alarms.h"
 #include "EEPROM.h"
 #include "IMU.h"
-#include "LCD.h"
 #include "Output.h"
 #include "RX.h"
 #include "Sensors.h"
@@ -252,7 +251,7 @@ uint16_t  debug[4];
 flags_struct_t f;
 
 //for log
-#if defined(LOG_VALUES) || defined(LCD_TELEMETRY)
+#if defined(LOG_VALUES)
   uint16_t cycleTimeMax = 0;       // highest ever cycle timen
   uint16_t cycleTimeMin = 65535;   // lowest ever cycle timen
   int32_t  BAROaltMax;             // maximum value
@@ -264,7 +263,7 @@ flags_struct_t f;
     uint16_t wattsMax = 0;
   #endif
 #endif
-#if defined(LOG_VALUES) || defined(LCD_TELEMETRY) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT) || defined (TELEMETRY)
+#if defined(LOG_VALUES) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT) || defined (TELEMETRY)
   uint32_t armedTime = 0;
 #endif
 
@@ -299,19 +298,6 @@ int16_t  i2c_errors_count = 0;
   uint16_t powerValue = 0;          // last known current
 #endif
 uint16_t intPowerTrigger1;
-
-// **********************
-// telemetry
-// **********************
-#if defined(LCD_TELEMETRY)
-  uint8_t telemetry = 0;
-  uint8_t telemetry_auto = 0;
-  int16_t annex650_overrun_count = 0;
-#endif
-#ifdef LCD_TELEMETRY_STEP
-  char telemetryStepSequence []  = LCD_TELEMETRY_STEP;
-  uint8_t telemetryStepIndex = 0;
-#endif
 
 // ******************
 // rc functions
@@ -504,7 +490,6 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
       static uint8_t ind = 0;
       static uint16_t pvec[PSENSOR_SMOOTH], psum;
       uint16_t p =  analogRead(PSENSORPIN);
-      //LCDprintInt16(p); LCDcrlf();
       //debug[0] = p;
       #if PSENSOR_SMOOTH != 1
         psum += p;
@@ -614,13 +599,13 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
   } // end default
   } // end of switch()
 
-#if defined( POWERMETER_HARD ) && (defined(LOG_VALUES) || defined(LCD_TELEMETRY))
+#if defined( POWERMETER_HARD ) && defined(LOG_VALUES)
   if (analog.amperage > powerValueMaxMAH) powerValueMaxMAH = analog.amperage;
 #endif
 
 #if defined(WATTS)
   analog.watts = (analog.amperage * analog.vbat) / 100; // [0.1A] * [0.1V] / 100 = [Watt]
-  #if defined(LOG_VALUES) || defined(LCD_TELEMETRY)
+  #if defined(LOG_VALUES)
     if (analog.watts > wattsMax) wattsMax = analog.watts;
   #endif
 #endif
@@ -686,25 +671,6 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     intPowerTrigger1 = conf.powerTrigger1 * PLEVELSCALE; 
   #endif
 
-  #ifdef LCD_TELEMETRY_AUTO
-    static char telemetryAutoSequence []  = LCD_TELEMETRY_AUTO;
-    static uint8_t telemetryAutoIndex = 0;
-    static uint16_t telemetryAutoTimer = 0;
-    if ( (telemetry_auto) && (! (++telemetryAutoTimer % LCD_TELEMETRY_AUTO_FREQ) )  ){
-      telemetry = telemetryAutoSequence[++telemetryAutoIndex % strlen(telemetryAutoSequence)];
-      LCDclear(); // make sure to clear away remnants
-    }
-  #endif  
-  #ifdef LCD_TELEMETRY
-    static uint16_t telemetryTimer = 0;
-    if (! (++telemetryTimer % LCD_TELEMETRY_FREQ)) {
-      #if (LCD_TELEMETRY_DEBUG+0 > 0)
-        telemetry = LCD_TELEMETRY_DEBUG;
-      #endif
-      if (telemetry) lcd_telemetry();
-    }
-  #endif
-
   #ifdef TELEMETRY
      run_telemetry();
   #endif
@@ -729,19 +695,11 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     if (cycleTime < cycleTimeMin) cycleTimeMin = cycleTime; // remember lowscore
   #endif
   if (f.ARMED)  {
-    #if defined(LCD_TELEMETRY) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT) || defined (TELEMETRY)
+    #if defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT) || defined (TELEMETRY)
       armedTime += (uint32_t)cycleTime;
     #endif
     #if defined(VBAT)
       if ( (analog.vbat > NO_VBAT) && (analog.vbat < vbatMin) ) vbatMin = analog.vbat;
-    #endif
-    #ifdef LCD_TELEMETRY
-      #if BARO
-        if ( (alt.EstAlt > BAROaltMax) ) BAROaltMax = alt.EstAlt;
-      #endif
-      #if GPS
-        if ( (GPS_speed > GPS_speedMax) ) GPS_speedMax = GPS_speed;
-      #endif
     #endif
   }
 }
@@ -845,15 +803,6 @@ void setup() {
     #endif
   #endif
   
-  #if defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) || defined(OLED_DIGOLE) || defined(LCD_TELEMETRY_STEP)
-    initLCD();
-  #endif
-  #ifdef LCD_TELEMETRY_DEBUG
-    telemetry_auto = 1;
-  #endif
-  #ifdef LCD_CONF_DEBUG
-    configurationLoop();
-  #endif
   #ifdef TELEMETRY
     init_telemetry();
   #endif
@@ -920,20 +869,6 @@ void go_arm() {
         #endif
         #if SONAR
           calibratingS = 10;
-        #endif
-      #endif
-      #ifdef LCD_TELEMETRY // reset some values when arming
-        #if BARO
-          BAROaltMax = alt.EstAlt;
-        #endif
-        #if GPS
-          GPS_speedMax = 0;
-        #endif
-        #if defined( POWERMETER_HARD ) && (defined(LOG_VALUES) || defined(LCD_TELEMETRY))
-          powerValueMaxMAH = 0;
-        #endif
-        #ifdef WATTS
-          wattsMax = 0;
         #endif
       #endif
       #ifdef LOG_PERMANENT
@@ -1300,9 +1235,6 @@ void loop () {
         #endif
 				/* START - LCD */
         if (rcSticks == THR_LO + YAW_HI + PIT_HI + ROL_CE) {            // Enter LCD config
-          #if defined(LCD_CONF)
-            configurationLoop(); // beginning LCD configuration
-          #endif
           previousTime = micros();
         }
         #ifdef ALLOW_ARM_DISARM_VIA_TX_YAW
@@ -1310,26 +1242,6 @@ void loop () {
         #endif
         #ifdef ALLOW_ARM_DISARM_VIA_TX_ROLL
           else if (conf.activate[BOXARM] == 0 && rcSticks == THR_LO + YAW_CE + PIT_CE + ROL_HI) go_arm();      // Arm via ROLL
-        #endif
-        #ifdef LCD_TELEMETRY_AUTO
-          else if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_LO) {              // Auto telemetry ON/OFF
-            if (telemetry_auto) {
-              telemetry_auto = 0;
-              telemetry = 0;
-            } else
-              telemetry_auto = 1;
-          }
-        #endif
-        #ifdef LCD_TELEMETRY_STEP
-          else if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_HI) {              // Telemetry next step
-            telemetry = telemetryStepSequence[++telemetryStepIndex % strlen(telemetryStepSequence)];
-            #if defined( OLED_I2C_128x64)
-              if (telemetry != 0) i2c_OLED_init();
-            #elif defined(OLED_DIGOLE)
-              if (telemetry != 0) i2c_OLED_DIGOLE_init();
-            #endif
-            LCDclear();
-          }
         #endif
 				/* END - LCD */
 

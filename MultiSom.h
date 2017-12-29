@@ -92,16 +92,7 @@ extern uint16_t lookupThrottleRC[11];
   extern uint16_t powerValue;              // last known current
 #endif
 
-#if defined(LCD_TELEMETRY)
-  extern uint8_t telemetry;
-  extern uint8_t telemetry_auto;
-#endif
-#ifdef LCD_TELEMETRY_STEP
-  extern char telemetryStepSequence[];
-  extern uint8_t telemetryStepIndex;
-#endif
-
-#if defined(LOG_VALUES) || defined(LCD_TELEMETRY)
+#if defined(LOG_VALUES)
   extern uint16_t cycleTimeMax;       // highest ever cycle timen
   extern uint16_t cycleTimeMin;       // lowest ever cycle timen
   extern int32_t  BAROaltMax;         // maximum value
@@ -109,7 +100,7 @@ extern uint16_t lookupThrottleRC[11];
   extern uint16_t powerValueMaxMAH;
   extern uint16_t wattsMax;
 #endif
-#if defined(LOG_VALUES) || defined(LCD_TELEMETRY) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT)
+#if defined(LOG_VALUES) || defined(ARMEDTIMEWARNING) || defined(LOG_PERMANENT)
   extern uint32_t armedTime;
 #endif
 

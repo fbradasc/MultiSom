@@ -12,8 +12,6 @@
   #define WMP
   #define BMA020
   #define FAILSAFE
-  #define LCD_CONF
-  #define LCD_TEXTSTAR
   #define VBAT
   #define POWERMETER_SOFT
 #elif COPTERTEST == 3
@@ -22,11 +20,6 @@
   #define BUZZER
   #define VBAT
   #define POWERMETER_HARD
-  #define LCD_CONF
-  #define LCD_CONF_AUX
-  #define LCD_VT100
-  #define LCD_TELEMETRY
-  #define LCD_TELEMETRY_STEP "01245"
   #define LOG_VALUES 1
   #define SUPPRESS_BARO_ALTHOLD
   #define VARIOMETER 12
@@ -45,8 +38,6 @@
   #define CRIUS_LITE
   #undef DISABLE_POWER_PIN
   #define RCAUXPIN8
-  #define OLED_I2C_128x64
-  #define LCD_TELEMETRY
   #define LOG_VALUES 3
   #define DEBUG
   #undef SERVO_RFR_50HZ
@@ -79,9 +70,6 @@
   #define LOG_VALUES 1
   #define DEBUG
   #define MULTIPLE_CONFIGURATION_PROFILES
-  #define DISPLAY_FONT_DSIZE
-  #define OLED_DIGOLE
-  #define LCD_CONF
 #elif COPTERTEST == 7
   #define HELI_120_CCPM
   #define YAW_COLL_PRECOMP 15
@@ -97,12 +85,6 @@
   #define RCOPTIONSBEEP // ca. 80byte
   #define VBAT
   #define LOG_VALUES 1
-  #define DISPLAY_FONT_DSIZE
-  #define OLED_DIGOLE
-  #define LCD_CONF
-  #define LCD_TELEMETRY
-  #define LCD_TELEMETRY_AUTO "1"
-  #define LCD_TELEMETRY_STEP "F14$5R"
   #define LOG_PERMANENT
   #define LOG_PERMANENT_SHOW_AFTER_CONFIG
   #define SUPPRESS_OTHER_SERIAL_COMMANDS
@@ -128,9 +110,7 @@
 #elif COPTERTEST == 10
   #define Y6
   #define CRIUS_AIO_PRO
-  #define LCD_LCD03S
   #define SERIAL0_COM_SPEED 9600
-  #define LCD_CONF
 #elif COPTERTEST == 20
   #define QUADWING
   #define CRIUS_AIO_PRO
@@ -466,9 +446,6 @@
   #define I2C_PULLUPS_ENABLE         PORTC |= 1<<4; PORTC |= 1<<5;   // PIN A4&A5 (SDA&SCL)
   #define I2C_PULLUPS_DISABLE        PORTC &= ~(1<<4); PORTC &= ~(1<<5);
   #if !defined(MONGOOSE1_0)
-    #define PINMODE_LCD                pinMode(0, OUTPUT);
-    #define LCDPIN_OFF                 PORTD &= ~1; //switch OFF digital PIN 0
-    #define LCDPIN_ON                  PORTD |= 1;
     #define STABLEPIN_PINMODE          ;
     #define STABLEPIN_ON               ;
     #define STABLEPIN_OFF              ;
@@ -594,9 +571,6 @@
   #define POWERPIN_OFF               //
   #define I2C_PULLUPS_ENABLE         PORTD |= 1<<0; PORTD |= 1<<1;   // PIN 2&3 (SDA&SCL)
   #define I2C_PULLUPS_DISABLE        PORTD &= ~(1<<0); PORTD &= ~(1<<1);
-  #define PINMODE_LCD                DDRD |= (1<<2);
-  #define LCDPIN_OFF                 PORTD &= ~1;
-  #define LCDPIN_ON                  PORTD |= 1;
   #define STABLEPIN_PINMODE          ;
   #define STABLEPIN_ON               ;
   #define STABLEPIN_OFF              ;
@@ -729,9 +703,6 @@
   #endif
   #define I2C_PULLUPS_ENABLE         PORTD |= 1<<0; PORTD |= 1<<1;       // PIN 20&21 (SDA&SCL)
   #define I2C_PULLUPS_DISABLE        PORTD &= ~(1<<0); PORTD &= ~(1<<1);
-  #define PINMODE_LCD                pinMode(0, OUTPUT);
-  #define LCDPIN_OFF                 PORTE &= ~1; //switch OFF digital PIN 0
-  #define LCDPIN_ON                  PORTE |= 1;
   #define STABLEPIN_PINMODE          pinMode (31, OUTPUT);
   #define STABLEPIN_ON               PORTC |= 1<<6;
   #define STABLEPIN_OFF              PORTC &= ~(1<<6);
@@ -814,9 +785,6 @@
   #define STABLEPIN_PINMODE          ; //
   #define STABLEPIN_ON               ;
   #define STABLEPIN_OFF              ; 
-  #define PINMODE_LCD                ; //
-  #define LCDPIN_OFF                 ;
-  #define LCDPIN_ON                  ; 
   
   
   #define SERVO_4_PINMODE            ;                   // Not available
@@ -2087,67 +2055,6 @@
   #define RC_CHANS 8
 #endif
 
-#if !(defined(DISPLAY_2LINES)) && !(defined(DISPLAY_MULTILINE))
-  #if (defined(LCD_VT100)) || (defined(OLED_I2C_128x64) || defined(OLED_DIGOLE) )
-    #define DISPLAY_MULTILINE
-  #else
-    #define DISPLAY_2LINES
-  #endif
-#endif
-
-#if (defined(LCD_VT100))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 6
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 9
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 40
-  #endif
-#elif (defined(OLED_I2C_128x64) && defined(DISPLAY_FONT_DSIZE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 1
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 3
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#elif (defined(OLED_I2C_128x64))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 3
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 5
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#elif (defined(OLED_DIGOLE) && defined(DISPLAY_FONT_DSIZE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 2
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 3
-  #endif
-#elif (defined(OLED_DIGOLE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 3
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 4
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#endif
-
-#if !(defined(DISPLAY_COLUMNS))
-  #define DISPLAY_COLUMNS 16
-#endif
-
 #if defined(FRSKY_TELEMETRY) || defined(SPORT_TELEMETRY)
   #define TELEMETRY
 #endif
@@ -2211,28 +2118,12 @@
         #error "NUMBER_MOTOR is not set, most likely you have not defined any type of multicopter"
 #endif
 
-#if (defined(LCD_DUMMY) || defined(LCD_SERIAL3W) || defined(LCD_TEXTSTAR) || defined(LCD_VT100) || defined(LCD_TTY) || defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) ) || defined(OLED_DIGOLE)
-  #define HAS_LCD
-#endif
-
-#if (defined(LCD_CONF) || defined(LCD_TELEMETRY)) && !(defined(HAS_LCD) )
-  #error "LCD_CONF or LCD_TELEMETRY defined, and choice of LCD not defined.  Uncomment one of LCD_SERIAL3W, LCD_TEXTSTAR, LCD_VT100, LCD_TTY or LCD_ETPP, LCD_LCD03, LCD_LCD03S, OLED_I2C_128x64, OLED_DIGOLE"
-#endif
-
 #if defined(POWERMETER_SOFT) && !(defined(VBAT))
   #error "to use powermeter, you must also define and configure VBAT"
 #endif
 
 #if defined(WATTS) && !(defined(POWERMETER_HARD)) && !(defined(VBAT))
   #error "to compute WATTS, you must also define and configure both POWERMETER_HARD and VBAT"
-#endif
-
-#if defined(LCD_TELEMETRY_AUTO) && !(defined(LCD_TELEMETRY))
-  #error "to use automatic telemetry, you MUST also define and configure LCD_TELEMETRY"
-#endif
-
-#if defined(LCD_TELEMETRY_STEP) && !(defined(LCD_TELEMETRY))
-  #error "to use single step telemetry, you MUST also define and configure LCD_TELEMETRY"
 #endif
 
 #if defined(A32U4_4_HW_PWM_SERVOS) && !(defined(HELI_120_CCPM))

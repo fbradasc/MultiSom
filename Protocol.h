@@ -20,7 +20,6 @@ typedef enum {
 	FEATURE_RX_MSP_BIT          ,
 	FEATURE_RSSI_ADC_BIT        ,
 	FEATURE_LED_STRIP_BIT       ,
-	FEATURE_DISPLAY_BIT         ,
 	FEATURE_ONESHOT125_BIT      ,
 	FEATURE_BLACKBOX_BIT        
 } features_e;

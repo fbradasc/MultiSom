@@ -6,7 +6,6 @@
 #include "Alarms.h"
 #include "EEPROM.h"
 #include "IMU.h"
-#include "LCD.h"
 #include "Sensors.h"
 
 static void Device_Mag_getADC ();

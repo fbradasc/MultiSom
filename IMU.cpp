@@ -13,9 +13,6 @@ void computeIMU () {
   static int16_t gyroADCprevious[3] = {0,0,0};
   static int16_t gyroADCinter[3];
 
-  #ifdef LCD_TELEMETRY
-  uint16_t timeInterleave = 0;
-  #endif
   #if ACC
     ACC_getADC();
     getEstimatedAttitude();
@@ -25,15 +22,7 @@ void computeIMU () {
   #endif
   for (axis = 0; axis < 3; axis++)
     gyroADCinter[axis] =  imu.gyroADC[axis];
-  #ifdef LCD_TELEMETRY
-  timeInterleave=micros();
-  #endif
   annexCode();
-  #ifdef LCD_TELEMETRY
-  uint8_t t=0;
-  while((int16_t)(micros()-timeInterleave)<650) t=1; //empirical, interleaving delay between 2 consecutive reads
-    if (!t) annex650_overrun_count++;
-  #endif
   #if GYRO
     Gyro_getADC();
   #endif
