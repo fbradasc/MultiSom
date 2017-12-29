@@ -44,7 +44,8 @@ extern att_t att;
 extern plog_t plog;
 #endif
 
-extern int16_t debug[4];
+extern uint16_t debug[4];
+#define DEBUG_WORDS  (sizeof(debug)/sizeof(uint16_t))
 
 extern conf_t conf;
 extern int16_t  annex650_overrun_count;

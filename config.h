@@ -1252,6 +1252,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
      * Logging to SDCARD module
      */
     #define MWI_SDCARD // activation of sdcard functionnality, needed for other defines underneath
+    #define PETIT_FS   // Enable the PetitFs SD Card driver (comment to enable SdFat SD Card driver)
     #define LOG_PERMANENT_SD_ONLY // Disable permanent logging on eeprom
     //- #define LOG_GPS_POSITION 2 // Write GPS position to log. Parameter is the number of seconds between two logs
     #define SDCARD_CSPIN 53 // By default : 53 on mega boards. refer to your board specs

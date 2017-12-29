@@ -1,3 +1,4 @@
+#if defined(HAS_LCD)
 #include "Arduino.h"
 #include "config.h"
 #include "def.h"
@@ -2744,3 +2745,4 @@ void toggle_telemetry(uint8_t t) {
   #endif // LOG_PERMANENT_SERVICE_LIFETIME
 
 #endif // LOG_PERMANENT
+#endif // HAS_LCD

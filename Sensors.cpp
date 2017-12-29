@@ -67,7 +67,7 @@ static void Pitot_init ();
 #endif
 
 static uint8_t rawADC[6];
-#if defined(WMP)
+#if defined(USE_NEUTRALIZE_DELAY)
 static uint32_t neutralizeTime = 0;
 #endif
 
@@ -99,7 +99,7 @@ void __attribute__ ((noinline)) waitTransmissionI2C (uint8_t twcr)
         if (count == 0)
         {			//we are in a blocking state => we don't insist
             TWCR = 0;		//and we force a reset on TWINT register
-#if defined(WMP)
+#if defined(USE_NEUTRALIZE_DELAY)
             neutralizeTime = micros ();	//we take a timestamp here to neutralize the value during a short delay
 #endif
             i2c_errors_count++;
@@ -181,20 +181,9 @@ i2c_readReg (uint8_t add, uint8_t reg)
     return val;
 }
 
-#include "Sensors/gyro.cpp"
-#include "Sensors/acc.cpp"
-#if BARO
-#include "Sensors/baro.cpp"
-#endif
-#if MAG
-#include "Sensors/mag.cpp"
-#endif
-#if SONAR
-#include "Sensors/sonar.cpp"
-#endif
-#if PITOT
-#include "Sensors/pitot.cpp"
-#endif
+#define IMPLEMENTATION
+#include "drivers/sensors/sensors.hpp"
+#undef IMPLEMENTATION
 
     void
 initS ()
