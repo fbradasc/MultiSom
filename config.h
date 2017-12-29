@@ -972,7 +972,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     // FRSKY standard telemetry specific selections
     //#define KILOMETER_HOUR            // send speed in kilometers per hour instead of knots (default) - requested by OPENTX
     //#define TELEMETRY_ALT_BARO        // send BARO based altitude, calibrated to 0 when arming, recommended if BARO available
-    //#define TELEMETRY_ALT_GPS         // send GPS based altitude (altitude above see level), for FLD-02 don't use together with TELEMETRY_ALT_BARO
     //#define TELEMETRY_COURSE_MAG      // send MAG based course/heading, recommended if MAG available, but FLD-02 does not display
     //#define TELEMETRY_COURSE_GPS      // send GPS based course/heading, don't use together with TELEMETRY_COURSE_MAG, FLD-02 does not display
 
@@ -1052,22 +1051,22 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define SUPPRESS_BARO_ALTHOLD
 
   /********************************************************************/
-  /****                   Airspeed                                 ****/
+  /****                   Pitot                                 ****/
   /********************************************************************/
 
-  /* Airspeed sensor will initialize in one second on bootup of controler. Take care not letting the wind blow into pitot tube!
-     Airspeed is meters/sec   1m/sec = 3,6km/h
+  /* Pitot sensor will initialize in one second on bootup of controler. Take care not letting the wind blow into pitot tube!
+     Pitot is meters/sec   1m/sec = 3,6km/h
   */
 
-  //#define AIRSPEED    15      // Activate the airspeed code Units is 1 M/sec = 3.6km/h
-  #define AIR_MAXSPEED  30      // M/sec  30= ~108km/h. Airframe dependant.
+  //#define PITOT_SPEED    15      // Activate the pitot code Units is 1 M/sec = 3.6km/h
+  #define PITOT_MAXSPEED  30      // M/sec  30= ~108km/h. Airframe dependant.
 
-  //    #define AIRSPEED_PIN A2       // Analog PIN 4
-  //    #define AIRSPEED_FACTOR 1519  // Calculation see bottom annotations  Arduplane 1.5191  Original 1196
-  //    #define AIRSPEED_SMOOTH 5     // smoothing
-  //    #define VOLTS_TO_PASCAL 819   // scaling for 3DR analog airspeed sensor
+  //    #define PITOT_PIN A2       // Analog PIN 4
+  //    #define PITOT_FACTOR 1519  // Calculation see bottom annotations  Arduplane 1.5191  Original 1196
+  //    #define PITOT_SMOOTH 5     // smoothing
+  //    #define VOLTS_TO_PASCAL 819   // scaling for 3DR analog pitot sensor
   //    #define Vcc  4.95f
-  /* Background for calculation of AIRSPEED_FACTOR
+  /* Background for calculation of PITOT_FACTOR
     v [m/s]= sqrt(2 * roh * delta-pressure[Pa])
 
     1 increment (Analog read) = VCC/1024 = 5V/1024 = 0.0048828125 = 0.00488V = 4.88mV
@@ -1076,7 +1075,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
     -> 1 increment = 4.88mV = 4.88Pa
     -> v [m/s] = sqrt(2 * roh * delta-pressure[Pa]) = sqrt(2 * roh * 4.88 * AnalogReadIncrements)
-    AIRSPEED_FACTOR = 2 * roh * 4.88
+    PITOT_FACTOR = 2 * roh * 4.88
   */
 /********************************************************************/
   /****           altitude variometer                              ****/

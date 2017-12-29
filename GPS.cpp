@@ -2161,22 +2161,22 @@ PID for Navigating planes.
 void FW_NavSpeed(void){
     #define GPS_MINSPEED  500  // 500= ~18km/h
     #define I_TERM        0.1f
-  #if defined (AIRSPEED)
-    static int16_t air_Navspeed = AIRSPEED *100;
-    static int16_t air_Maxspeed = AIR_MAXSPEED *100;
+  #if defined (PITOT_SPEED)
+    static int16_t pitot_Navspeed = PITOT_SPEED *100;
+    static int16_t pitot_Maxspeed = PITOT_MAXSPEED *100;
     int spDiff = 0;
     static int spAdd  = 0;
 
     if ((GPS_speed ) < (GPS_MINSPEED )) { // check for too slow ground speed
       int Delta = (GPS_MINSPEED - GPS_speed)*I_TERM;
-       spAdd += (Delta == 0)? 1 : Delta;  // increase nav air speed
+       spAdd += (Delta == 0)? 1 : Delta;  // increase nav pitot speed
     } else {
-      spAdd -= spAdd*I_TERM;                       // decrease nav air speed
+      spAdd -= spAdd*I_TERM;                       // decrease nav pitot speed
     }
-    spAdd = constrain(spAdd, 0, air_Maxspeed - air_Navspeed - 100);
+    spAdd = constrain(spAdd, 0, pitot_Maxspeed - pitot_Navspeed - 100);
 
-    if (airspeedSpeed < air_Navspeed - 100 + spAdd || airspeedSpeed > air_Navspeed + 100 + spAdd) {  // maintain air speed between NAVSPEED and MAXSPEED
-      spDiff = (air_Navspeed + spAdd - airspeedSpeed);  //math bug if put multiplication in same line
+    if (pitotSpeed < pitot_Navspeed - 100 + spAdd || pitotSpeed > pitot_Navspeed + 100 + spAdd) {  // maintain pitot speed between NAVSPEED and MAXSPEED
+      spDiff = (pitot_Navspeed + spAdd - pitotSpeed);  //math bug if put multiplication in same line
       spDiff = spDiff * I_TERM;
       SpeedBoost += spDiff;
     }

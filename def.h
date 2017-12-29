@@ -190,7 +190,7 @@
 #define MAXTHROTTLE 2000
 
 //#define SERIAL0_COM_SPEED 57600
-//#define AIRSPEED    15
+//#define PITOT_SPEED    15
 
 //#define I2C_GPS
 //#define GPS_SERIAL 2
@@ -253,8 +253,8 @@
 #define UBLOX
 #define USE_MSP_WP
 
-#define AIRSPEED    15
-#define AIRSPEED_PIN A9
+#define PITOT_SPEED  15
+#define PITOT_PIN A9
 
 #elif defined(COPTERTEST)
   #error "*** this test is not yet defined"
@@ -1898,6 +1898,12 @@
   #define GYRO 1
 #else
   #define GYRO 0
+#endif
+
+#if defined(PITOT_SPEED) && defined(PITOT_PIN)
+  #define PITOT 1
+#else
+  #define PITOT 0
 #endif
 
 #if defined(BMP085) || defined(MS561101BA)

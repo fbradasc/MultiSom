@@ -435,10 +435,10 @@ uint8_t alarmArray[ALRM_FAC_SIZE];           // array
   int32_t baroPressureSum;
 #endif
 
-#if defined(AIRSPEED)
-  float airPressureRaw = 0;
-  float airPressureOffset = 0;
-  uint16_t airspeedSpeed = 0; //needs to be set anyway, as it is called in serial communication and therefore needs to be defined.
+#if defined(PITOT_SPEED)
+  float pitotPressureRaw = 0;
+  float pitotPressureOffset = 0;
+  uint16_t pitotSpeed = 0; //needs to be set anyway, as it is called in serial communication and therefore needs to be defined.
 #endif
 
 void annexCode() { // this code is excetuted at each loop and won't interfere with control loop if it lasts less than 650 microseconds
@@ -590,10 +590,10 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
 //      alttimer =millis();
 //    }
 //  }
-    #if defined(AIRSPEED)
-      Airspeed_update();
-    debug[3]= (airspeedSpeed/100)*3.6; // Show km/h
-//    debug[3]= (airspeedSpeed); // Show cm/s
+    #if defined(PITOT_SPEED)
+      Pitot_update();
+    debug[3]= (pitotSpeed/100)*3.6; // Show km/h
+//    debug[3]= (pitotSpeed); // Show cm/s
     #endif
   break;
   }

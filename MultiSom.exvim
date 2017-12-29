@@ -21,7 +21,7 @@ indent = 4
 expand_tab = true -- { true, false }
 
 -- Building:
-builder = gulp -- { gulp, grunt, gcc, xcode, vs, unity3d, ... }
+builder = make -- { gulp, grunt, gcc, xcode, vs, unity3d, ... }
 build_opt = ''
 
 -- ex-project Options:

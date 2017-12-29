@@ -61,10 +61,10 @@ extern int16_t angle[2];
   extern int32_t baroPressureSum;
 #endif
 
-#if defined(AIRSPEED)
-  extern float airPressureRaw;
-  extern float airPressureOffset;
-  extern uint16_t airspeedSpeed; //needs to be set anyway, as it is called in serial communication and therefore needs to be defined.
+#if defined(PITOT_SPEED)
+  extern float pitotRaw;
+  extern float pitotOffset;
+  extern uint16_t pitotSpeed; //needs to be set anyway, as it is called in serial communication and therefore needs to be defined.
 #endif
 
 extern int16_t axisPID[3];
