@@ -13,7 +13,6 @@
   #define BMA020
   #define FAILSAFE
   #define LCD_CONF
-  #define LCD_TEXTSTAR
   #define VBAT
   #define POWERMETER_SOFT
 #elif COPTERTEST == 3
@@ -24,7 +23,6 @@
   #define POWERMETER_HARD
   #define LCD_CONF
   #define LCD_CONF_AUX
-  #define LCD_VT100
   #define LCD_TELEMETRY
   #define LCD_TELEMETRY_STEP "01245"
   #define LOG_VALUES 1
@@ -45,7 +43,6 @@
   #define CRIUS_LITE
   #undef DISABLE_POWER_PIN
   #define RCAUXPIN8
-  #define OLED_I2C_128x64
   #define LCD_TELEMETRY
   #define LOG_VALUES 3
   #define DEBUG
@@ -80,7 +77,6 @@
   #define DEBUG
   #define MULTIPLE_CONFIGURATION_PROFILES
   #define DISPLAY_FONT_DSIZE
-  #define OLED_DIGOLE
   #define LCD_CONF
 #elif COPTERTEST == 7
   #define HELI_120_CCPM
@@ -90,7 +86,7 @@
   #define FORCE_ACC_ORIENTATION(X, Y, Z)  {imu.accADC[ROLL]  = X; imu.accADC[PITCH]  =  Y; imu.accADC[YAW]  =  Z;}
   #define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] = -Y; imu.gyroADC[PITCH] = X; imu.gyroADC[YAW] = -Z;}
   #define A32U4_4_HW_PWM_SERVOS
-  #define SERVO_RFR_RATE  200    // 200 for graupner is ok
+  #define SERVO_RFR_RATE  200    // 200 for gmultisom_forkraupner is ok
   #define SERVO_PIN5_RFR_RATE  165    // In Hz, you can set it from 20 to 400Hz, used only in HW PWM mode for mega and 32u4
   #define SPEKTRUM 1024
   #define BUZZER
@@ -98,7 +94,6 @@
   #define VBAT
   #define LOG_VALUES 1
   #define DISPLAY_FONT_DSIZE
-  #define OLED_DIGOLE
   #define LCD_CONF
   #define LCD_TELEMETRY
   #define LCD_TELEMETRY_AUTO "1"
@@ -128,7 +123,6 @@
 #elif COPTERTEST == 10
   #define Y6
   #define CRIUS_AIO_PRO
-  #define LCD_LCD03S
   #define SERIAL0_COM_SPEED 9600
   #define LCD_CONF
 #elif COPTERTEST == 20
@@ -2087,63 +2081,6 @@
   #define RC_CHANS 8
 #endif
 
-#if !(defined(DISPLAY_2LINES)) && !(defined(DISPLAY_MULTILINE))
-  #if (defined(LCD_VT100)) || (defined(OLED_I2C_128x64) || defined(OLED_DIGOLE) )
-    #define DISPLAY_MULTILINE
-  #else
-    #define DISPLAY_2LINES
-  #endif
-#endif
-
-#if (defined(LCD_VT100))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 6
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 9
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 40
-  #endif
-#elif (defined(OLED_I2C_128x64) && defined(DISPLAY_FONT_DSIZE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 1
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 3
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#elif (defined(OLED_I2C_128x64))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 3
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 5
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#elif (defined(OLED_DIGOLE) && defined(DISPLAY_FONT_DSIZE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 2
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 3
-  #endif
-#elif (defined(OLED_DIGOLE))
-  #if !(defined(MULTILINE_PRE))
-    #define MULTILINE_PRE 3
-  #endif
-  #if !(defined(MULTILINE_POST))
-    #define MULTILINE_POST 4
-  #endif
-  #if !(defined(DISPLAY_COLUMNS))
-    #define DISPLAY_COLUMNS 21
-  #endif
-#endif
-
 #if !(defined(DISPLAY_COLUMNS))
   #define DISPLAY_COLUMNS 16
 #endif
@@ -2211,12 +2148,12 @@
         #error "NUMBER_MOTOR is not set, most likely you have not defined any type of multicopter"
 #endif
 
-#if (defined(LCD_DUMMY) || defined(LCD_SERIAL3W) || defined(LCD_TEXTSTAR) || defined(LCD_VT100) || defined(LCD_TTY) || defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) ) || defined(OLED_DIGOLE)
+#if (defined(LCD_DUMMY) || defined(LCD_TTY))
   #define HAS_LCD
 #endif
 
 #if (defined(LCD_CONF) || defined(LCD_TELEMETRY)) && !(defined(HAS_LCD) )
-  #error "LCD_CONF or LCD_TELEMETRY defined, and choice of LCD not defined.  Uncomment one of LCD_SERIAL3W, LCD_TEXTSTAR, LCD_VT100, LCD_TTY or LCD_ETPP, LCD_LCD03, LCD_LCD03S, OLED_I2C_128x64, OLED_DIGOLE"
+  #error "LCD_CONF or LCD_TELEMETRY defined, and choice of LCD not defined.  Uncomment LCD_TTY"
 #endif
 
 #if defined(POWERMETER_SOFT) && !(defined(VBAT))

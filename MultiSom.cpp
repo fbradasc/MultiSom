@@ -845,7 +845,7 @@ void setup() {
     #endif
   #endif
   
-  #if defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) || defined(OLED_DIGOLE) || defined(LCD_TELEMETRY_STEP)
+  #if defined(LCD_TELEMETRY_STEP)
     initLCD();
   #endif
   #ifdef LCD_TELEMETRY_DEBUG
@@ -1323,11 +1323,6 @@ void loop () {
         #ifdef LCD_TELEMETRY_STEP
           else if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_HI) {              // Telemetry next step
             telemetry = telemetryStepSequence[++telemetryStepIndex % strlen(telemetryStepSequence)];
-            #if defined( OLED_I2C_128x64)
-              if (telemetry != 0) i2c_OLED_init();
-            #elif defined(OLED_DIGOLE)
-              if (telemetry != 0) i2c_OLED_DIGOLE_init();
-            #endif
             LCDclear();
           }
         #endif

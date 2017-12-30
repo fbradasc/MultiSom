@@ -1,12 +1,9 @@
 #ifndef LCD_H_
 #define LCD_H_
-#if defined(HAS_LCD)
 void configurationLoop();
 void LCDprint(uint8_t i);
 void lcd_telemetry();
 void initLCD();
-void i2c_OLED_DIGOLE_init ();
-void i2c_OLED_init();
 void LCDclear();
 void toggle_telemetry(uint8_t t);
 void dumpPLog(uint8_t full);
@@ -43,5 +40,4 @@ void output_debug0() ;
 void output_debug1() ;
 void output_debug2() ;
 void output_debug3() ;
-#endif // HAS_LCD
 #endif /* LCD_H_ */

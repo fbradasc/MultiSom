@@ -849,41 +849,24 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define ONLY_ALLOW_ARM_WITH_GPS_3DFIX      // Only allow FC arming if GPS has a 3D fix.
 
   /**************************************************************************************/
-  /***********************        LCD/OLED - display settings       *********************/
+  /***********************             LCD display settings         *********************/
   /**************************************************************************************/
-
-    /* http://www.multiwii.com/wiki/index.php?title=Extra_features#LCD_.2F_OLED */
 
     /*****************************   The type of LCD     **********************************/
       /* choice of LCD attached for configuration and telemetry, see notes below */
       //#define LCD_DUMMY       // No Physical LCD attached.  With this & LCD_CONF defined, TX sticks still work to set gains, by watching LED blink.  
-      //#define LCD_SERIAL3W    // Alex' initial variant with 3 wires, using rx-pin for transmission @9600 baud fixed
-      //#define LCD_TEXTSTAR    // SERIAL LCD: Cat's Whisker LCD_TEXTSTAR Module CW-LCD-02 (Which has 4 input keys for selecting menus)
-      //#define LCD_VT100       // SERIAL LCD: vt100 compatible terminal emulation (blueterm, putty, etc.)
-      //#define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
-      //#define LCD_ETPP        // I2C LCD: Eagle Tree Power Panel LCD, which is i2c (not serial)
-      //#define LCD_LCD03       // I2C LCD: LCD03, which is i2c
-      //#define LCD_LCD03S      // SERIAL LCD: LCD03 whit serial 9600 baud comunication enabled.
-      //#define OLED_I2C_128x64 // I2C LCD: OLED http://www.multiwii.com/forum/viewtopic.php?f=7&t=1350
-      //#define OLED_DIGOLE     // I2C OLED from http://www.digole.com/index.php?productID=550
+      #define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
 
     /******************************   Display settings   ***********************************/
       #define LCD_SERIAL_PORT 0    // must be 0 on Pro Mini and single serial boards; Set to your choice on any Mega based board
-
-      //#define SUPPRESS_OLED_I2C_128x64LOGO  // suppress display of OLED logo to save memory
 
     /* double font height for better readability. Reduces visible #lines by half.
      * The lower part of each page is accessible under the name of shifted keyboard letter :
      * 1 - ! , 2 - @ , 3 - # , 4 - $ , 5 - % , 6 - ^ , 7 - & , 8 - * , 9 - (
      * You must add both to your lcd.telemetry.* sequences
      */
-      //#define DISPLAY_FONT_DSIZE //currently only aplicable for OLED_I2C_128x64 and OLED_DIGOLE
 
     /* style of display - AUTODETECTED via LCD_ setting - only activate to override defaults */
-      //#define DISPLAY_2LINES
-      //#define DISPLAY_MULTILINE
-      //#define MULTILINE_PRE 2  // multiline configMenu # pref lines
-      //#define MULTILINE_POST 6 // multiline configMenu # post lines
       //#define DISPLAY_COLUMNS 16
     /********************************    Navigation     ***********************************/
     /* keys to navigate the LCD menu */

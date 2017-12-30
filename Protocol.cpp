@@ -1171,25 +1171,6 @@ void evaluateOtherData(uint8_t sr) {
           if (!f.ARMED) dumpPLog(1);
           break;
         #endif
-        #if defined(LCD_TELEMETRY) && defined(LCD_TEXTSTAR)
-        case 'A': // button A press
-          toggle_telemetry(1);
-          break;
-        case 'B': // button B press
-          toggle_telemetry(2);
-          break;
-        case 'C': // button C press
-          toggle_telemetry(3);
-          break;
-        case 'D': // button D press
-          toggle_telemetry(4);
-          break;
-        case 'a': // button A release
-        case 'b': // button B release
-        case 'c': // button C release
-        case 'd': // button D release
-          break;
-      #endif
       #ifdef LCD_TELEMETRY
         case '0':
         case '1':
