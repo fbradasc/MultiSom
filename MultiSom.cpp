@@ -811,12 +811,14 @@ void setup() {
     recallGPSconf();                              //Load GPS configuration parameteres
   #endif
 
-  configureReceiver();
+  #if !defined(OPENLRSv2MULTI)
+    configureReceiver();
+  #endif
   #if defined (PILOTLAMP) 
     PL_INIT;
   #endif
   #if defined(OPENLRSv2MULTI)
-    initOpenLRS();
+    configureReceiver();
   #endif
   initSensors();
   #if GPS
@@ -1145,7 +1147,7 @@ void loop () {
     if (spekFrameFlags == 0x01) readSerial_RX();
   #endif
   #if defined(OPENLRSv2MULTI) 
-    Read_OpenLRS_RC();
+    computeRC();
   #endif 
 
   #if defined(SERIAL_RX)
@@ -1155,7 +1157,9 @@ void loop () {
   if ((int16_t)(currentTime-rcTime) >0 ) { // 50Hz
   #endif
     rcTime = currentTime + 20000;
+#if !defined(OPENLRSv2MULTI) 
     computeRC();
+#endif
     // Failsafe routine - added by MIS
     #if defined(FAILSAFE)
       if ( failsafeCnt > (5*FAILSAFE_DELAY)
@@ -1797,10 +1801,11 @@ void loop () {
     currentTime = micros();
     cycleTime = currentTime - previousTime;
     #if defined(LOOP_TIME)
-      if (cycleTime >= LOOP_TIME) break;
-    #else
-      break;  
+    if (cycleTime >= LOOP_TIME)
     #endif
+    {
+      break;  
+    }
   }
   previousTime = currentTime;
 
