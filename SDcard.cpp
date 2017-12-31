@@ -18,6 +18,9 @@
 #include "MultiSom.h"
 #include "Alarms.h"
 #include "GPS.h"
+#if !defined(USE_PETIT_SERIAL)
+#include "LCD.h"
+#endif
 #define PERMANENT_LOG_FILENAME "PERM.TXT"
 #define GPS_LOG_FILENAME "GPS_DATA.RAW"
 

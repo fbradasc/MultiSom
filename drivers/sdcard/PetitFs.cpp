@@ -1,29 +1,50 @@
-#include <PetitFS.h>
-#include <PetitSerial.h>
+#include "../../src/PetitFS/PetitFS.h"
+#include "../../src/PetitFS/PetitSerial.h"
 
+#define DEBUG_PETIT_FS
+
+#if defined(DEBUG_PETIT_FS)
+#if defined(USE_PETIT_SERIAL)
 PetitSerial ps;
+#define LOG_INIT(p)    ps.print(p)
+#define LOG_PRINT(t)   ps.print(t)
+#define LOG_PRINTLN(t) ps.println(t)
+#else // USE_PETIT_SERIAL
+#define LOG_INIT(p)
+#define LOG_PRINT(t)   LCDprintChar(t)
+#define LOG_PRINTLN(t) LCDprintChar(t); LCDcrlf();
+#endif // USE_PETIT_SERIAL
+#else // DEBUG_PETIT_FS
+#define LOG_INIT(p)
+#define LOG_PRINT(t)
+#define LOG_PRINTLN(t)
+#endif // DEBUG_PETIT_FS
+
 FATFS fs;
 
 const uint16_t __one__ = 1;
-const bool isCpuLittleEndian = (1 == *(char *) (&__one__));	// CPU endianness
+
+#if defined(CHECK_ENDIANNESS)
+const bool isCpuLittleEndian  = (1 == *(char *) (&__one__));	// CPU endianness
 const bool isFileLittleEndian = false;	// output endianness - you choose :)
+#endif // CHECK_ENDIANNESS
 
     void
 init_SD ()
 {
-    ps.begin (9600);
-    ps.print ("Initializing PetitFS...");
+    LOG_INIT (9600);
+    LOG_PRINT ("Initializing PetitFS...");
 
     if (pf_mount (&fs))
     {
-        ps.println (" success");
+        LOG_PRINTLN (" success");
 
         f.SDCARD = 0;		// If init fails, tell the code not to try to write on it
         debug[1] = 999;
     }
     else
     {
-        ps.println (" fail");
+        LOG_PRINTLN (" fail");
 
         f.SDCARD = 1;
         debug[1] = 000;
@@ -261,8 +282,8 @@ writeGPSLog (int32_t latitude, int32_t longitude, int32_t altitude)
     (void) altitude;
     if (f.SDCARD == 0)
         return;
-    ps.print ("Appending to: ");
-    ps.println (GPS_LOG_FILENAME);
+    LOG_PRINT ("Appending to: ");
+    LOG_PRINTLN (GPS_LOG_FILENAME);
 
     if (!pf_open (GPS_LOG_FILENAME) && !pf_lseek ((DWORD) (-1)))
     {
@@ -285,8 +306,8 @@ writePLogToSD ()
     if (f.SDCARD == 0)
         return;
     plog.checksum = calculate_sum ((uint8_t *) & plog, sizeof (plog));
-    ps.print ("Writing into: ");
-    ps.println (PERMANENT_LOG_FILENAME);
+    LOG_PRINT ("Writing into: ");
+    LOG_PRINTLN (PERMANENT_LOG_FILENAME);
 
     if (!pf_open (PERMANENT_LOG_FILENAME))
     {
@@ -313,8 +334,8 @@ readPLogFromSD ()
     if (f.SDCARD == 0)
         return;
 
-    ps.print ("Reading from: ");
-    ps.println (PERMANENT_LOG_FILENAME);
+    LOG_PRINT   ("Reading from: ");
+    LOG_PRINTLN (PERMANENT_LOG_FILENAME);
 
     if (!pf_open (PERMANENT_LOG_FILENAME))
     {

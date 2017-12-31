@@ -2,6 +2,7 @@
 #define LCD_H_
 void configurationLoop();
 void LCDprint(uint8_t i);
+void LCDprintChar(const char *s);
 void lcd_telemetry();
 void initLCD();
 void LCDclear();

@@ -8,7 +8,7 @@ project_type = all -- { all, build, clang, data, doc, game, server, shell, web, 
 
 -- Project Settings:
 version = 13
-project_name = 'ArdhatMFC'
+project_name = 'MultiSom'
 
 -- File And Folder Filters:
 folder_filter_mode = include -- { include, exclude }
