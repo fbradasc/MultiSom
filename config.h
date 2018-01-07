@@ -4,6 +4,8 @@
 /****           CONFIGURABLE PARAMETERS                                                       ****/
 /*************************************************************************************************/
 
+#define DEBUG_PETIT_FS
+
 /* this file consists of several sections
  * to create a working combination you must at least make your choices in section 1.
  * 1 - BASIC SETUP - you must select an option in every block.
@@ -91,7 +93,7 @@
     //#define OCTOFLATX
     //#define FLYING_WING
     //#define VTAIL4
-#define AIRPLANE
+    #define AIRPLANE
     //#define SINGLECOPTER
     //#define DUALCOPTER
     //#define HELI_120_CCPM
@@ -416,7 +418,7 @@ Channel values
 At this moment you can use this function only with WinGUI 2.3 release. MultiWiiConf does not support it yet
 */
 
-#define EXTENDED_AUX_STATES
+// #define EXTENDED_AUX_STATES
 
 
   /**************************************************************************************/
@@ -462,7 +464,7 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
       //#define SBUS     PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11,12,13,14,15,16,17  // dsm2 orangerx
       //#define SBUS     ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11,12,13,14,15,16,17  // T14SG
       //#define RX_SERIAL_PORT 1
-      #define SBUS_MID_OFFSET 988 //SBUS Mid-Point at 1500
+      //#define SBUS_MID_OFFSET 988 //SBUS Mid-Point at 1500
 
     /******************************* HOTT RECIVER ************************************/
     /* Graupner Hott HD */
@@ -858,7 +860,8 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
       #define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
 
     /******************************   Display settings   ***********************************/
-      #define LCD_SERIAL_PORT 0    // must be 0 on Pro Mini and single serial boards; Set to your choice on any Mega based board
+      #define LCD_SERIAL_PORT 1    // must be 0 on Pro Mini and single serial boards; Set to your choice on any Mega based board
+      #define LCD_SERIAL_COM_SPEED 9600
 
     /* double font height for better readability. Reduces visible #lines by half.
      * The lower part of each page is accessible under the name of shifted keyboard letter :
@@ -944,8 +947,8 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define SPORT_TELEMETRY           // for FRSKY twoway receivers with S.PORT telemetry (S-series like X4R/X6R/X8R), not implemented yet - TO BE DONE
 
     // FRSKY common entries - valid for both protocols
-    #define TELEMETRY_SERIAL 3        // change if required
-    #define COORDFORMAT_DECIMALMINUTES  // uncomment to get the format DD°MM.mmmm for the coordinates - comment out to get the format DD.dddddd° for the coordinates 
+    // #define TELEMETRY_SERIAL 3        // change if required
+    // #define COORDFORMAT_DECIMALMINUTES  // uncomment to get the format DD°MM.mmmm for the coordinates - comment out to get the format DD.dddddd° for the coordinates 
 
     // FRSKY standard telemetry specific devices
     //#define FRSKY_FLD02               // send only data specific for the FRSKY display FLD-02
@@ -1234,11 +1237,11 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     /*
      * Logging to SDCARD module
      */
-    #define MWI_SDCARD // activation of sdcard functionnality, needed for other defines underneath
-    #define PETIT_FS   // Enable the PetitFs SD Card driver (comment to enable SdFat SD Card driver)
-    #define LOG_PERMANENT_SD_ONLY // Disable permanent logging on eeprom
+    // #define MWI_SDCARD // activation of sdcard functionnality, needed for other defines underneath
+    // #define PETIT_FS   // Enable the PetitFs SD Card driver (comment to enable SdFat SD Card driver)
+    // #define LOG_PERMANENT_SD_ONLY // Disable permanent logging on eeprom
     //- #define LOG_GPS_POSITION 2 // Write GPS position to log. Parameter is the number of seconds between two logs
-    #define SDCARD_CSPIN 53 // By default : 53 on mega boards. refer to your board specs
+    // #define SDCARD_CSPIN 53 // By default : 53 on mega boards. refer to your board specs
     /*
      * SPI Pinout
      * 

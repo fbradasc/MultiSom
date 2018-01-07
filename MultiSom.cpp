@@ -36,6 +36,9 @@
 
 #include <avr/pgmspace.h>
 
+#define LOG_PRINT(t)   LCDprintChar(t)
+#define LOG_PRINTLN(t) LCDprintChar(t); LCDcrlf();
+
 /*********** RC alias *****************/
 
 const char pidnames[] PROGMEM =
@@ -678,6 +681,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
   /************************************************/
 
   #if !(defined(SERIAL_RX) && defined(PROMINI))  //Only one serial port on ProMini.  Skip serial com if SERIAL RX in use. Note: Spek code will auto-call serialCom if GUI data detected on serial0.
+#warning "serialCom"
     serialCom();
   #endif
 
@@ -748,14 +752,15 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
 
 void setup() {
   SerialOpen(0,SERIAL0_COM_SPEED);
-  #if defined(PROMICRO)
-    SerialOpen(1,SERIAL1_COM_SPEED);
-  #endif
-  #if defined(MEGA)
-    SerialOpen(1,SERIAL1_COM_SPEED);
-    SerialOpen(2,SERIAL2_COM_SPEED);
-    SerialOpen(3,SERIAL3_COM_SPEED);
-  #endif
+#if defined(SW_SERIAL)
+  SerialOpen(LCD_SERIAL_PORT,LCD_SERIAL_COM_SPEED);
+#elif defined(PROMICRO)
+  SerialOpen(1,SERIAL1_COM_SPEED);
+#elif defined(MEGA)
+  SerialOpen(1,SERIAL1_COM_SPEED);
+  SerialOpen(2,SERIAL2_COM_SPEED);
+  SerialOpen(3,SERIAL3_COM_SPEED);
+#endif
   LEDPIN_PINMODE;
   POWERPIN_PINMODE;
   BUZZERPIN_PINMODE;
@@ -806,6 +811,8 @@ void setup() {
   #ifdef MWI_SDCARD //SDCARD
   init_SD();
   #endif // MWI_SDCARD
+
+  LOG_PRINTLN("Starting...");
 
   #if GPS
     recallGPSconf();                              //Load GPS configuration parameteres

@@ -131,17 +131,18 @@
 #elif COPTERTEST == 21
 /* OLRS FC test ************************/
   #define AIRPLANE
+  #define LCD_TELEMETRY
   #define OPENLRS_V2
   #define RX_RSSI_CHAN 9
   #define MPU6050
   #define FAILSAFE
-  #define FAILSAFE_DETECT_TRESHOLD  995
+  // #define FAILSAFE_DETECT_TRESHOLD  995
   #define MOTOR_STOP
-  #define MAXTHROTTLE 2000
+  // #define MAXTHROTTLE 2000
 //  #define USE_MSP_WP  // For Waypoint navigation.
   #define AP_MODE 40  // Create a deadspan for GPS.
-  #define GPS_SERIAL 0
-  #define NMEA
+  // #define GPS_SERIAL 0
+  // #define NMEA
   #define USE_MSP_WP  // For Waypoint navigation.
 /* OLRS FC test ************************/
 #elif COPTERTEST == 11
@@ -175,13 +176,14 @@
 
 /***************************************************/  
 #elif COPTERTEST == 99
-//#define AIRPLANE
-#define FLYING_WING
+#define AIRPLANE
+//#define FLYING_WING
+#define LCD_TELEMETRY
 
 #define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
 #define PPM_ON_THROTTLE
 #define FAILSAFE
-#define MAXTHROTTLE 2000
+// #define MAXTHROTTLE 2000
 
 //#define SERIAL0_COM_SPEED 57600
 //#define PITOT_SPEED    15
@@ -196,7 +198,7 @@
 #define USE_MSP_WP  // For Waypoint navigation.
 #define AP_MODE 40  // Create a deadspan for GPS.
 #define FAILSAFE
-#define FAILSAFE_DETECT_TRESHOLD  995
+//#define FAILSAFE_DETECT_TRESHOLD  995
 #define MOTOR_STOP
 
 
@@ -215,16 +217,16 @@
 // MONGOOSE1_0 in EZ-Hawk setup
   #define PATRIKE
   #define MONGOOSE1_0
-  #define GPS_SERIAL 0
-  #define GPS_BAUD   115200
+//  #define GPS_SERIAL 0
+//  #define GPS_BAUD   115200
 
 //  #define FLAPPERONS    AUX4
 //  #define FLAPPERON_INVERT { 1, -1 }
 //  #define FLAPSPEED     3
 
-  #define GPS_SERIAL 0
-  #define GPS_BAUD   115200
-  #define NMEA
+//  #define GPS_SERIAL 0
+//  #define GPS_BAUD   115200
+//  #define NMEA
   #define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] =  -X; imu.gyroADC[PITCH] = -Y; imu.gyroADC[YAW] = -Z;}
   #define FORCE_ACC_ORIENTATION(Y, X, Z)  {imu.accADC[ROLL]  =  -X; imu.accADC[PITCH]  =  Y; imu.accADC[YAW]  =  Z;}
   #define FORCE_MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =   Y; imu.magADC[PITCH]  = -X; imu.magADC[YAW]  = -Z;}
@@ -531,6 +533,12 @@
   #define SERVO_8_PINMODE            pinMode(9,OUTPUT); // new
   #define SERVO_8_PIN_HIGH           PORTB |= 1<<1;
   #define SERVO_8_PIN_LOW            PORTB &= ~(1<<1);
+
+#if (LCD_SERIAL_PORT > 0)
+#define SW_SERIAL
+#define SW_SERIAL_RX_PIN 11
+#define SW_SERIAL_TX_PIN 12
+#endif
 #endif
 
 /**************************  atmega32u4 (Promicro)  ***********************************/

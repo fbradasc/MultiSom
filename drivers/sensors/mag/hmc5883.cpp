@@ -80,7 +80,7 @@ Mag_init ()
     delay (100);
 }
 
-#if !defined(MPU6050_I2C_AUX_MASTER || MPU9250)
+#if !defined(MPU6050_I2C_AUX_MASTER) && !defined(MPU9250)
     static void
 Device_Mag_getADC ()
 {

@@ -4,6 +4,11 @@
 #include "Serial.h"
 #include "MultiSom.h"
 
+#if defined(SW_SERIAL)
+#include <SoftwareSerial.h>
+static SoftwareSerial swSerial(SW_SERIAL_RX_PIN, SW_SERIAL_TX_PIN); // RX, TX
+#endif
+
 static volatile uint8_t serialHeadRX[UART_NUMBER], serialTailRX[UART_NUMBER];
 static uint8_t serialBufferRX[RX_BUFFER_SIZE][UART_NUMBER];
 static volatile uint8_t serialHeadTX[UART_NUMBER], serialTailTX[UART_NUMBER];
@@ -100,7 +105,12 @@ UartSendData (uint8_t port)
 {
     (void) port;
 #if defined(PROMINI)
-    UCSR0B |= (1 << UDRIE0);
+#if defined(SW_SERIAL)
+    if (port == 0)
+#endif
+    {
+        UCSR0B |= (1 << UDRIE0);
+    }
 #endif
 #if defined(PROMICRO)
     switch (port)
@@ -163,6 +173,11 @@ SerialOpen (uint8_t port, uint32_t baud)
         UBRR0L = l;
         UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
         break;
+#if defined(SW_SERIAL)
+    case 1:
+        swSerial.begin(baud);
+        break;
+#endif
 #endif
 #if defined(PROMICRO)
 #if (ARDUINO >= 100) && !defined(TEENSY20)
@@ -316,14 +331,15 @@ SerialRead (uint8_t port)
 #if defined(TEENSY20)
     if (port == 0)
         return Serial.read ();
-#else
-#if (ARDUINO >= 100)
+#elif (ARDUINO >= 100)
     if (port == 0)
         USB_Flush (USB_CDC_TX);
 #endif
     if (port == 0)
         return USB_Recv (USB_CDC_RX);
-#endif
+#elif defined(SW_SERIAL)
+    if (port == 1)
+        return swSerial.read();
 #endif
     uint8_t t = serialTailRX[port];
     uint8_t c = serialBufferRX[t][port];
@@ -359,6 +375,9 @@ SerialAvailable (uint8_t port)
     if (port == 0)
         return T_USB_Available ();
 #endif
+#elif defined(SW_SERIAL)
+    if (port == 1)
+        return swSerial.available();
 #endif
     return ((uint8_t) (serialHeadRX[port] - serialTailRX[port])) %
         RX_BUFFER_SIZE;
@@ -374,11 +393,16 @@ SerialUsedTXBuff (uint8_t port)
     void
 SerialSerialize (uint8_t port, uint8_t a)
 {
+#if defined(SW_SERIAL)
+    if (port == 1)
+        swSerial.write(a);
+#else
     uint8_t t = serialHeadTX[port];
     if (++t >= TX_BUFFER_SIZE)
         t = 0;
     serialBufferTX[t][port] = a;
     serialHeadTX[port] = t;
+#endif
 }
 
     void

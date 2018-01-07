@@ -1,8 +1,6 @@
 #include "../../src/PetitFS/PetitFS.h"
 #include "../../src/PetitFS/PetitSerial.h"
 
-#define DEBUG_PETIT_FS
-
 #if defined(DEBUG_PETIT_FS)
 #if defined(USE_PETIT_SERIAL)
 PetitSerial ps;
@@ -32,8 +30,8 @@ const bool isFileLittleEndian = false;	// output endianness - you choose :)
     void
 init_SD ()
 {
-    LOG_INIT (9600);
-    LOG_PRINT ("Initializing PetitFS...");
+    // LOG_INIT(9600);
+    LOG_PRINTLN("     Initializing PetitFS...");
 
     if (pf_mount (&fs))
     {
@@ -49,6 +47,8 @@ init_SD ()
         f.SDCARD = 1;
         debug[1] = 000;
     }
+
+    LOG_PRINTLN("done");
 }
 
 // type:
