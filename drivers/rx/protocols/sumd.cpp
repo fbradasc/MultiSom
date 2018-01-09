@@ -5,7 +5,7 @@
 //RAW RC values will be store here
 volatile uint16_t rcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502}; // interval [1000;2000]
 
-static uint8_t rcChannel[RC_CHANS] = {PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4};
+static uint8_t rcChannel[RC_CHANS] = {PITCH, YAW, THROTTLE, ROLL, AUX1, AUX2, AUX3, AUX4};
 
 /**************************************************************************************/
 /***************                   RX Pin Setup                    ********************/
@@ -13,15 +13,15 @@ static uint8_t rcChannel[RC_CHANS] = {PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX
 void configureReceiver()
 {
     /******************    Configure each rc pin for PCINT    ***************************/
-    SerialOpen(RX_SERIAL_PORT,115200);
+    SerialOpen(RX_SERIAL_PORT, 115200);
 }
 
 #define SUMD_SYNCBYTE 0xA8
 #define SUMD_MAXCHAN 8
 #define SUMD_BUFFSIZE SUMD_MAXCHAN*2 + 5 // 6 channels + 5 -> 17 bytes for 6 channels
-static uint8_t sumdIndex=0;
-static uint8_t sumdSize=0;
-static uint8_t sumd[SUMD_BUFFSIZE]={0};
+static uint8_t sumdIndex = 0;
+static uint8_t sumdSize = 0;
+static uint8_t sumd[SUMD_BUFFSIZE] = {0};
 
 void readSerial_RX(void)
 {
@@ -29,24 +29,24 @@ void readSerial_RX(void)
     {
         int val = SerialRead(RX_SERIAL_PORT);
 
-        if(sumdIndex == 0 && val != SUMD_SYNCBYTE)
+        if (sumdIndex == 0 && val != SUMD_SYNCBYTE)
         {
             continue;
         }
 
-        if(sumdIndex == 2)
+        if (sumdIndex == 2)
         {
             sumdSize = val;
         }
 
-        if(sumdIndex < SUMD_BUFFSIZE)
+        if (sumdIndex < SUMD_BUFFSIZE)
         {
             sumd[sumdIndex] = val;
         }
 
         sumdIndex++;
 
-        if(sumdIndex == sumdSize*2+5)
+        if (sumdIndex == sumdSize * 2 + 5)
         {
             sumdIndex = 0;
             spekFrameFlags = 0x00;
@@ -59,12 +59,12 @@ void readSerial_RX(void)
 
             for (uint8_t b = 0; b < sumdSize; b++)
             {
-                rcValue[b] = ((sumd[2*b+3]<<8) | sumd[2*b+4])>>3;
+                rcValue[b] = ((sumd[2 * b + 3] << 8) | sumd[2 * b + 4]) >> 3;
             }
 
             spekFrameDone = 0x01; // havent checked crc at all
-
 #if defined(FAILSAFE)
+
             if (sumd[1] == 0x01) // clear FailSafe counter
             {
                 if (failsafeCnt > 20)
@@ -76,6 +76,7 @@ void readSerial_RX(void)
                     failsafeCnt = 0;
                 }
             }
+
 #endif
         }
     }
@@ -103,15 +104,14 @@ uint16_t readRawRC(uint8_t chan)
 #define AVERAGING_ARRAY_LENGTH 4
 void computeRC()
 {
-    static uint16_t rcData4Values[RC_CHANS][AVERAGING_ARRAY_LENGTH-1];
-    uint16_t rcDataMean,rcDataTmp;
+    static uint16_t rcData4Values[RC_CHANS][AVERAGING_ARRAY_LENGTH - 1];
+    uint16_t rcDataMean, rcDataTmp;
     static uint8_t rc4ValuesIndex = 0;
-    uint8_t chan,a;
+    uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
-
     rc4ValuesIndex++;
 
-    if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH-1)
+    if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
     {
         rc4ValuesIndex = 0;
     }
@@ -120,9 +120,9 @@ void computeRC()
     {
         // Stick Scaling http://mifi.no/blog/?p=95
 #if defined(STICK_SCALING_FACTOR)
-        if ( chan < 4 )
+        if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan)-1500)*STICK_SCALING_FACTOR+1500;
+            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
         }
         else
 #endif
@@ -131,20 +131,22 @@ void computeRC()
         }
 
 #if defined(FAILSAFE)
-        failsafeGoodCondition = rcDataTmp>FAILSAFE_DETECT_TRESHOLD || chan > 3 || !f.ARMED; // update controls channel only if pulse is above FAILSAFE_DETECT_TRESHOLD
+        failsafeGoodCondition = rcDataTmp > FAILSAFE_DETECT_TRESHOLD || chan > 3 || !f.ARMED; // update controls channel only if pulse is above FAILSAFE_DETECT_TRESHOLD
 #endif                                                                                // In disarmed state allow always update for easer configuration.
+
         if (failsafeGoodCondition)
         {
             rcData[chan] = rcDataTmp;
         }
 
-        if (chan<8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
             rcSerialCount --;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif
-            if (rcSerial[chan] >900) // only relevant channels are overridden
+
+            if (rcSerial[chan] > 900) // only relevant channels are overridden
             {
                 rcData[chan] = rcSerial[chan];
             }

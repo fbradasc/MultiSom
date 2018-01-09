@@ -11,37 +11,37 @@
 // 3) sample rate = 1000Hz ( 1kHz/(div+1) )
 // ************************************************************************************************************
 #if !defined(GYRO_ADDRESS)
-#define GYRO_ADDRESS 0X68
-//#define GYRO_ADDRESS 0X69
+    #define GYRO_ADDRESS 0X68
+    //#define GYRO_ADDRESS 0X69
 #endif
 
-    void
-Gyro_init ()
+void
+Gyro_init()
 {
-    i2c_writeReg (GYRO_ADDRESS, 0x3E, 0x80);	//PWR_MGMT_1    -- DEVICE_RESET 1
-    delay (5);
-    i2c_writeReg (GYRO_ADDRESS, 0x16, 0x18 + GYRO_DLPF_CFG);	//Gyro CONFIG   -- EXT_SYNC_SET 0 (disable input pin for data sync) ; DLPF_CFG = GYRO_DLPF_CFG ; -- FS_SEL = 3: Full scale set to 2000 deg/sec
-    delay (5);
-    i2c_writeReg (GYRO_ADDRESS, 0x3E, 0x03);	//PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)
-    delay (100);
+    i2c_writeReg(GYRO_ADDRESS, 0x3E, 0x80);     //PWR_MGMT_1    -- DEVICE_RESET 1
+    delay(5);
+    i2c_writeReg(GYRO_ADDRESS, 0x16, 0x18 + GYRO_DLPF_CFG);     //Gyro CONFIG   -- EXT_SYNC_SET 0 (disable input pin for data sync) ; DLPF_CFG = GYRO_DLPF_CFG ; -- FS_SEL = 3: Full scale set to 2000 deg/sec
+    delay(5);
+    i2c_writeReg(GYRO_ADDRESS, 0x3E, 0x03);     //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)
+    delay(100);
 }
 
-    void
-Gyro_getADC ()
+void
+Gyro_getADC()
 {
-    i2c_getSixRawADC (GYRO_ADDRESS, 0X1D);
-    GYRO_ORIENTATION (((rawADC[0] << 8) | rawADC[1]) >> 2,	// range: +/- 8192; +/- 2000 deg/sec
-                      ((rawADC[2] << 8) | rawADC[3]) >> 2,
-                      ((rawADC[4] << 8) | rawADC[5]) >> 2);
-    GYRO_Common ();
+    i2c_getSixRawADC(GYRO_ADDRESS, 0X1D);
+    GYRO_ORIENTATION(((rawADC[0] << 8) | rawADC[1]) >> 2,   // range: +/- 8192; +/- 2000 deg/sec
+                     ((rawADC[2] << 8) | rawADC[3]) >> 2,
+                     ((rawADC[4] << 8) | rawADC[5]) >> 2);
+    GYRO_Common();
 }
 #else // IMPLEMENTATION
 // GYRO SCALE: we ignore the last 2 bits and convert it for rad/s
 #if defined(ITG3050)
-#define GYRO_SCALE (4 / 16.0 * PI / 180.0 / 1000000.0)	//16.4 LSB = 1 deg/s  -- 16.0 apparently gives beter results than 16.4 (empirical)
+    #define GYRO_SCALE (4 / 16.0 * PI / 180.0 / 1000000.0)  //16.4 LSB = 1 deg/s  -- 16.0 apparently gives beter results than 16.4 (empirical)
 #elif defined(ITG3200)
-#define GYRO_SCALE (4 / 14.375 * PI / 180.0 / 1000000.0)	//ITG3200   14.375 LSB = 1 deg/s
+    #define GYRO_SCALE (4 / 14.375 * PI / 180.0 / 1000000.0)    //ITG3200   14.375 LSB = 1 deg/s
 #elif defined(MPU3050)
-#define GYRO_SCALE (4 / 16.4 * PI / 180.0 / 1000000.0)	//16.4 LSB = 1 deg/s
+    #define GYRO_SCALE (4 / 16.4 * PI / 180.0 / 1000000.0)  //16.4 LSB = 1 deg/s
 #endif
 #endif // IMPLEMENTATION

@@ -2,19 +2,19 @@
 // ************************************************************************************************************
 // ADC ACC
 // ************************************************************************************************************
-    void
-ACC_init ()
+void
+ACC_init()
 {
-    pinMode (A1, INPUT);
-    pinMode (A2, INPUT);
-    pinMode (A3, INPUT);
+    pinMode(A1, INPUT);
+    pinMode(A2, INPUT);
+    pinMode(A3, INPUT);
 }
 
-    void
-ACC_getADC ()
+void
+ACC_getADC()
 {
-    ACC_ORIENTATION (analogRead (A1), analogRead (A2), analogRead (A3));
-    ACC_Common ();
+    ACC_ORIENTATION(analogRead(A1), analogRead(A2), analogRead(A3));
+    ACC_Common();
 }
 #else // IMPLEMENTATION
 #define ACC_1G 75

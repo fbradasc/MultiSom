@@ -3,10 +3,10 @@
 #define FC_VERSION_PATCH_LEVEL      0  // increment when a bug is fixed
 
 #define GIT_SHORT_REVISION_LENGTH   7 // lower case hexadecimal digits.
-extern char* shortGitRevision;
+extern char *shortGitRevision;
 
 #define BUILD_DATE_LENGTH 11
-extern char* buildDate;  // "MMM DD YYYY" MMM = Jan/Feb/...
+extern char *buildDate;  // "MMM DD YYYY" MMM = Jan/Feb/...
 
 #define BUILD_TIME_LENGTH 8
-extern char* buildTime;  // "HH:MM:SS"
+extern char *buildTime;  // "HH:MM:SS"

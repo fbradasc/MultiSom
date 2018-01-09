@@ -7,7 +7,7 @@
 //RAW RC values will be store here
 volatile uint16_t rcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502}; // interval [1000;2000]
 
-static uint8_t rcChannel[RC_CHANS] = {PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11};
+static uint8_t rcChannel[RC_CHANS] = {PITCH, YAW, THROTTLE, ROLL, AUX1, AUX2, AUX3, AUX4, 8, 9, 10, 11};
 
 /**************************************************************************************/
 /***************                   RX Pin Setup                    ********************/
@@ -15,7 +15,7 @@ static uint8_t rcChannel[RC_CHANS] = {PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX
 void configureReceiver()
 {
     /******************    Configure each rc pin for PCINT    ***************************/
-    SerialOpen(RX_SERIAL_PORT,115200);
+    SerialOpen(RX_SERIAL_PORT, 115200);
 }
 
 void readSerial_RX(void)
@@ -24,13 +24,14 @@ void readSerial_RX(void)
 #if defined(FAILSAFE) || (RX_SERIAL_PORT != 0)
         (failsafeCnt > 5) &&
 #endif
-        ( SerialPeek(RX_SERIAL_PORT) == '$'))
+        (SerialPeek(RX_SERIAL_PORT) == '$'))
     {
         while (SerialAvailable(RX_SERIAL_PORT))
         {
             serialCom();
-            delay (10);
+            delay(10);
         }
+
         return;
     } //End of: Is it the GUI?
 
@@ -46,13 +47,15 @@ void readSerial_RX(void)
     {
         if (SerialAvailable(RX_SERIAL_PORT) == SPEK_FRAME_SIZE)  //A complete frame? If not, we'll catch it next time we are called.
         {
-            SerialRead(RX_SERIAL_PORT); SerialRead(RX_SERIAL_PORT);        //Eat the header bytes
+            SerialRead(RX_SERIAL_PORT);
+            SerialRead(RX_SERIAL_PORT);        //Eat the header bytes
 
             for (uint8_t b = 2; b < SPEK_FRAME_SIZE; b += 2)
             {
                 uint8_t bh = SerialRead(RX_SERIAL_PORT);
                 uint8_t bl = SerialRead(RX_SERIAL_PORT);
                 uint8_t spekChannel = 0x0F & (bh >> SPEK_CHAN_SHIFT);
+
                 if (spekChannel < RC_CHANS)
                 {
                     rcValue[spekChannel] = 988 + ((((uint16_t)(bh & SPEK_CHAN_MASK) << 8) + bl) SPEK_DATA_SHIFT);
@@ -62,6 +65,7 @@ void readSerial_RX(void)
             spekFrameFlags = 0x00;
             spekFrameDone = 0x01;
 #if defined(FAILSAFE)
+
             if (failsafeCnt > 20)   // Valid frame, clear FailSafe counter
             {
                 failsafeCnt -= 20;
@@ -70,6 +74,7 @@ void readSerial_RX(void)
             {
                 failsafeCnt = 0;
             }
+
 #endif
         }
         else //Start flag is on, but not enough bytes means there is an incomplete frame in buffer.  This could be OK, if we happened to be called in the middle of a frame.  Or not, if it has been a while since the start flag was set.
@@ -106,15 +111,14 @@ uint16_t readRawRC(uint8_t chan)
 #define AVERAGING_ARRAY_LENGTH 4
 void computeRC()
 {
-    static uint16_t rcData4Values[RC_CHANS][AVERAGING_ARRAY_LENGTH-1];
-    uint16_t rcDataMean,rcDataTmp;
+    static uint16_t rcData4Values[RC_CHANS][AVERAGING_ARRAY_LENGTH - 1];
+    uint16_t rcDataMean, rcDataTmp;
     static uint8_t rc4ValuesIndex = 0;
-    uint8_t chan,a;
+    uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
-
     rc4ValuesIndex++;
 
-    if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH-1)
+    if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
     {
         rc4ValuesIndex = 0;
     }
@@ -123,9 +127,9 @@ void computeRC()
     {
         // Stick Scaling http://mifi.no/blog/?p=95
 #if defined(STICK_SCALING_FACTOR)
-        if ( chan < 4 ) 
+        if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan)-1500)*STICK_SCALING_FACTOR+1500;
+            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
         }
         else
 #endif
@@ -134,20 +138,22 @@ void computeRC()
         }
 
 #if defined(FAILSAFE)
-        failsafeGoodCondition = rcDataTmp>FAILSAFE_DETECT_TRESHOLD || chan > 3 || !f.ARMED; // update controls channel only if pulse is above FAILSAFE_DETECT_TRESHOLD
+        failsafeGoodCondition = rcDataTmp > FAILSAFE_DETECT_TRESHOLD || chan > 3 || !f.ARMED; // update controls channel only if pulse is above FAILSAFE_DETECT_TRESHOLD
 #endif                                                                                // In disarmed state allow always update for easer configuration.
+
         if (failsafeGoodCondition)
         {
             rcData[chan] = rcDataTmp;
         }
 
-        if (chan<8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
             rcSerialCount --;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif
-            if (rcSerial[chan] >900) // only relevant channels are overridden
+
+            if (rcSerial[chan] > 900) // only relevant channels are overridden
             {
                 rcData[chan] = rcSerial[chan];
             }
@@ -159,38 +165,34 @@ void computeRC()
 void spekBind()
 {
     pinMode(SPEK_BIND_DATA, INPUT);     // Data line from sat
-    digitalWrite(SPEK_BIND_DATA,LOW);   // Turn off internal Pull Up resistor
-
+    digitalWrite(SPEK_BIND_DATA, LOW);  // Turn off internal Pull Up resistor
     pinMode(SPEK_BIND_GROUND, INPUT);
-    digitalWrite(SPEK_BIND_GROUND,LOW);
+    digitalWrite(SPEK_BIND_GROUND, LOW);
     pinMode(SPEK_BIND_GROUND, OUTPUT);
-    digitalWrite(SPEK_BIND_GROUND,LOW);
-
+    digitalWrite(SPEK_BIND_GROUND, LOW);
     pinMode(SPEK_BIND_POWER, INPUT);
-    digitalWrite(SPEK_BIND_POWER,LOW);
-    pinMode(SPEK_BIND_POWER,OUTPUT);
+    digitalWrite(SPEK_BIND_POWER, LOW);
+    pinMode(SPEK_BIND_POWER, OUTPUT);
 
     while (1)   //Do not return.  User presses reset button to return to normal.
     {
-        blinkLED(4,255,1);
-        digitalWrite(SPEK_BIND_POWER,LOW); // Power off sat
+        blinkLED(4, 255, 1);
+        digitalWrite(SPEK_BIND_POWER, LOW); // Power off sat
         pinMode(SPEK_BIND_DATA, OUTPUT);
-        digitalWrite(SPEK_BIND_DATA,LOW);
+        digitalWrite(SPEK_BIND_DATA, LOW);
         delay(1000);
-        blinkLED(4,255,1);
-
-        digitalWrite(SPEK_BIND_POWER,HIGH); // Power on sat
+        blinkLED(4, 255, 1);
+        digitalWrite(SPEK_BIND_POWER, HIGH); // Power on sat
         delay(10);
-        digitalWrite(SPEK_BIND_DATA,HIGH);
+        digitalWrite(SPEK_BIND_DATA, HIGH);
         delay(60);                 // Keep data pin steady for 20 to 120ms after power up
-
         noInterrupts();
 
         for (byte i = 0; i < SPEK_BIND_PULSES; i++)
         {
-            digitalWrite(SPEK_BIND_DATA,LOW);
+            digitalWrite(SPEK_BIND_DATA, LOW);
             delayMicroseconds(118);
-            digitalWrite(SPEK_BIND_DATA,HIGH);
+            digitalWrite(SPEK_BIND_DATA, HIGH);
             delayMicroseconds(122);
         }
 

@@ -4,43 +4,27 @@
 // ************************************************************************************************************
 
 #if !defined(MMA8451Q_ADDRESS)
-#define MMA8451Q_ADDRESS 0x1C
-//#define MMA8451Q_ADDRESS 0x1D
+    #define MMA8451Q_ADDRESS 0x1C
+    //#define MMA8451Q_ADDRESS 0x1D
 #endif
 
-    void
-
-#include "drivers/sensors/gyro.cpp"
-#include "drivers/sensors/acc.cpp"
-#if BARO
-#include "drivers/sensors/baro.cpp"
-#endif
-#if MAG
-#include "drivers/sensors/mag.cpp"
-#endif
-#if SONAR
-#include "drivers/sensors/sonar.cpp"
-#endif
-#if PITOT
-#include "drivers/sensors/pitot.cpp"
-#endif
-ACC_init ()
+void
+ACC_init()
 {
-    delay (10);
-    i2c_writeReg (MMA8451Q_ADDRESS, 0x2A, 0x05);	// wake up & low noise
-    delay (10);
-    i2c_writeReg (MMA8451Q_ADDRESS, 0x0E, 0x02);	// full scale range
+    delay(10);
+    i2c_writeReg(MMA8451Q_ADDRESS, 0x2A, 0x05);     // wake up & low noise
+    delay(10);
+    i2c_writeReg(MMA8451Q_ADDRESS, 0x0E, 0x02);     // full scale range
 }
 
-    void
-ACC_getADC ()
+void
+ACC_getADC()
 {
-    i2c_getSixRawADC (MMA8451Q_ADDRESS, 0x00);
-
-    ACC_ORIENTATION (((rawADC[1] << 8) | rawADC[0]) / 32,
-                     ((rawADC[3] << 8) | rawADC[2]) / 32,
-                     ((rawADC[5] << 8) | rawADC[4]) / 32);
-    ACC_Common ();
+    i2c_getSixRawADC(MMA8451Q_ADDRESS, 0x00);
+    ACC_ORIENTATION(((rawADC[1] << 8) | rawADC[0]) / 32,
+                    ((rawADC[3] << 8) | rawADC[2]) / 32,
+                    ((rawADC[5] << 8) | rawADC[4]) / 32);
+    ACC_Common();
 }
 #else // IMPLEMENTATION
 #define ACC_1G 512
