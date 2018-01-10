@@ -24,20 +24,20 @@
 //to multiwii developpers/committers : do not add new MSP messages without a proper argumentation/agreement on the forum
 //range id [50-99] won't be assigned and can therefore be used for any custom multiwii fork without further MSP id conflict
 
-#define MSP_PRIVATE              1     //in+out message      to be used for a generic framework : MSP + function code (LIST/GET/SET) + data. no code yet
+#define MSP_PRIVATE              1 //in+out message      to be used for a generic framework : MSP + function code (LIST/GET/SET) + data. no code yet
 
 #if defined(CLEANFLIGHT)
 /* stripped off from cleanflight*/
 /* https://github.com/cleanflight/cleanflight/blob/master/src/main/io/serial_msp.c */
-# define MSP_PROTOCOL_VERSION 0
-# define API_VERSION_MAJOR                   1// increment when major changes are made
-# define API_VERSION_MINOR                   5// increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+# define MSP_PROTOCOL_VERSION    0
+# define API_VERSION_MAJOR       1 // increment when major changes are made
+# define API_VERSION_MINOR       5 // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
-# define API_VERSION_LENGTH                  2
+# define API_VERSION_LENGTH      2
 
-# define MULTIWII_IDENTIFIER "MWII";
+# define MULTIWII_IDENTIFIER    "MWII"
 # define CLEANFLIGHT_IDENTIFIER "CLFL"
-# define BASEFLIGHT_IDENTIFIER "BAFL";
+# define BASEFLIGHT_IDENTIFIER  "BAFL"
 
 # define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 4
 static const char *flightControllerIdentifier = CLEANFLIGHT_IDENTIFIER;     // 4 UPPER CASE alpha numeric characters that identify the flight controller.
@@ -1408,8 +1408,6 @@ void evaluateCommand(uint8_t c)
 
 #if defined(CLEANFLIGHT)
         case MSP_BF_CONFIG:
-            // baseflight
-            //headSerialReply(1 + 4 + 1 + 2 + 2 + 2 + 2 + 2 + 2 + 2);
             headSerialReply(1 + 4 + 1 + 2 + 2 + 2 + 2 + 2 + 2 + 2);
             serialize8( (uint8_t) MULTITYPE ); // QUADX
             // features

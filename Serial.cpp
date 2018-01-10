@@ -333,7 +333,7 @@ void store_uart_in_buf(uint8_t data, uint8_t portnum)
     }
 #endif
     uint8_t h = serialHeadRX[portnum];
-    serialBufferRX[h++][portnum] = data;
+    serialBufferRX[h][portnum] = data; // TODO: to check, it was h++
     h++;
     h %= RX_BUFFER_SIZE;
     serialHeadRX[portnum] = h;
