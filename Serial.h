@@ -2,11 +2,11 @@
 #define SERIAL_H_
 
 #if defined(MEGA)
-    #define UART_NUMBER 4
+# define UART_NUMBER 4
 #elif defined(PROMICRO)
-    #define UART_NUMBER 2
+# define UART_NUMBER 2
 #else
-    #define UART_NUMBER 1
+# define UART_NUMBER 1
 #endif
 #define RX_BUFFER_SIZE 256 // 256 RX buffer is needed for GPS communication (64 or 128 was too short)
 #define TX_BUFFER_SIZE 128

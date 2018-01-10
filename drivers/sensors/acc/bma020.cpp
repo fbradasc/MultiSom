@@ -15,8 +15,7 @@
 // |       |                      !!Calibration!! |                     2g |                         25Hz |
 //
 // ************************************************************************************************************
-void
-ACC_init()
+void ACC_init()
 {
     i2c_writeReg(0x38, 0x15, 0x80);     // set SPI4 bit
     uint8_t control = i2c_readReg(0x70, 0x14);
@@ -26,15 +25,15 @@ ACC_init()
     i2c_writeReg(0x38, 0x14, control);
 }
 
-void
-ACC_getADC()
+void ACC_getADC()
 {
     i2c_getSixRawADC(0x38, 0x02);
-    ACC_ORIENTATION(((rawADC[1] << 8) | rawADC[0]) >> 6,
-                    ((rawADC[3] << 8) | rawADC[2]) >> 6,
-                    ((rawADC[5] << 8) | rawADC[4]) >> 6);
+    ACC_ORIENTATION( ( (rawADC[1] << 8) | rawADC[0] ) >> 6,
+                     ( (rawADC[3] << 8) | rawADC[2] ) >> 6,
+                     ( (rawADC[5] << 8) | rawADC[4] ) >> 6 );
     ACC_Common();
 }
+
 #else // IMPLEMENTATION
-#define ACC_1G 63
+# define ACC_1G 63
 #endif // IMPLEMENTATION

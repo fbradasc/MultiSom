@@ -20,13 +20,13 @@ void configureReceiver()
 
 void readSerial_RX(void)
 {
-    if ((!f.ARMED) &&
+    if ( (!f.ARMED) &&
 #if defined(FAILSAFE) || (RX_SERIAL_PORT != 0)
-        (failsafeCnt > 5) &&
+         (failsafeCnt > 5) &&
 #endif
-        (SerialPeek(RX_SERIAL_PORT) == '$'))
+         (SerialPeek(RX_SERIAL_PORT) == '$') )
     {
-        while (SerialAvailable(RX_SERIAL_PORT))
+        while (SerialAvailable(RX_SERIAL_PORT) )
         {
             serialCom();
             delay(10);
@@ -58,14 +58,13 @@ void readSerial_RX(void)
 
                 if (spekChannel < RC_CHANS)
                 {
-                    rcValue[spekChannel] = 988 + ((((uint16_t)(bh & SPEK_CHAN_MASK) << 8) + bl) SPEK_DATA_SHIFT);
+                    rcValue[spekChannel] = 988 + ( ( ( (uint16_t)(bh & SPEK_CHAN_MASK) << 8 ) + bl )SPEK_DATA_SHIFT );
                 }
             }
 
             spekFrameFlags = 0x00;
             spekFrameDone = 0x01;
 #if defined(FAILSAFE)
-
             if (failsafeCnt > 20)   // Valid frame, clear FailSafe counter
             {
                 failsafeCnt -= 20;
@@ -74,12 +73,11 @@ void readSerial_RX(void)
             {
                 failsafeCnt = 0;
             }
-
 #endif
         }
         else //Start flag is on, but not enough bytes means there is an incomplete frame in buffer.  This could be OK, if we happened to be called in the middle of a frame.  Or not, if it has been a while since the start flag was set.
         {
-            uint32_t spekInterval = (timer0_overflow_count << 8) * (64 / clockCyclesPerMicrosecond()) - spekTimeLast;
+            uint32_t spekInterval = (timer0_overflow_count << 8) * (64 / clockCyclesPerMicrosecond() ) - spekTimeLast;
 
             if (spekInterval > 2500)  //If it has been a while, make the interrupt handler start over.
             {
@@ -102,7 +100,7 @@ uint16_t readRawRC(uint8_t chan)
         data = 1500;
     }
 
-    return data; // We return the value correctly copied when the IRQ's where disabled
+    return(data); // We return the value correctly copied when the IRQ's where disabled
 }
 
 /**************************************************************************************/
@@ -116,6 +114,7 @@ void computeRC()
     static uint8_t rc4ValuesIndex = 0;
     uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
+
     rc4ValuesIndex++;
 
     if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
@@ -129,7 +128,7 @@ void computeRC()
 #if defined(STICK_SCALING_FACTOR)
         if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
+            rcDataTmp = ( (int16_t)readRawRC(chan) - 1500 ) * STICK_SCALING_FACTOR + 1500;
         }
         else
 #endif
@@ -146,9 +145,9 @@ void computeRC()
             rcData[chan] = rcDataTmp;
         }
 
-        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if ( (chan < 8) && (rcSerialCount > 0) ) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
-            rcSerialCount --;
+            rcSerialCount--;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif
@@ -200,4 +199,5 @@ void spekBind()
         delay(60000);         //Allow one full minute to bind, then try again.
     }
 }
+
 #endif

@@ -2,8 +2,7 @@
 // ************************************************************************************************************
 // BARO section
 // ************************************************************************************************************
-static void
-Baro_Common()
+static void Baro_Common()
 {
     static int32_t baroHistTab[BARO_TAB_SIZE];
     static uint8_t baroHistIdx;
@@ -19,10 +18,11 @@ Baro_Common()
     baroPressureSum -= baroHistTab[indexplus1];
     baroHistIdx = indexplus1;
 }
+
 #endif // IMPLEMENTATION
 
 #if defined(BMP085)
-    #include "baro/bmp085.cpp"
+# include "baro/bmp085.cpp"
 #elif defined(MS561101BA)
-    #include "baro/ms561101ba.cpp"
+# include "baro/ms561101ba.cpp"
 #endif

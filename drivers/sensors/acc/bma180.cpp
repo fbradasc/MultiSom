@@ -15,13 +15,12 @@
 // 0x35    offset_lsb1: |          offset_x<3:0>              |                   range<2:0>       | smp_skip |
 //                      |          xxxxxxxxxxxxx              |                    8G:   101       | xxxxxxxx |
 // ************************************************************************************************************
-#if !defined(BMA180_ADDRESS)
-    #define BMA180_ADDRESS 0x40
-    //#define BMA180_ADDRESS 0x41
-#endif
+# if !defined(BMA180_ADDRESS)
+#  define BMA180_ADDRESS 0x40
+//#define BMA180_ADDRESS 0x41
+# endif
 
-void
-ACC_init()
+void ACC_init()
 {
     delay(10);
     //default range 2G: 1G = 4096 unit.
@@ -45,16 +44,16 @@ ACC_init()
     delay(5);
 }
 
-void
-ACC_getADC()
+void ACC_getADC()
 {
     i2c_getSixRawADC(BMA180_ADDRESS, 0x02);
     //usefull info is on the 14 bits  [2-15] bits  /4 => [0-13] bits  /4 => 12 bit resolution
-    ACC_ORIENTATION(((rawADC[1] << 8) | rawADC[0]) >> 4,
-                    ((rawADC[3] << 8) | rawADC[2]) >> 4,
-                    ((rawADC[5] << 8) | rawADC[4]) >> 4);
+    ACC_ORIENTATION( ( (rawADC[1] << 8) | rawADC[0] ) >> 4,
+                     ( (rawADC[3] << 8) | rawADC[2] ) >> 4,
+                     ( (rawADC[5] << 8) | rawADC[4] ) >> 4 );
     ACC_Common();
 }
+
 #else // IMPLEMENTATION
-#define ACC_1G 255
+# define ACC_1G 255
 #endif // IMPLEMENTATION

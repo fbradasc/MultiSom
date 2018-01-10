@@ -20,45 +20,47 @@ void PilotLampSequence(uint16_t speed, uint16_t pattern, uint8_t num_patterns);
 static uint8_t cycleDone[5] = {0, 0, 0, 0, 0},
                resourceIsOn[5] = {0, 0, 0, 0, 0};
 static uint32_t LastToggleTime[5] = {0, 0, 0, 0, 0};
-static int16_t  i2c_errors_count_old = 0;
+static int16_t i2c_errors_count_old = 0;
 
 static uint8_t SequenceActive[5] = {0, 0, 0, 0, 0};
 
 #if defined(BUZZER)
 uint8_t isBuzzerON(void)
 {
-    return resourceIsOn[1];    // returns true while buzzer is buzzing; returns 0 for silent periods
+    return(resourceIsOn[1]);    // returns true while buzzer is buzzing; returns 0 for silent periods
 }
+
 #else
 uint8_t isBuzzerON()
 {
-    return 0;
+    return(0);
 }
+
 #endif  //end of buzzer define
 /********************************************************************/
 /****                      Alarm Handling                        ****/
 /********************************************************************/
 /*
-AlarmArray
-0: toggle
-1: failsafe
-2: noGPS
-3: beeperOn
-4: pMeter
-5: runtime
-6: vBat
-7: confirmation
-8: Acc
-9: I2C Error
-*/
+   AlarmArray
+   0: toggle
+   1: failsafe
+   2: noGPS
+   3: beeperOn
+   4: pMeter
+   5: runtime
+   6: vBat
+   7: confirmation
+   8: Acc
+   9: I2C Error
+ */
 /*
-Resources:
-0: onboard LED
-1: Buzzer
-2: PL GREEN
-3: PL BLUE
-4: PL RED
-*/
+   Resources:
+   0: onboard LED
+   1: Buzzer
+   2: PL GREEN
+   3: PL BLUE
+   4: PL RED
+ */
 void alarmHandler(void)
 {
 #if defined(RCOPTIONSBEEP)
@@ -77,7 +79,7 @@ void alarmHandler(void)
         i = 0;
     }
 
-    if (firstrun == 1 && alarmArray[ALRM_FAC_CONFIRM] == ALRM_LVL_OFF)
+    if ( (firstrun == 1) && (alarmArray[ALRM_FAC_CONFIRM] == ALRM_LVL_OFF) )
     {
         alarmArray[ALRM_FAC_TOGGLE] = ALRM_LVL_OFF;    //only enable options beep AFTER gyro init
         alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_OFF;
@@ -86,21 +88,19 @@ void alarmHandler(void)
     {
         firstrun = 0;
     }
-
 #endif
 #if defined(FAILSAFE)
-
-    if (failsafeCnt > (5 * FAILSAFE_DELAY) && f.ARMED)
+    if ( (failsafeCnt > (5 * FAILSAFE_DELAY) ) && f.ARMED )
     {
         alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_FAILSAFE_PANIC;                                                                   //set failsafe warning level to 1 while landing
 
-        if (failsafeCnt > 5 * (FAILSAFE_DELAY + FAILSAFE_OFF_DELAY))
+        if (failsafeCnt > 5 * (FAILSAFE_DELAY + FAILSAFE_OFF_DELAY) )
         {
             alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_FAILSAFE_FINDME;    //start "find me" signal after landing
         }
     }
 
-    if (failsafeCnt > (5 * FAILSAFE_DELAY) && !f.ARMED)
+    if ( (failsafeCnt > (5 * FAILSAFE_DELAY) ) && !f.ARMED )
     {
         alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_FAILSAFE_FINDME;    // tx turned off while motors are off: start "find me" signal
     }
@@ -109,15 +109,14 @@ void alarmHandler(void)
     {
         alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_OFF;    // turn off alarm if TX is okay
     }
-
 #endif
 #if GPS
-
-    if ((f.GPS_mode != GPS_MODE_NONE) && !f.GPS_FIX)
+    if ( (f.GPS_mode != GPS_MODE_NONE) && !f.GPS_FIX )
     {
         alarmArray[ALRM_FAC_GPS] = ALRM_LVL_GPS_NOFIX;
     }
-    else if (!f.GPS_FIX)
+    else
+    if (!f.GPS_FIX)
     {
         alarmArray[ALRM_FAC_GPS] = ALRM_LVL_ON;
     }
@@ -125,10 +124,8 @@ void alarmHandler(void)
     {
         alarmArray[ALRM_FAC_GPS] = ALRM_LVL_OFF;
     }
-
 #endif
 #if defined(BUZZER)
-
     if (rcOptions[BOXBEEPERON])
     {
         alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_ON;
@@ -137,23 +134,20 @@ void alarmHandler(void)
     {
         alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_OFF;
     }
-
 #endif
 #if defined(POWERMETER)
-
-    if ((pMeter[PMOTOR_SUM] < pAlarm) || (pAlarm == 0) || !f.ARMED)
+    if ( (pMeter[PMOTOR_SUM] < pAlarm) || (pAlarm == 0) || !f.ARMED )
     {
         alarmArray[ALRM_FAC_PMETER] = ALRM_LVL_OFF;
     }
-    else if (pMeter[PMOTOR_SUM] > pAlarm)
+    else
+    if (pMeter[PMOTOR_SUM] > pAlarm)
     {
         alarmArray[ALRM_FAC_PMETER] = ALRM_LVL_ON;
     }
-
 #endif
 #if defined(ARMEDTIMEWARNING)
-
-    if (ArmedTimeWarningMicroSeconds > 0 && armedTime >= ArmedTimeWarningMicroSeconds && f.ARMED)
+    if ( (ArmedTimeWarningMicroSeconds > 0) && (armedTime >= ArmedTimeWarningMicroSeconds) && f.ARMED )
     {
         alarmArray[ALRM_FAC_RUNTIME] = ALRM_LVL_ON;
     }
@@ -161,31 +155,31 @@ void alarmHandler(void)
     {
         alarmArray[ALRM_FAC_RUNTIME] = ALRM_LVL_OFF;
     }
-
 #endif
 #if defined(VBAT)
-
     if (vbatMin < conf.vbatlevel_crit)
     {
         alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_VBAT_CRIT;
     }
-    else if ((analog.vbat > conf.vbatlevel_warn1)  || (NO_VBAT > analog.vbat))
+    else
+    if ( (analog.vbat > conf.vbatlevel_warn1) || (NO_VBAT > analog.vbat) )
     {
         alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_OFF;
     }
-    else if (analog.vbat > conf.vbatlevel_warn2)
+    else
+    if (analog.vbat > conf.vbatlevel_warn2)
     {
         alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_VBAT_INFO;
     }
-    else if (analog.vbat > conf.vbatlevel_crit)
+    else
+    if (analog.vbat > conf.vbatlevel_crit)
     {
         alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_VBAT_WARN;
     }
-
     //else alarmArray[6] = 4;
 #endif
 
-    if (i2c_errors_count > i2c_errors_count_old + 100 || i2c_errors_count < -1)
+    if ( (i2c_errors_count > i2c_errors_count_old + 100) || (i2c_errors_count < -1) )
     {
         alarmArray[ALRM_FAC_I2CERROR] = ALRM_LVL_ON;
     }
@@ -195,12 +189,10 @@ void alarmHandler(void)
     }
 
 #if defined(LCD_TELEMETRY) && !defined(SUPPRESS_TELEMETRY_PAGE_8)
-
     if (telemetry == 8)
     {
         lcd_telemetry();    // must output the alarms states now because alarmPatternComposer() will reset alarmArray[]
     }
-
 #endif
     alarmPatternComposer();
 }
@@ -214,80 +206,92 @@ void alarmPatternComposer()
 #if defined(BUZZER)
     resource = 1;                                                                                  //buzzer selected
 
-    if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_FINDME))
+    if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_FINDME) )
     {
         patternDecode(resource, 200, 0, 0, 50, 2000);    //failsafe "find me" signal
     }
-    else if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_PANIC) ||
-             IS_ALARM_SET(ALRM_FAC_ACC, ALRM_LVL_ON))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_PANIC) ||
+        IS_ALARM_SET(ALRM_FAC_ACC, ALRM_LVL_ON) )
     {
         patternDecode(resource, 50, 200, 200, 50, 50);    //failsafe "panic"  or Acc not calibrated
     }
-    else if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_1))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_1) )
     {
         patternDecode(resource, 50, 0, 0, 50, 0);    //toggle 1
     }
-    else if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_2))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_2) )
     {
         patternDecode(resource, 50, 50, 0, 50, 0);    //toggle 2
     }
-    else if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_ELSE))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_TOGGLE, ALRM_LVL_TOGGLE_ELSE) )
     {
         patternDecode(resource, 50, 50, 50, 50, 0);    //toggle else
     }
 
-#if GPS
-    else if (IS_ALARM_SET(ALRM_FAC_GPS, ALRM_LVL_GPS_NOFIX))
+# if GPS
+    else
+    if (IS_ALARM_SET(ALRM_FAC_GPS, ALRM_LVL_GPS_NOFIX) )
     {
         patternDecode(resource, 50, 50, 0, 50, 50);    //gps installed but no fix
     }
-
-#endif
-    else if (IS_ALARM_SET(ALRM_FAC_BEEPERON, ALRM_LVL_ON))
+# endif
+    else
+    if (IS_ALARM_SET(ALRM_FAC_BEEPERON, ALRM_LVL_ON) )
     {
         patternDecode(resource, 50, 50, 50, 50, 50);    //BeeperOn
     }
 
-#ifdef POWERMETER
-    else if (IS_ALARM_SET(ALRM_FAC_PMETER, ALRM_LVL_ON))
+# ifdef POWERMETER
+    else
+    if (IS_ALARM_SET(ALRM_FAC_PMETER, ALRM_LVL_ON) )
     {
         patternDecode(resource, 50, 50, 0, 50, 120);    //pMeter Warning
     }
-
-#endif
-    else if (IS_ALARM_SET(ALRM_FAC_RUNTIME, ALRM_LVL_ON))
+# endif
+    else
+    if (IS_ALARM_SET(ALRM_FAC_RUNTIME, ALRM_LVL_ON) )
     {
         patternDecode(resource, 50, 50, 50, 50, 0);    //Runtime warning
     }
 
-#ifdef VBAT
-    else if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_CRIT))
+# ifdef VBAT
+    else
+    if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_CRIT) )
     {
         patternDecode(resource, 50, 50, 200, 50, 2000);    //vbat critical
     }
-    else if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_WARN))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_WARN) )
     {
         patternDecode(resource, 50, 200, 0, 50, 2000);    //vbat warning
     }
-    else if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_INFO))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_VBAT, ALRM_LVL_VBAT_INFO) )
     {
         patternDecode(resource, 200, 0, 0, 50, 2000);    //vbat info
     }
-
-#endif
-    else if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_1))
+# endif
+    else
+    if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_1) )
     {
         patternDecode(resource, 200, 0, 0, 50, 200);    //confirmation indicator 1x
     }
-    else if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_2))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_2) )
     {
         patternDecode(resource, 200, 200, 0, 50, 200);    //confirmation indicator 2x
     }
-    else if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_ELSE))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_ELSE) )
     {
         patternDecode(resource, 200, 200, 200, 50, 200);    //confirmation indicator 3x
     }
-    else if (SequenceActive[(uint8_t)resource] == 1)
+    else
+    if (SequenceActive[(uint8_t)resource] == 1)
     {
         patternDecode(resource, 0, 0, 0, 0, 0);    // finish last sequence if not finished yet
     }
@@ -299,12 +303,12 @@ void alarmPatternComposer()
     alarmArray[ALRM_FAC_ACC] = ALRM_LVL_OFF;                                                                             //reset acc not calibrated
 #endif
 #if defined(PILOTLAMP)
-
-    if (IS_ALARM_SET(ALRM_FAC_I2CERROR, ALRM_LVL_ON))
+    if (IS_ALARM_SET(ALRM_FAC_I2CERROR, ALRM_LVL_ON) )
     {
         PilotLampSequence(100, B000111, 2);    //I2C Error
     }
-    else if (IS_ALARM_SET(ALRM_FAC_BEEPERON, ALRM_LVL_ON))
+    else
+    if (IS_ALARM_SET(ALRM_FAC_BEEPERON, ALRM_LVL_ON) )
     {
         PilotLampSequence(100, B0101 << 8 | B00010001, 4);    //BeeperOn
     }
@@ -316,11 +320,13 @@ void alarmPatternComposer()
         {
             patternDecode(resource, 100, 100, 100, 100, 1000);    //Green Slow Blink-->angle
         }
-        else if (f.ARMED && f.HORIZON_MODE)
+        else
+        if (f.ARMED && f.HORIZON_MODE)
         {
             patternDecode(resource, 200, 200, 200, 100, 1000);    //Green mid Blink-->horizon
         }
-        else if (f.ARMED)
+        else
+        if (f.ARMED)
         {
             patternDecode(resource, 100, 100, 0, 100, 1000);    //Green fast Blink-->acro
         }
@@ -330,13 +336,13 @@ void alarmPatternComposer()
         }
 
         resource = 3;
-#if GPS
-
-        if (IS_ALARM_SET(ALRM_FAC_GPS, ALRM_LVL_ON))
+# if GPS
+        if (IS_ALARM_SET(ALRM_FAC_GPS, ALRM_LVL_ON) )
         {
             patternDecode(resource, 100, 100, 100, 100, 100);    // blue fast blink -->no gps fix
         }
-        else if (f.GPS_mode != GPS_MODE_NONE)
+        else
+        if (f.GPS_mode != GPS_MODE_NONE)
         {
             patternDecode(resource, 100, 100, 100, 100, 1000);    //blue slow blink --> gps active
         }
@@ -344,17 +350,17 @@ void alarmPatternComposer()
         {
             setTiming(resource, 100, 1000);    //blue short blink -->gps fix ok
         }
-
-#else
+# else
         turnOff(resource);
-#endif
+# endif
         resource = 4;
 
-        if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_PANIC))
+        if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_PANIC) )
         {
             setTiming(resource, 100, 100);    //Red fast blink--> failsafe panic
         }
-        else if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_FINDME))
+        else
+        if (IS_ALARM_SET(ALRM_FAC_FAILSAFE, ALRM_LVL_FAILSAFE_FINDME) )
         {
             patternDecode(resource, 1000, 0, 0, 0, 2000);    //red slow blink--> failsafe find me
         }
@@ -363,7 +369,6 @@ void alarmPatternComposer()
             turnOff(resource);
         }
     }
-
 #endif
 }
 
@@ -389,7 +394,8 @@ void patternDecode(uint8_t resource, uint16_t first, uint16_t second, uint16_t t
             setTiming(resource, pattern[resource][icnt[resource]], pattern[resource][4]);
         }
     }
-    else if (LastToggleTime[resource] < (millis() - pattern[resource][3]))   //sequence is over: reset everything
+    else
+    if (LastToggleTime[resource] < (millis() - pattern[resource][3]) )       //sequence is over: reset everything
     {
         icnt[resource] = 0;
         SequenceActive[resource] = 0;                               //sequence is now done, cycleDone sequence may begin
@@ -399,7 +405,7 @@ void patternDecode(uint8_t resource, uint16_t first, uint16_t second, uint16_t t
         return;
     }
 
-    if (cycleDone[resource] == 1 || pattern[resource][icnt[resource]] == 0)              //single on off cycle is done
+    if ( (cycleDone[resource] == 1) || (pattern[resource][icnt[resource]] == 0) )              //single on off cycle is done
     {
         if (icnt[resource] < 3)
         {
@@ -421,7 +427,8 @@ void turnOff(uint8_t resource)
             resourceIsOn[1] = 0;
         }
     }
-    else if (resource == 0)
+    else
+    if (resource == 0)
     {
         if (resourceIsOn[0])
         {
@@ -429,43 +436,46 @@ void turnOff(uint8_t resource)
             LEDPIN_OFF;
         }
     }
-    else if (resource == 2)
+    else
+    if (resource == 2)
     {
         if (resourceIsOn[2])
         {
             resourceIsOn[2] = 0;
-#if defined (PILOTLAMP)
+#if defined(PILOTLAMP)
             PilotLamp(PL_GRN_OFF);
 #endif
         }
     }
-    else if (resource == 3)
+    else
+    if (resource == 3)
     {
         if (resourceIsOn[3])
         {
             resourceIsOn[3] = 0;
-#if defined (PILOTLAMP)
+#if defined(PILOTLAMP)
             PilotLamp(PL_BLU_OFF);
 #endif
         }
     }
-    else if (resource == 4)
+    else
+    if (resource == 4)
     {
         if (resourceIsOn[4])
         {
             resourceIsOn[4] = 0;
-#if defined (PILOTLAMP)
+#if defined(PILOTLAMP)
             PilotLamp(PL_RED_OFF);
 #endif
         }
     }
 }
 
-#if defined (PILOTLAMP)
+#if defined(PILOTLAMP)
 //original code based on mr.rc-cam and jevermeister work
 //modified by doughboy to use timer interrupt
 
-#define PL_BUF_SIZE 8
+# define PL_BUF_SIZE 8
 volatile uint8_t queue[PL_BUF_SIZE]; //circular queue
 volatile uint8_t head = 0;
 volatile uint8_t tail = 0;
@@ -473,7 +483,6 @@ volatile uint8_t tail = 0;
 /********************************************************************/
 /****                   Pilot Lamp Handling                      ****/
 /********************************************************************/
-
 
 //define your light pattern by bits, 0=off 1=on
 //define up to 5 patterns that cycle using 15 bits, pattern starts at bit 0 in groups of 3
@@ -492,7 +501,7 @@ void PilotLampSequence(uint16_t speed, uint16_t pattern, uint8_t num_patterns)
     static uint8_t seqno = 0;
     static uint16_t lastpattern = 0;  //since variables are static, when switching patterns, the correct pattern will start on the second sequence
 
-    if (millis() < (lastswitch + speed))
+    if (millis() < (lastswitch + speed) )
     {
         return;    //not time to change pattern yet
     }
@@ -501,7 +510,7 @@ void PilotLampSequence(uint16_t speed, uint16_t pattern, uint8_t num_patterns)
 
     for (uint8_t i = 0; i < 3; i++)
     {
-        uint8_t state = (pattern >> (seqno * 3 + i)) & 1; //get pattern bit
+        uint8_t state = (pattern >> (seqno * 3 + i) ) & 1; //get pattern bit
         //since value is multiple of 25, we can calculate time based on pattern position
         //i=0 is green, 1=blue, 2=red, green ON ticks is calculated as 50*(0+1)-1*25 = 25 ticks
         uint8_t tick = 50 * (i + 1);
@@ -521,13 +530,14 @@ void PilotLampSequence(uint16_t speed, uint16_t pattern, uint8_t num_patterns)
 
 void PilotLamp(uint8_t count)
 {
-    if (((tail + 1) % PL_BUF_SIZE) != head)
+    if ( ( (tail + 1) % PL_BUF_SIZE ) != head )
     {
         queue[tail] = count;
         tail++;
         tail = (tail % PL_BUF_SIZE);
     }
 }
+
 //ISR code sensitive to changes, test thoroughly before flying
 ISR(PL_ISR)   //the interrupt service routine
 {
@@ -542,12 +552,13 @@ ISR(PL_ISR)   //the interrupt service routine
             uint8_t c = queue[h];
             PL_PIN_ON;
             PL_CHANNEL += c;
-            h = ((h + 1) % PL_BUF_SIZE);
+            h = ( (h + 1) % PL_BUF_SIZE );
             head = h;
             state = 1;
         }
     }
-    else if (state == 1)
+    else
+    if (state == 1)
     {
         PL_PIN_OFF;
         PL_CHANNEL += PL_IDLE;
@@ -595,13 +606,14 @@ void blinkLED(uint8_t num, uint8_t ontime, uint8_t repeat)
 
 void setTiming(uint8_t resource, uint16_t pulse, uint16_t pause)
 {
-    if (!resourceIsOn[resource] && (millis() >= (LastToggleTime[resource] + pause)) && pulse != 0)
+    if (!resourceIsOn[resource] && (millis() >= (LastToggleTime[resource] + pause) ) && (pulse != 0) )
     {
         resourceIsOn[resource] = 1;
         toggleResource(resource, 1);
         LastToggleTime[resource] = millis();
     }
-    else if ((resourceIsOn[resource] && (millis() >= LastToggleTime[resource] + pulse)) || (pulse == 0 && resourceIsOn[resource]))
+    else
+    if ( (resourceIsOn[resource] && (millis() >= LastToggleTime[resource] + pulse) ) || ( ( pulse == 0) && resourceIsOn[resource] ) )
     {
         resourceIsOn[resource] = 0;
         toggleResource(resource, 0);
@@ -614,9 +626,9 @@ void toggleResource(uint8_t resource, uint8_t activate)
 {
     switch (resource)
     {
-#if defined (BUZZER)
-
+#if defined(BUZZER)
         case 1:
+
             if (activate == 1)
             {
                 BUZZERPIN_ON;
@@ -625,12 +637,11 @@ void toggleResource(uint8_t resource, uint8_t activate)
             {
                 BUZZERPIN_OFF;
             }
-
             break;
 #endif
-#if defined (PILOTLAMP)
-
+#if defined(PILOTLAMP)
         case 2:
+
             if (activate == 1)
             {
                 PilotLamp(PL_GRN_ON);
@@ -643,6 +654,7 @@ void toggleResource(uint8_t resource, uint8_t activate)
             break;
 
         case 3:
+
             if (activate == 1)
             {
                 PilotLamp(PL_BLU_ON);
@@ -655,6 +667,7 @@ void toggleResource(uint8_t resource, uint8_t activate)
             break;
 
         case 4:
+
             if (activate == 1)
             {
                 PilotLamp(PL_RED_ON);
@@ -663,12 +676,12 @@ void toggleResource(uint8_t resource, uint8_t activate)
             {
                 PilotLamp(PL_RED_OFF);
             }
-
             break;
 #endif
 
         case 0:
         default:
+
             if (activate == 1)
             {
                 LEDPIN_ON;
@@ -680,10 +693,7 @@ void toggleResource(uint8_t resource, uint8_t activate)
 
             break;
     }
-
-    return;
 }
-
 
 /********************************************************************/
 /****                      LED Ring Handling                     ****/
@@ -691,28 +701,32 @@ void toggleResource(uint8_t resource, uint8_t activate)
 
 #if defined(LED_RING)
 
-#define LED_RING_ADDRESS 0xDA //7 bits
+# define LED_RING_ADDRESS 0xDA //7 bits
 
 void i2CLedRingState(void)
 {
     uint8_t b[10];
+
     b[0] = 'M'; // MultiwII mode
 
     if (f.ARMED)   // Motors running = flying
     {
-        if (!(f.ANGLE_MODE || f.HORIZON_MODE)) //ACRO
+        if (!(f.ANGLE_MODE || f.HORIZON_MODE) ) //ACRO
         {
             b[0] = 'x';
         }
-        else if (f.GPS_mode == GPS_MODE_RTH)   //RTH
+        else
+        if (f.GPS_mode == GPS_MODE_RTH)        //RTH
         {
             b[0] = 'w';
         }
-        else if (f.GPS_mode == GPS_MODE_HOLD)  //Position Hold
+        else
+        if (f.GPS_mode == GPS_MODE_HOLD)       //Position Hold
         {
             b[0] = 'v';
         }
-        else if (f.HORIZON_MODE)   //HORIZON mode
+        else
+        if (f.HORIZON_MODE)        //HORIZON mode
         {
             b[0] = 'y';
         }
@@ -725,7 +739,8 @@ void i2CLedRingState(void)
         i2c_write(b[0]);
         i2c_stop();
     }
-    else if (!f.ACC_CALIBRATED)     // Multiwii not stable or uncalibrated
+    else
+    if (!f.ACC_CALIBRATED)          // Multiwii not stable or uncalibrated
     {
         b[0] = 't';
         i2c_rep_start(LED_RING_ADDRESS);
@@ -740,7 +755,8 @@ void i2CLedRingState(void)
         {
             b[1] = 1;
         }
-        else if (f.HORIZON_MODE)
+        else
+        if (f.HORIZON_MODE)
         {
             b[1] = 2;
         }
@@ -767,13 +783,13 @@ void i2CLedRingState(void)
             b[3] = 0;
         }
 
-#if GPS
-
+# if GPS
         if (rcOptions[BOXGPSHOME])
         {
             b[4] = 2;
         }
-        else if (rcOptions[BOXGPSHOLD])
+        else
+        if (rcOptions[BOXGPSHOLD])
         {
             b[4] = 1;
         }
@@ -781,10 +797,9 @@ void i2CLedRingState(void)
         {
             b[4] = 0;
         }
-
-#else
+# else
         b[4] = 0;
-#endif
+# endif
         b[5] = (180 - att.heading) / 2; // 1 unit = 2 degrees;
         b[6] = GPS_numSat;
         i2c_rep_start(LED_RING_ADDRESS);
@@ -797,21 +812,20 @@ void i2CLedRingState(void)
         i2c_stop();
     }
 
-#if defined (VBAT)
-
+# if defined(VBAT)
     if (analog.vbat < conf.vbatlevel_warn1)  // Uh oh - battery low
     {
         i2c_rep_start(LED_RING_ADDRESS);
         i2c_write('r');
         i2c_stop();
     }
-
 # endif
 }
 
 void blinkLedRing(void)
 {
     uint8_t b[3];
+
     b[0] = 'g';
     b[1] = 10;
     b[2] = 10;
@@ -824,6 +838,7 @@ void blinkLedRing(void)
 
     i2c_stop();
 }
+
 #endif
 
 /********************************************************************/
@@ -837,14 +852,15 @@ static enum
 {
     LED_FLASHER_AUTO,
     LED_FLASHER_CUSTOM
-} led_flasher_control = LED_FLASHER_AUTO;
+}
+led_flasher_control = LED_FLASHER_AUTO;
 
 void init_led_flasher()
 {
-#if defined(LED_FLASHER_DDR)
+# if defined(LED_FLASHER_DDR)
     LED_FLASHER_DDR |= (1 << LED_FLASHER_BIT);
     switch_led_flasher(0);
-#endif
+# endif
 }
 
 void led_flasher_set_sequence(uint8_t s)
@@ -854,35 +870,33 @@ void led_flasher_set_sequence(uint8_t s)
 
 void inline switch_led_flasher(uint8_t on)
 {
-#if defined(LED_FLASHER_DDR)
-#ifndef LED_FLASHER_INVERT
-
+# if defined(LED_FLASHER_DDR)
+#  ifndef LED_FLASHER_INVERT
     if (on)
     {
-#else
-
+#  else
     if (!on)
     {
-#endif
+#  endif
         LED_FLASHER_PORT |= (1 << LED_FLASHER_BIT);
     }
     else
     {
         LED_FLASHER_PORT &= ~(1 << LED_FLASHER_BIT);
     }
-
-#endif
+# endif
 }
 
 static uint8_t inline led_flasher_on()
 {
     uint8_t seg = (currentTime / 1000 / 125) % 8;
+
     return (led_flasher_sequence & 1 << seg);
 }
 
 void auto_switch_led_flasher()
 {
-    if (led_flasher_on())
+    if (led_flasher_on() )
     {
         switch_led_flasher(1);
     }
@@ -902,35 +916,29 @@ void led_flasher_autoselect_sequence()
         return;
     }
 
-#if defined(LED_FLASHER_SEQUENCE_MAX)
-
+# if defined(LED_FLASHER_SEQUENCE_MAX)
     /* do we want the complete illumination no questions asked? */
     if (rcOptions[BOXLEDMAX])
     {
         led_flasher_set_sequence(LED_FLASHER_SEQUENCE_MAX);
         return;
     }
-
-#endif
-#if defined(LED_FLASHER_SEQUENCE_LOW)
-
+# endif
+# if defined(LED_FLASHER_SEQUENCE_LOW)
     if (rcOptions[BOXLEDLOW])
     {
         led_flasher_set_sequence(LED_FLASHER_SEQUENCE_LOW);
         return;
     }
-
-#endif
-#if defined(LED_FLASHER_SEQUENCE_ARMED)
-
+# endif
+# if defined(LED_FLASHER_SEQUENCE_ARMED)
     /* do we have a special sequence for armed copters? */
     if (f.ARMED)
     {
         led_flasher_set_sequence(LED_FLASHER_SEQUENCE_ARMED);
         return;
     }
-
-#endif
+# endif
     /* Let's load the plain old boring sequence as a last resort */
     led_flasher_set_sequence(LED_FLASHER_SEQUENCE);
 }
@@ -946,15 +954,13 @@ void init_landing_lights(void)
 
 void inline switch_landing_lights(uint8_t on)
 {
-#ifndef LANDING_LIGHTS_INVERT
-
+# ifndef LANDING_LIGHTS_INVERT
     if (on)
     {
-#else
-
+# else
     if (!on)
     {
-#endif
+# endif
         LANDING_LIGHTS_PORT |= 1 << LANDING_LIGHTS_BIT;
     }
     else
@@ -966,13 +972,13 @@ void inline switch_landing_lights(uint8_t on)
 void auto_switch_landing_lights(void)
 {
     if (rcOptions[BOXLLIGHTS]
-#if defined(LANDING_LIGHTS_AUTO_ALTITUDE) & SONAR
+# if defined(LANDING_LIGHTS_AUTO_ALTITUDE) & SONAR
         || (sonarAlt >= 0 && sonarAlt <= LANDING_LIGHTS_AUTO_ALTITUDE && f.ARMED)
-#endif
-#if defined(LED_FLASHER_DDR) & defined(LANDING_LIGHTS_ADOPT_LED_FLASHER_PATTERN)
-        || (led_flasher_on())
-#endif
-       )
+# endif
+# if defined(LED_FLASHER_DDR) & defined(LANDING_LIGHTS_ADOPT_LED_FLASHER_PATTERN)
+        || (led_flasher_on() )
+# endif
+        )
     {
         switch_landing_lights(1);
     }
@@ -981,24 +987,25 @@ void auto_switch_landing_lights(void)
         switch_landing_lights(0);
     }
 }
+
 #endif
 
 /********************************************************************/
 /****                    Variometer signaling                    ****/
 /********************************************************************/
 #ifdef VARIOMETER
-#define TRESHOLD_UP    50           // (m1) treshhold for up velocity
-#define TRESHOLD_DOWN  40           // (m1) treshhold for up velocity
-#define TRESHOLD_UP_MINUS_DOWN  10  // (m1) you compute: TRESHOLD_UP - TRESHOLD_DOWN
-#define ALTITUDE_INTERVAL 400       // (m2) in calls; interval to perodically observe altitude change
-#define DELTA_ALT_TRESHOLD 200      // (m2) in cm; treshold for delta altitude after ALTITUDE_INTERVAL
-#define DELTA_T 5                   // (m2) divisor for delta_alt to compute vel
-#define SIGNAL_SCALE   4       // you compute: (50ms per beep / 5*3ms cycle time)
-#define SILENCE_M      200     // max duration of silence in calls
-#define SILENCE_SCALE  33      // vario scale: larger -> slower decay of silence
-#define SILENCE_A      6600    // you compute: SILENCE_M * SILENCE_SCALE
-#define DURATION_SUP   5       // sup duration of signal
-#define DURATION_SCALE 100     // vario scale: larger -> slower rise of length
+# define TRESHOLD_UP    50          // (m1) treshhold for up velocity
+# define TRESHOLD_DOWN  40          // (m1) treshhold for up velocity
+# define TRESHOLD_UP_MINUS_DOWN  10 // (m1) you compute: TRESHOLD_UP - TRESHOLD_DOWN
+# define ALTITUDE_INTERVAL 400      // (m2) in calls; interval to perodically observe altitude change
+# define DELTA_ALT_TRESHOLD 200     // (m2) in cm; treshold for delta altitude after ALTITUDE_INTERVAL
+# define DELTA_T 5                  // (m2) divisor for delta_alt to compute vel
+# define SIGNAL_SCALE   4      // you compute: (50ms per beep / 5*3ms cycle time)
+# define SILENCE_M      200    // max duration of silence in calls
+# define SILENCE_SCALE  33     // vario scale: larger -> slower decay of silence
+# define SILENCE_A      6600   // you compute: SILENCE_M * SILENCE_SCALE
+# define DURATION_SUP   5      // sup duration of signal
+# define DURATION_SCALE 100    // vario scale: larger -> slower rise of length
 
 /* vario_signaling() gets called every 5th cycle (~2ms - 5ms) -> (~10ms - 25ms)
  * modulates silence duration between tones and tone duration
@@ -1013,12 +1020,13 @@ void vario_signaling(void)
     static uint8_t max_up = 0;
     uint16_t s = 0;
     int16_t v = 0;
+
     /* method 1: use vario to follow short term up/down movement : */
-#if (VARIOMETER == 1) || (VARIOMETER == 12)
+# if (VARIOMETER == 1) || (VARIOMETER == 12)
     {
         uint8_t up = (alt.vario > 0 ? 1 : 0);  //, down = (vario < 0 ? 1 : 0 );
         //int16_t v = abs(vario) - up * TRESHOLD_UP - down * TRESHOLD_DOWN;
-        v = abs(alt.vario) - up * (TRESHOLD_UP_MINUS_DOWN) - TRESHOLD_DOWN;
+        v = abs(alt.vario) - up * (TRESHOLD_UP_MINUS_DOWN) -TRESHOLD_DOWN;
 
         if (silence > 0)
         {
@@ -1052,13 +1060,13 @@ void vario_signaling(void)
             }
         } // end of (v>0)
     }
-#endif // end method 1
-    /* method 2: use altitude to follow long term up/down movement : */
-#if (VARIOMETER == 2) || (VARIOMETER == 12)
+# endif // end method 1
+        /* method 2: use altitude to follow long term up/down movement : */
+# if (VARIOMETER == 2) || (VARIOMETER == 12)
     {
         static uint16_t t = 0;
 
-        if (!(t++ % ALTITUDE_INTERVAL))
+        if (!(t++ % ALTITUDE_INTERVAL) )
         {
             static int32_t last_BaroAlt = 0;
             int32_t delta_BaroAlt = alt.EstAlt - last_BaroAlt;
@@ -1074,10 +1082,10 @@ void vario_signaling(void)
             last_BaroAlt = alt.EstAlt;
         }
     }
-#endif // end method 2
+# endif // end method 2
 
     /* something to signal now? */
-    if ((silence == 0) && (max_v > 0))
+    if ( (silence == 0) && (max_v > 0) )
     {
         // create new signal
         uint16_t d = (DURATION_SUP * max_v) / (DURATION_SCALE + max_v);
@@ -1098,28 +1106,24 @@ void vario_output(uint16_t d, uint8_t up)
         return;
     }
 
-#if defined(SUPPRESS_VARIOMETER_UP)
-
+# if defined(SUPPRESS_VARIOMETER_UP)
     if (up)
     {
         return;
     }
-
-#elif defined(SUPPRESS_VARIOMETER_DOWN)
-
+# elif defined(SUPPRESS_VARIOMETER_DOWN)
     if (!up)
     {
         return;
     }
-
-#endif
-#ifdef VARIOMETER_SINGLE_TONE
+# endif
+# ifdef VARIOMETER_SINGLE_TONE
     uint8_t s1 = 0x07;
     uint8_t d1 = d;
-#else
+# else
     uint8_t s1 = (up ? 0x05 : 0x07);
     uint8_t d1 = d / 2;
-#endif
+# endif
 
     if (d1 < 1)
     {
@@ -1131,7 +1135,7 @@ void vario_output(uint16_t d, uint8_t up)
         LCDprint(s1);
     }
 
-#ifndef VARIOMETER_SINGLE_TONE
+# ifndef VARIOMETER_SINGLE_TONE
     uint8_t s2 = (up ? 0x07 : 0x05);
     uint8_t d2 = d - d1;
 
@@ -1144,9 +1148,7 @@ void vario_output(uint16_t d, uint8_t up)
     {
         LCDprint(s2);
     }
-
-#endif
+# endif
 }
 
 #endif
-

@@ -2,8 +2,7 @@
 // ****************
 // ACC common part
 // ****************
-void
-ACC_Common()
+void ACC_Common()
 {
     static int32_t a[3];
 
@@ -31,7 +30,7 @@ ACC_Common()
         }
     }
 
-#if defined(INFLIGHT_ACC_CALIBRATION)
+# if defined(INFLIGHT_ACC_CALIBRATION)
     static int32_t b[3];
     static int16_t accZero_saved[3] = { 0, 0, 0 };
     static int16_t angleTrim_saved[2] = { 0, 0 };
@@ -92,52 +91,52 @@ ACC_Common()
         conf.angleTrim[PITCH] = 0;
         writeGlobalSet(1);  // write accZero in EEPROM
     }
-
-#endif
+# endif
     imu.accADC[ROLL] -= global_conf.accZero[ROLL];
     imu.accADC[PITCH] -= global_conf.accZero[PITCH];
     imu.accADC[YAW] -= global_conf.accZero[YAW];
-#if defined(SENSORS_TILT_45DEG_LEFT)
-    int16_t temp = ((imu.accADC[PITCH] - imu.accADC[ROLL]) * 7) / 10;
-    imu.accADC[ROLL] = ((imu.accADC[ROLL] + imu.accADC[PITCH]) * 7) / 10;
+# if defined(SENSORS_TILT_45DEG_LEFT)
+    int16_t temp = ( (imu.accADC[PITCH] - imu.accADC[ROLL]) * 7 ) / 10;
+    imu.accADC[ROLL] = ( (imu.accADC[ROLL] + imu.accADC[PITCH]) * 7 ) / 10;
     imu.accADC[PITCH] = temp;
-#endif
-#if defined(SENSORS_TILT_45DEG_RIGHT)
-    int16_t temp = ((imu.accADC[PITCH] + imu.accADC[ROLL]) * 7) / 10;
-    imu.accADC[ROLL] = ((imu.accADC[ROLL] - imu.accADC[PITCH]) * 7) / 10;
+# endif
+# if defined(SENSORS_TILT_45DEG_RIGHT)
+    int16_t temp = ( (imu.accADC[PITCH] + imu.accADC[ROLL]) * 7 ) / 10;
+    imu.accADC[ROLL] = ( (imu.accADC[ROLL] - imu.accADC[PITCH]) * 7 ) / 10;
     imu.accADC[PITCH] = temp;
-#endif
+# endif
 }
+
 #endif // IMPLEMENTATION
 
 #if defined(MMA7455)
-    #include "acc/mma7455.cpp"
+# include "acc/mma7455.cpp"
 #elif defined(MMA8451Q)
-    #include "acc/mma8451q.cpp"
+# include "acc/mma8451q.cpp"
 #elif defined(ADXL345)
-    #include "acc/adxl345.cpp"
+# include "acc/adxl345.cpp"
 #elif defined(BMA180)
-    #include "acc/bma180.cpp"
+# include "acc/bma180.cpp"
 #elif defined(BMA280)
-    #include "acc/bma280.cpp"
+# include "acc/bma280.cpp"
 #elif defined(BMA020)
-    #include "acc/bma020.cpp"
+# include "acc/bma020.cpp"
 #elif defined(LIS3LV02)
-    #include "acc/lis3lv02.cpp"
+# include "acc/lis3lv02.cpp"
 #elif defined(LSM303DLx_ACC)
-    #include "acc/lsm303dlx.cpp"
+# include "acc/lsm303dlx.cpp"
 #elif defined(LSM330)
-    #include "acc/lsm330.cpp"
+# include "acc/lsm330.cpp"
 #elif defined(ADCACC)
-    #include "acc/adc.cpp"
+# include "acc/adc.cpp"
 #elif defined(MPU6050)
-    #include "acc/mpu6050.cpp"
+# include "acc/mpu6050.cpp"
 #elif defined(MPU9250)
-    #include "acc/mpu9250.cpp"
+# include "acc/mpu9250.cpp"
 #endif
 
 #if !defined(IMPLEMENTATION)
-    #if !defined(ACC_1G)
-        #define ACC_1G 256
-    #endif
+# if !defined(ACC_1G)
+#  define ACC_1G 256
+# endif
 #endif // IMPLEMENTATION

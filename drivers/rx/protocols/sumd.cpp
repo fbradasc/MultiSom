@@ -18,18 +18,18 @@ void configureReceiver()
 
 #define SUMD_SYNCBYTE 0xA8
 #define SUMD_MAXCHAN 8
-#define SUMD_BUFFSIZE SUMD_MAXCHAN*2 + 5 // 6 channels + 5 -> 17 bytes for 6 channels
+#define SUMD_BUFFSIZE SUMD_MAXCHAN * 2 + 5 // 6 channels + 5 -> 17 bytes for 6 channels
 static uint8_t sumdIndex = 0;
 static uint8_t sumdSize = 0;
 static uint8_t sumd[SUMD_BUFFSIZE] = {0};
 
 void readSerial_RX(void)
 {
-    while (SerialAvailable(RX_SERIAL_PORT))
+    while (SerialAvailable(RX_SERIAL_PORT) )
     {
         int val = SerialRead(RX_SERIAL_PORT);
 
-        if (sumdIndex == 0 && val != SUMD_SYNCBYTE)
+        if ( (sumdIndex == 0) && (val != SUMD_SYNCBYTE) )
         {
             continue;
         }
@@ -59,12 +59,11 @@ void readSerial_RX(void)
 
             for (uint8_t b = 0; b < sumdSize; b++)
             {
-                rcValue[b] = ((sumd[2 * b + 3] << 8) | sumd[2 * b + 4]) >> 3;
+                rcValue[b] = ( (sumd[2 * b + 3] << 8) | sumd[2 * b + 4] ) >> 3;
             }
 
             spekFrameDone = 0x01; // havent checked crc at all
 #if defined(FAILSAFE)
-
             if (sumd[1] == 0x01) // clear FailSafe counter
             {
                 if (failsafeCnt > 20)
@@ -76,7 +75,6 @@ void readSerial_RX(void)
                     failsafeCnt = 0;
                 }
             }
-
 #endif
         }
     }
@@ -95,7 +93,7 @@ uint16_t readRawRC(uint8_t chan)
         data = 1500;
     }
 
-    return data; // We return the value correctly copied when the IRQ's where disabled
+    return(data); // We return the value correctly copied when the IRQ's where disabled
 }
 
 /**************************************************************************************/
@@ -109,6 +107,7 @@ void computeRC()
     static uint8_t rc4ValuesIndex = 0;
     uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
+
     rc4ValuesIndex++;
 
     if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
@@ -122,7 +121,7 @@ void computeRC()
 #if defined(STICK_SCALING_FACTOR)
         if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
+            rcDataTmp = ( (int16_t)readRawRC(chan) - 1500 ) * STICK_SCALING_FACTOR + 1500;
         }
         else
 #endif
@@ -139,9 +138,9 @@ void computeRC()
             rcData[chan] = rcDataTmp;
         }
 
-        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if ( (chan < 8) && (rcSerialCount > 0) ) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
-            rcSerialCount --;
+            rcSerialCount--;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif

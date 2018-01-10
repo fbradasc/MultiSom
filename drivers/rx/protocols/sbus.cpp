@@ -2,7 +2,6 @@
 /***************             Global RX related variables           ********************/
 /**************************************************************************************/
 
-
 //RAW RC values will be store here
 volatile uint16_t rcValue[RC_CHANS] = {1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500}; // interval [1000;2000]
 
@@ -17,26 +16,32 @@ void configureReceiver()
     /******************    Configure each rc pin for PCINT    ***************************/
     SerialOpen(RX_SERIAL_PORT, 100000);
 #if defined(MEGA)
-
     switch (RX_SERIAL_PORT) //parity
     {
         case 0:
+        {
             UCSR0C |= (1 << UPM01) | (1 << USBS0);
             break;
+        }
 
         case 1:
+        {
             UCSR1C |= (1 << UPM11) | (1 << USBS1);
             break;
+        }
 
         case 2:
+        {
             UCSR2C |= (1 << UPM21) | (1 << USBS2);
             break;
+        }
 
         case 3:
+        {
             UCSR3C |= (1 << UPM31) | (1 << USBS3);
             break;
+        }
     }
-
 #endif
 }
 
@@ -49,11 +54,11 @@ static uint16_t sbus[25] = {0};
 
 void readSerial_RX()
 {
-    while (SerialAvailable(RX_SERIAL_PORT))
+    while (SerialAvailable(RX_SERIAL_PORT) )
     {
         int val = SerialRead(RX_SERIAL_PORT);
 
-        if (sbusIndex == 0 && val != SBUS_SYNCBYTE)
+        if ( (sbusIndex == 0) && (val != SBUS_SYNCBYTE) )
         {
             continue;
         }
@@ -64,26 +69,26 @@ void readSerial_RX()
         {
             sbusIndex = 0;
             spekFrameFlags = 0x00;
-            rcValue[0]  = ((sbus[1] | sbus[2] << 8) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[1]  = ((sbus[2] >> 3 | sbus[3] << 5) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[2]  = ((sbus[3] >> 6 | sbus[4] << 2 | sbus[5] << 10) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[3]  = ((sbus[5] >> 1 | sbus[6] << 7) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[4]  = ((sbus[6] >> 4 | sbus[7] << 4) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[5]  = ((sbus[7] >> 7 | sbus[8] << 1 | sbus[9] << 9) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[6]  = ((sbus[9] >> 2 | sbus[10] << 6) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[7]  = ((sbus[10] >> 5 | sbus[11] << 3) & 0x07FF) / 2 + SBUS_MID_OFFSET; // & the other 8 + 2 channels if you need them
+            rcValue[0] = ( (sbus[1] | sbus[2] << 8) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[1] = ( (sbus[2] >> 3 | sbus[3] << 5) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[2] = ( (sbus[3] >> 6 | sbus[4] << 2 | sbus[5] << 10) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[3] = ( (sbus[5] >> 1 | sbus[6] << 7) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[4] = ( (sbus[6] >> 4 | sbus[7] << 4) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[5] = ( (sbus[7] >> 7 | sbus[8] << 1 | sbus[9] << 9) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[6] = ( (sbus[9] >> 2 | sbus[10] << 6) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[7] = ( (sbus[10] >> 5 | sbus[11] << 3) & 0x07FF ) / 2 + SBUS_MID_OFFSET; // & the other 8 + 2 channels if you need them
             //The following lines: If you need more than 8 channels, max 16 analog + 2 digital. Must comment the not needed channels!
-            rcValue[8]  = ((sbus[12] | sbus[13] << 8) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[9]  = ((sbus[13] >> 3 | sbus[14] << 5) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[10] = ((sbus[14] >> 6 | sbus[15] << 2 | sbus[16] << 10) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[11] = ((sbus[16] >> 1 | sbus[17] << 7) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[12] = ((sbus[17] >> 4 | sbus[18] << 4) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[13] = ((sbus[18] >> 7 | sbus[19] << 1 | sbus[20] << 9) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[14] = ((sbus[20] >> 2 | sbus[21] << 6) & 0x07FF) / 2 + SBUS_MID_OFFSET;
-            rcValue[15] = ((sbus[21] >> 5 | sbus[22] << 3) & 0x07FF) / 2 + SBUS_MID_OFFSET;
+            rcValue[8] = ( (sbus[12] | sbus[13] << 8) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[9] = ( (sbus[13] >> 3 | sbus[14] << 5) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[10] = ( (sbus[14] >> 6 | sbus[15] << 2 | sbus[16] << 10) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[11] = ( (sbus[16] >> 1 | sbus[17] << 7) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[12] = ( (sbus[17] >> 4 | sbus[18] << 4) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[13] = ( (sbus[18] >> 7 | sbus[19] << 1 | sbus[20] << 9) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[14] = ( (sbus[20] >> 2 | sbus[21] << 6) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
+            rcValue[15] = ( (sbus[21] >> 5 | sbus[22] << 3) & 0x07FF ) / 2 + SBUS_MID_OFFSET;
 
             // now the two Digital-Channels
-            if ((sbus[23]) & 0x0001)
+            if ( (sbus[23]) & 0x0001 )
             {
                 rcValue[16] = 2000;
             }
@@ -92,7 +97,7 @@ void readSerial_RX()
                 rcValue[16] = 1000;
             }
 
-            if ((sbus[23] >> 1) & 0x0001)
+            if ( (sbus[23] >> 1) & 0x0001 )
             {
                 rcValue[17] = 2000;
             }
@@ -104,8 +109,7 @@ void readSerial_RX()
             spekFrameDone = 0x01;
             // Failsafe: there is one Bit in the SBUS-protocol (Byte 25, Bit 4) whitch is the failsafe-indicator-bit
 #if defined(FAILSAFE)
-
-            if (!((sbus[23] >> 3) & 0x0001)) // clear FailSafe counter
+            if (!( (sbus[23] >> 3) & 0x0001 ) ) // clear FailSafe counter
             {
                 if (failsafeCnt > 20)
                 {
@@ -116,7 +120,6 @@ void readSerial_RX()
                     failsafeCnt = 0;
                 }
             }
-
 #endif
             // For some reason the SBUS data provides only about 75% of the actual RX output pulse width
             // Adjust the actual value by +/-25%.  Sign determined by pulse width above or below center
@@ -141,7 +144,6 @@ void readSerial_RX()
 /*************** SUMD ********************/
 /**************************************************************************************/
 
-
 /**************************************************************************************/
 /***************          combine and sort the RX Datas            ********************/
 /**************************************************************************************/
@@ -159,7 +161,7 @@ uint16_t readRawRC(uint8_t chan)
         data = 1500;
     }
 
-    return data; // We return the value correctly copied when the IRQ's where disabled
+    return(data); // We return the value correctly copied when the IRQ's where disabled
 }
 
 /**************************************************************************************/
@@ -173,6 +175,7 @@ void computeRC()
     static uint8_t rc4ValuesIndex = 0;
     uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
+
     rc4ValuesIndex++;
 
     if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
@@ -186,7 +189,7 @@ void computeRC()
 #if defined(STICK_SCALING_FACTOR)
         if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
+            rcDataTmp = ( (int16_t)readRawRC(chan) - 1500 ) * STICK_SCALING_FACTOR + 1500;
         }
         else
 #endif
@@ -203,9 +206,9 @@ void computeRC()
             rcData[chan] = rcDataTmp;
         }
 
-        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if ( (chan < 8) && (rcSerialCount > 0) ) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
-            rcSerialCount --;
+            rcSerialCount--;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif

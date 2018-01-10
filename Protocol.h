@@ -4,7 +4,7 @@
 //#ifndef (CLEANFLIGHT)
 typedef enum
 {
-    FEATURE_RX_PPM_BIT          = 0,
+    FEATURE_RX_PPM_BIT = 0,
     FEATURE_VBAT_BIT,
     FEATURE_INFLIGHT_ACC_CAL_BIT,
     FEATURE_RX_SERIAL_BIT,

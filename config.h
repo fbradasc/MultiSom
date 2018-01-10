@@ -27,13 +27,13 @@
  */
 
 /**************************************************************************** /
-  New Testsetup example makes WP Nav with a 328p FC possble
-  Code based on V2.4 from MWii sourcecode
-  It can fly waypoints, RTH and PosHold. waypoints  is still experimental but works
+   New Testsetup example makes WP Nav with a 328p FC possble
+   Code based on V2.4 from MWii sourcecode
+   It can fly waypoints, RTH and PosHold. waypoints  is still experimental but works
 
-  This version can run on a 328p based FC.
-  A 328p shrinks the code for small processors automatically
-  With limited Waypoints and Nav functions (Only WP is tested) */
+   This version can run on a 328p based FC.
+   A 328p shrinks the code for small processors automatically
+   With limited Waypoints and Nav functions (Only WP is tested) */
 
 //#define COPTERTEST 21  // PatrikE Benchtest OLRS as FC
 //#define COPTERTEST 99  // PatrikE EZ-Hawk
@@ -43,16 +43,15 @@
 #define STAY_IN_MISSION    // Continue Mission even in Failsafe
 
 /****  SERVO_FIELD_TRIM  ****
-  Center servos with trims.
-  With Plane Inverted in Passthru & Disarmed.
-  Calib gyro with sticks release sticks quickly
-  Make sure Elevator stay in Max position.
-  Remove TX trims when servos return to center again...
-  Ready to fly...*/
+   Center servos with trims.
+   With Plane Inverted in Passthru & Disarmed.
+   Calib gyro with sticks release sticks quickly
+   Make sure Elevator stay in Max position.
+   Remove TX trims when servos return to center again...
+   Ready to fly...*/
 #define SERVO_FIELD_TRIM
 
 /*======================================================*/
-
 
 /// Example setup for a Airplane
 //#define AIRPLANE
@@ -211,10 +210,9 @@
 //#define Gizduino       // Gizduino (Arduino Uno) + ITG3200 + ADXL345 (http://www.e-gizmo.com/KIT/6dof.html)
 //#define Ardhat
 
-
 //#define OPENLRS_V2          // OpenLRS v2 Or Orange LRS as FC Add your own sensors.
-#define HOPLIST {13,54,23}
-#define OLRS_HEADER {'O','L','R','S'}
+#define HOPLIST {13, 54, 23}
+#define OLRS_HEADER {'O', 'L', 'R', 'S'}
 /***************************    independent sensors    ********************************/
 /* leave it commented if you already checked a specific board above */
 /* I2C gyroscope */
@@ -261,16 +259,12 @@
 //#define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] = -Y; imu.gyroADC[PITCH] =  X; imu.gyroADC[YAW] = Z;}
 //#define FORCE_MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  X; imu.magADC[PITCH]  =  Y; imu.magADC[YAW]  = Z;}
 
-
-
-
 /* Board orientation shift */
 /* If you have frame designed only for + mode and you cannot rotate FC physically for flying in X mode (or vice versa)
  * you can use one of of this options for virtual sensors rotation by 45 deegres, then set type of multicopter according to flight mode.
  * Check motors order and directions of motors rotation for matching with new front point!  Uncomment only one option! */
 //#define SENSORS_TILT_45DEG_RIGHT        // rotate the FRONT 45 degres clockwise
 //#define SENSORS_TILT_45DEG_LEFT         // rotate the FRONT 45 degres counterclockwise
-
 
 /*************************************************************************************************/
 /*****************                                                                 ***************/
@@ -292,7 +286,7 @@
 
 /********************************    ARM/DISARM    *********************************/
 /* optionally disable stick combinations to arm/disarm the motors.
-  * In most cases one of the two options to arm/disarm via TX stick is sufficient */
+ * In most cases one of the two options to arm/disarm via TX stick is sufficient */
 #define ALLOW_ARM_DISARM_VIA_TX_YAW
 //#define ALLOW_ARM_DISARM_VIA_TX_ROLL
 
@@ -307,7 +301,6 @@
  * Also handy for stopping the control surfaces on your fixed wing wiggling while you
  * work on it while unarmed */
 #define DISABLE_SERVOS_WHEN_UNARMED
-
 
 /* if you want to preset min/middle/max values for servos right after flashing, because of limited physical
  * room for servo travel, then you must enable and set all three following options */
@@ -370,7 +363,7 @@
 
 /* Servo mixing for heli 120
                      {Coll,Nick,Roll} */
-#define SERVO_NICK   { +10, -10,  0 }
+#define SERVO_NICK   { +10, -10, 0 }
 #define SERVO_LEFT   { +10, +5, +10 }
 #define SERVO_RIGHT  { +10, +5, -10 }
 
@@ -395,7 +388,6 @@
  */
 //#define MY_PRIVATE_DEFAULTS "filename.h"
 
-
 /*************************************************************************************************/
 /*****************                                                                 ***************/
 /****************  SECTION  3 - RC SYSTEM SETUP                                            *******/
@@ -406,20 +398,19 @@
 
 /****************************    EXTENDED AUX STATES    ***********************************/
 /* If you uncomment this line, you can use six states for each of the aux channels (AUX1-AUX4)
-to control your copter.
-Channel values
-1000-1230
-1231-1360
-1361-1490
-1491-1620
-1621-1749
-1750-
+   to control your copter.
+   Channel values
+   1000-1230
+   1231-1360
+   1361-1490
+   1491-1620
+   1621-1749
+   1750-
 
-At this moment you can use this function only with WinGUI 2.3 release. MultiWiiConf does not support it yet
-*/
+   At this moment you can use this function only with WinGUI 2.3 release. MultiWiiConf does not support it yet
+ */
 
 // #define EXTENDED_AUX_STATES
-
 
 /**************************************************************************************/
 /********                       special receiver types             ********************/
@@ -429,7 +420,7 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 /* The following lines apply only for specific receiver with only one PPM sum signal, on digital PIN 2
    Select the right line depending on your radio brand. Feel free to modify the order in your PPM order is different */
 //#define SERIAL_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
-#define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
+#define SERIAL_SUM_PPM         ROLL, PITCH, THROTTLE, YAW, AUX1, AUX2, AUX3, AUX4, 8, 9, 10, 11 //For Robe/Hitec/Futaba
 //#define SERIAL_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
 //#define SERIAL_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
 //#define SERIAL_SUM_PPM         THROTTLE,YAW,ROLL,PITCH,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //Modelcraft
@@ -496,14 +487,12 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 //#define RCAUXPIN8
 #define RCAUXPIN12
 
-
 /**************************************************************************************/
 /*****************             Teensy 2.0 Support                    ******************/
 /**************************************************************************************/
 /* uncomment this if you use a teensy 2.0 with teensyduino
    it needs to run at 16MHz */
 //#define TEENSY20
-
 
 /**************************************************************************************/
 /********   Settings for ProMicro, Leonardo and other Atmega32u4 Boards     ***********/
@@ -540,7 +529,6 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 /***********************      Promicro version related     ****************************/
 /* Inverted status LED for Promicro ver 10 */
 //#define PROMICRO10
-
 
 /**************************************************************************************/
 /********                      override default pin assignments    ********************/
@@ -639,11 +627,10 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
    IF copter come closer than ADV_HEADFREE_RANGE meters, then the control direction freezed to the
    bearing between home and copter at the point where it crosses the ADV_HEADFREE_RANGE meter distance
    first implementation by HAdrian, mods by EOSBandi
-*/
+ */
 
 //#define ADVANCED_HEADFREE      //Advanced headfree mode is enabled when this is uncommented
 //#define ADV_HEADFREE_RANGE 15  //Range where advanced headfree mode activated
-
 
 /************************        continuous gyro calibration        ********************/
 /* Gyrocalibration will be repeated if copter is moving during calibration. */
@@ -660,7 +647,6 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
    A Value on 200 will give a very distinct transfer */
 //#define ACROTRAINER_MODE 200   // http://www.multiwii.com/forum/viewtopic.php?f=16&t=1944#p17437
 
-
 /********                          Failsafe settings                 ********************/
 /* Failsafe check pulses on four main control channels CH1-CH4. If the pulse is missing or bellow 985us (on any of these four channels)
    the failsafe procedure is initiated. After FAILSAFE_DELAY time from failsafe detection, the level mode is on (if ACC is avaliable),
@@ -673,7 +659,6 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 #define FAILSAFE_THROTTLE  (MINTHROTTLE + 200)    // (*) Throttle level used for landing - may be relative to MINTHROTTLE - as in this case
 
 #define FAILSAFE_DETECT_TRESHOLD  985
-
 
 /*****************                DFRobot LED RING    *********************************/
 /* I2C DFRobot LED RING communication */
@@ -689,7 +674,6 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 //#define LED_FLASHER_SEQUENCE_ARMED  0b00000101      // create double flashes
 //#define LED_FLASHER_SEQUENCE_MAX    0b11111111      // full illumination
 //#define LED_FLASHER_SEQUENCE_LOW    0b00000000      // no illumination
-
 
 /*******************************    Landing lights    *********************************/
 /* Landing lights
@@ -755,7 +739,6 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
     MTK_BINARY16 and MTK_BINARY19 - MTK3329 chipset based GPS with DIYDrones binary firmware (v1.6 or v1.9)
     With UBLOX and MTK_BINARY you don't have to use GPS_FILTERING in multiwii code !!! */
 
-
 //#define NMEA
 // #define UBLOX
 //#define MTK_BINARY16
@@ -775,9 +758,9 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 //#define I2C_GPS_SONAR
 
 /* indicate a valid GPS fix with at least 5 satellites by flashing the LED  - Modified by MIS - Using stable LED (YELLOW on CRIUS AIO) led work as sat number indicator
-  - No GPS FIX -> LED blink at speed of incoming GPS frames
-  - Fix and sat no. bellow 5 -> LED off
-  - Fix and sat no. >= 5 -> LED blinks, one blink for 5 sat, two blinks for 6 sat, three for 7 ... */
+   - No GPS FIX -> LED blink at speed of incoming GPS frames
+   - Fix and sat no. bellow 5 -> LED off
+   - Fix and sat no. >= 5 -> LED blinks, one blink for 5 sat, two blinks for 6 sat, three for 7 ... */
 //#define GPS_LED_INDICATOR
 
 //Enables the MSP_WP command set , which is used by WinGUI for displaying an setting up navigation
@@ -796,9 +779,9 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 #define NAV_SET_TAKEOFF_HEADING    1    //(**)
 
 /* Get your magnetic declination from here : http://magnetic-declination.com/
-Convert the degree+minutes into decimal degree by ==> degree+minutes*(1/60)
-Note the sign on declination it could be negative or positive (WEST or EAST)
-Also note, that maqgnetic declination changes with time, so recheck your value every 3-6 months */
+   Convert the degree+minutes into decimal degree by ==> degree+minutes*(1/60)
+   Note the sign on declination it could be negative or positive (WEST or EAST)
+   Also note, that maqgnetic declination changes with time, so recheck your value every 3-6 months */
 #define MAG_DECLINATION  15.03f   //(**)
 
 // Adds a forward predictive filterig to compensate gps lag. Code based on Jason Short's lead filter implementation
@@ -846,7 +829,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
 //This governs the descent speed during landing. 100 is equals approc 50cm/sec
 #define LAND_SPEED          100
-
 
 //#define ONLY_ALLOW_ARM_WITH_GPS_3DFIX      // Only allow FC arming if GPS has a 3D fix.
 
@@ -997,7 +979,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 #define VBAT_CELLS_NUM 0 // set this to the number of cells you monitor via analog pins
 #define VBAT_CELLS_PINS {A0, A1, A2, A3, A4, A5 } // set this to the sequence of analog pins
 #define VBAT_CELLS_OFFSETS {0, 50, 83, 121, 149, 177 } // in 0.1 volts, gets added to voltage value  - useful for zener diodes
-#define VBAT_CELLS_DIVS { 75, 122,  98, 18, 30, 37 } // divisor for proportional part according to resistors - larger value here gives smaller voltage
+#define VBAT_CELLS_DIVS { 75, 122, 98, 18, 30, 37 }  // divisor for proportional part according to resistors - larger value here gives smaller voltage
 
 /********************************************************************/
 /****           powermeter (battery capacity monitoring)         ****/
@@ -1005,7 +987,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
 /* enable monitoring of the power consumption from battery (think of mAh)
    allows to set alarm value in GUI or via LCD
-  Full description and howto here http://www.multiwii.com/wiki/index.php?title=Powermeter
+   Full description and howto here http://www.multiwii.com/wiki/index.php?title=Powermeter
    Two options:
    1 - hard: - (uses hardware sensor, after configuration gives very good results)
    2 - soft: - (good results +-5% for plush and mystery ESCs @ 2S and 3S, not good with SuperSimple ESC)    */
@@ -1023,10 +1005,9 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 /********************************************************************/
 
 /* defines the neutral zone of throttle stick during altitude hold, default setting is
-   +/-50 uncommend and change the value below if you want to change it. */
+ +/-50 uncommend and change the value below if you want to change it. */
 #define ALT_HOLD_THROTTLE_NEUTRAL_ZONE    50
 //#define ALT_HOLD_THROTTLE_MIDPOINT        1500  // in us    - if uncommented, this value is used in ALT_HOLD for throttle stick middle point instead of initialThrottleHold parameter.
-
 
 /* uncomment to disable the altitude hold feature.
  * This is useful if all of the following apply
@@ -1042,7 +1023,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
 /* Pitot sensor will initialize in one second on bootup of controler. Take care not letting the wind blow into pitot tube!
    Pitot is meters/sec   1m/sec = 3,6km/h
-*/
+ */
 
 //#define PITOT_SPEED    15      // Activate the pitot code Units is 1 M/sec = 3.6km/h
 #define PITOT_MAXSPEED  30      // M/sec  30= ~108km/h. Airframe dependant.
@@ -1053,16 +1034,16 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 //    #define VOLTS_TO_PASCAL 819   // scaling for 3DR analog pitot sensor
 //    #define Vcc  4.95f
 /* Background for calculation of PITOT_FACTOR
-  v [m/s]= sqrt(2 * roh * delta-pressure[Pa])
+   v [m/s]= sqrt(2 * roh * delta-pressure[Pa])
 
-  1 increment (Analog read) = VCC/1024 = 5V/1024 = 0.0048828125 = 0.00488V = 4.88mV
-  Datasheet of MPXV7002: 1 = 1kPa -> 1mV = 1Pa
-  roh(@15 ï¿½C, 1bar air pressure) = 1,225 kg/mï¿½
+   1 increment (Analog read) = VCC/1024 = 5V/1024 = 0.0048828125 = 0.00488V = 4.88mV
+   Datasheet of MPXV7002: 1 = 1kPa -> 1mV = 1Pa
+   roh(@15 ï¿½C, 1bar air pressure) = 1,225 kg/mï¿½
 
-  -> 1 increment = 4.88mV = 4.88Pa
-  -> v [m/s] = sqrt(2 * roh * delta-pressure[Pa]) = sqrt(2 * roh * 4.88 * AnalogReadIncrements)
-  PITOT_FACTOR = 2 * roh * 4.88
-*/
+   -> 1 increment = 4.88mV = 4.88Pa
+   -> v [m/s] = sqrt(2 * roh * delta-pressure[Pa]) = sqrt(2 * roh * 4.88 * AnalogReadIncrements)
+   PITOT_FACTOR = 2 * roh * 4.88
+ */
 /********************************************************************/
 /****           altitude variometer                              ****/
 /********************************************************************/
@@ -1153,14 +1134,14 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
 /***********************             HW PWM Servos             ***********************/
 /* HW PWM Servo outputs for Arduino Mega.. moves:
-  Pitch   = pin 44
-  Roll    = pin 45
-  CamTrig = pin 46
-  SERVO4  = pin 11 (aileron left for fixed wing or TRI YAW SERVO)
-  SERVO5  = pin 12 (aileron right for fixed wing)
-  SERVO6  = pin 6   (rudder for fixed wing)
-  SERVO7  = pin 7   (elevator for fixed wing)
-  SERVO8  = pin 8   (motor for fixed wing)       */
+   Pitch   = pin 44
+   Roll    = pin 45
+   CamTrig = pin 46
+   SERVO4  = pin 11 (aileron left for fixed wing or TRI YAW SERVO)
+   SERVO5  = pin 12 (aileron right for fixed wing)
+   SERVO6  = pin 6   (rudder for fixed wing)
+   SERVO7  = pin 7   (elevator for fixed wing)
+   SERVO8  = pin 8   (motor for fixed wing)       */
 
 #define MEGA_HW_PWM_SERVOS
 
@@ -1178,7 +1159,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 #define SERVO_RFR_RATE  100           // In Hz, you can set it from 20 to 400Hz, used only in HW PWM mode for mega and 32u4
 //#define SERVO_PIN5_RFR_RATE  200    // separate yaw pwm rate.
 // In Hz, you can set it from 20 to 400Hz, used only in HW PWM mode for 32u4
-
 
 /********************************************************************/
 /****           Memory savings                                   ****/
@@ -1268,7 +1248,6 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 /* Enable string transmissions from copter to GUI */
 //#define DEBUGMSG
 
-
 /********************************************************************/
 /****           ESCs calibration                                 ****/
 /********************************************************************/
@@ -1312,7 +1291,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
    - enable with #define COPTERTEST 1, then compile
    - if possible, check for the size
    - repeat with other values of 2, 3, 4 etc.
-    */
+ */
 //#define COPTERTEST 1
 
 /*************************************************************************************************/
@@ -1363,8 +1342,8 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 // ***********************       GENERIC SONAR       ***********************
 // SONAR!! http://www.multiwii.com/forum/viewtopic.php?f=7&t=1033&start=170#p36603
 /* Generic sonar: hc-sr04, srf04, dyp-me007, all generic sonar with echo/pulse pin
-default pulse is PH6/12, echo is PB4/11
-*/
+   default pulse is PH6/12, echo is PB4/11
+ */
 //#define SONAR_GENERIC_ECHOPULSE
 #define SONAR_GENERIC_SCALE 58              //scale for ranging conversion (hcsr04 is 58)
 #define SONAR_GENERIC_MAX_RANGE 500         //cm (could be more)
@@ -1388,4 +1367,3 @@ default pulse is PH6/12, echo is PB4/11
 /*************************************************************************************************/
 
 #endif /* CONFIG_H_ */
-

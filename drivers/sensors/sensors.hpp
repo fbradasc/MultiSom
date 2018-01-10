@@ -1,14 +1,14 @@
 #include "gyro.cpp"
 #include "acc.cpp"
 #if BARO
-    #include "baro.cpp"
+# include "baro.cpp"
 #endif
 #if MAG
-    #include "mag.cpp"
+# include "mag.cpp"
 #endif
 #if SONAR
-    #include "sonar.cpp"
+# include "sonar.cpp"
 #endif
 #if PITOT
-    #include "pitot.cpp"
+# include "pitot.cpp"
 #endif

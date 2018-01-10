@@ -1,8 +1,7 @@
 #if defined(IMPLEMENTATION)
 static float magGain[3] = { 1.0, 1.0, 1.0 };    // gain for each axis, populated at sensor init
 
-uint8_t
-Mag_getADC()
+uint8_t Mag_getADC()
 {
     // return 1 when news values are available, 0 otherwise
     static uint32_t t, tCal = 0;
@@ -11,7 +10,7 @@ Mag_getADC()
 
     if (currentTime < t)
     {
-        return 0;    //each read is spaced by 100ms
+        return(0);    //each read is spaced by 100ms
     }
 
     t = currentTime + 100000;
@@ -34,7 +33,7 @@ Mag_getADC()
             tCal = t;
         }
 
-        if ((t - tCal) < 30000000)
+        if ( (t - tCal) < 30000000 )
         {
             // 30s: you have 30s to turn the multi in all directions
             LEDPIN_TOGGLE;
@@ -72,35 +71,36 @@ Mag_getADC()
         }
     }
 
-#if defined(SENSORS_TILT_45DEG_LEFT)
-    int16_t temp = ((imu.magADC[PITCH] - imu.magADC[ROLL]) * 7) / 10;
-    imu.magADC[ROLL] = ((imu.magADC[ROLL] + imu.magADC[PITCH]) * 7) / 10;
+# if defined(SENSORS_TILT_45DEG_LEFT)
+    int16_t temp = ( (imu.magADC[PITCH] - imu.magADC[ROLL]) * 7 ) / 10;
+    imu.magADC[ROLL] = ( (imu.magADC[ROLL] + imu.magADC[PITCH]) * 7 ) / 10;
     imu.magADC[PITCH] = temp;
-#endif
-#if defined(SENSORS_TILT_45DEG_RIGHT)
-    int16_t temp = ((imu.magADC[PITCH] + imu.magADC[ROLL]) * 7) / 10;
-    imu.magADC[ROLL] = ((imu.magADC[ROLL] - imu.magADC[PITCH]) * 7) / 10;
+# endif
+# if defined(SENSORS_TILT_45DEG_RIGHT)
+    int16_t temp = ( (imu.magADC[PITCH] + imu.magADC[ROLL]) * 7 ) / 10;
+    imu.magADC[ROLL] = ( (imu.magADC[ROLL] - imu.magADC[PITCH]) * 7 ) / 10;
     imu.magADC[PITCH] = temp;
-#endif
-    return 1;
+# endif
+    return(1);
 }
+
 #endif // IMPLEMENTATION
 
 #if defined(MAG3110)
-    #include "mag/mag3110.cpp"
+# include "mag/mag3110.cpp"
 #endif
 #if defined(HMC5883)
-    #include "mag/hmc5883.cpp"
+# include "mag/hmc5883.cpp"
 #endif
 #if defined(HMC5843)
-    #include "mag/hmc5843.cpp"
+# include "mag/hmc5843.cpp"
 #endif
 #if defined(AK8975)
-    #include "mag/ak8975.cpp"
+# include "mag/ak8975.cpp"
 #endif
 #if defined(MPU6050)
-    #include "mag/mpu6050.cpp"
+# include "mag/mpu6050.cpp"
 #endif
 #if defined(MPU9250)
-    #include "mag/mpu9250.cpp"
+# include "mag/mpu9250.cpp"
 #endif

@@ -4,16 +4,14 @@
 #define _PIDCONTROLLERS_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-    #include "Arduino.h"
+# include "Arduino.h"
 #else
-    #include "WProgram.h"
+# include "WProgram.h"
 #endif
 
 class PIDControllersClass
 {
 protected:
-
-
 public:
     void init();
     void One(int16_t errorAngleI[2], int16_t errorGyroI[3], int32_t errorGyroI_YAW, uint8_t dynP8[2], uint8_t dynD8[2]);
@@ -25,4 +23,3 @@ public:
 extern PIDControllersClass PIDControllers;
 
 #endif
-

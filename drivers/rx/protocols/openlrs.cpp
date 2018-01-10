@@ -16,7 +16,7 @@ uint16_t readRawRC(uint8_t chan)
         data = 1500;
     }
 
-    return data; // We return the value correctly copied when the IRQ's where disabled
+    return(data); // We return the value correctly copied when the IRQ's where disabled
 }
 
 /**************************************************************************************/
@@ -52,7 +52,7 @@ uint16_t readRawRC(uint8_t chan)
 // Default values are 13,54 and 23 for all transmitters and receivers, you should change it before your first flight for safety.
 //Frequency = CARRIER_FREQUENCY + (StepSize(60khz)* Channel_Number)
 
-static uint8_t hop_list[3]  = HOPLIST;//{13,54,23};
+static uint8_t hop_list[3] = HOPLIST; //{13,54,23};
 //###### RF DEVICE ID HEADERS #######
 // Change this 4 byte values for isolating your transmission, RF module accepts only data with same header
 static uint8_t RF_Header[4] = OLRS_HEADER;//{'O','L','R','S'};
@@ -64,7 +64,6 @@ static uint8_t RF_Rx_Buffer[17];
 static uint16_t temp_int, rx_rssi;
 static uint16_t Servo_Buffer[10] = {3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000}; //servo position values from RF
 static uint8_t hopping_channel = 1;
-
 
 // **********************************************************
 // **      RFM22B/Si4432 control functions for OpenLRS     **
@@ -106,6 +105,7 @@ void Write1(void)
 void Write8bitcommand(uint8_t command)  // keep sel to low
 {
     uint8_t n = 8;
+
     nSEL_on;
     SCK_off;
     nSEL_off;
@@ -138,6 +138,7 @@ void send_read_address(uint8_t i)
 void send_8bit_data(uint8_t i)
 {
     uint8_t n = 8;
+
     SCK_off;
 
     while (n--)
@@ -156,11 +157,13 @@ void send_8bit_data(uint8_t i)
 
     SCK_off;
 }
+
 //--------------------------------------------------------------
 
 uint8_t read_8bit_data(void)
 {
     uint8_t Result, i;
+
     SCK_off;
     Result = 0;
 
@@ -186,6 +189,7 @@ uint8_t read_8bit_data(void)
 uint8_t _spi_read(uint8_t address)
 {
     uint8_t result;
+
     send_read_address(address);
     result = read_8bit_data();
     nSEL_on;
@@ -206,60 +210,60 @@ void RF22B_init_parameter(void)
 {
     ItStatus1 = _spi_read(0x03); // read status, clear interrupt
     ItStatus2 = _spi_read(0x04);
-    _spi_write(0x06, 0x00);    // no wakeup up, lbd,
+    _spi_write(0x06,                 0x00); // no wakeup up, lbd,
     _spi_write(0x07, RF22B_PWRSTATE_READY);      // disable lbd, wakeup timer, use internal 32768,xton = 1; in ready mode
-    _spi_write(0x09, 0x7f);  // c = 12.5p
-    _spi_write(0x0a, 0x05);
-    _spi_write(0x0b, 0x12);    // gpio0 TX State
-    _spi_write(0x0c, 0x15);    // gpio1 RX State
-    _spi_write(0x0d, 0xfd);    // gpio 2 micro-controller clk output
-    _spi_write(0x0e, 0x00);    // gpio    0, 1,2 NO OTHER FUNCTION.
-    _spi_write(0x70, 0x00);    // disable manchest
+    _spi_write(0x09,                 0x7f); // c = 12.5p
+    _spi_write(0x0a,                 0x05);
+    _spi_write(0x0b,                 0x12); // gpio0 TX State
+    _spi_write(0x0c,                 0x15); // gpio1 RX State
+    _spi_write(0x0d,                 0xfd); // gpio 2 micro-controller clk output
+    _spi_write(0x0e,                 0x00); // gpio    0, 1,2 NO OTHER FUNCTION.
+    _spi_write(0x70,                 0x00); // disable manchest
     // 57.6Kbps data rate
-    _spi_write(0x1c, 0x05); // case RATE_57.6K
-    _spi_write(0x20, 0x45);//  0x20 calculate from the datasheet= 500*(1+2*down3_bypass)/(2^ndec*RB*(1+enmanch))
-    _spi_write(0x21, 0x01); // 0x21 , rxosr[10--8] = 0; stalltr = (default), ccoff[19:16] = 0;
-    _spi_write(0x22, 0xD7); // 0x22    ncoff =5033 = 0x13a9
-    _spi_write(0x23, 0xDC); // 0x23
-    _spi_write(0x24, 0x03); // 0x24
-    _spi_write(0x25, 0xB8); // 0x25
-    _spi_write(0x2a, 0x1e);
-    _spi_write(0x6e, 0x0E); //case RATE_57.6K
-    _spi_write(0x6f, 0xBF); //case RATE_57.6K
-    _spi_write(0x30, 0x8c);    // enable packet handler, msb first, enable crc,
-    _spi_write(0x32, 0xf3);    // 0x32address enable for headere byte 0, 1,2,3, receive header check for byte 0, 1,2,3
-    _spi_write(0x33, 0x42);    // header 3, 2, 1,0 used for head length, fixed packet length, synchronize word length 3, 2,
-    _spi_write(0x34, 0x07);    // 7 default value or   // 64 nibble = 32byte preamble
-    _spi_write(0x36, 0x2d);    // synchronize word
-    _spi_write(0x37, 0xd4);
-    _spi_write(0x38, 0x00);
-    _spi_write(0x39, 0x00);
-    _spi_write(0x3a, RF_Header[0]);    // tx header
-    _spi_write(0x3b, RF_Header[1]);
-    _spi_write(0x3c, RF_Header[2]);
-    _spi_write(0x3d, RF_Header[3]);
-    _spi_write(0x3e, 17);    // total tx 17 byte
+    _spi_write(0x1c,                 0x05); // case RATE_57.6K
+    _spi_write(0x20,                 0x45);//  0x20 calculate from the datasheet= 500*(1+2*down3_bypass)/(2^ndec*RB*(1+enmanch))
+    _spi_write(0x21,                 0x01); // 0x21 , rxosr[10--8] = 0; stalltr = (default), ccoff[19:16] = 0;
+    _spi_write(0x22,                 0xD7); // 0x22    ncoff =5033 = 0x13a9
+    _spi_write(0x23,                 0xDC); // 0x23
+    _spi_write(0x24,                 0x03); // 0x24
+    _spi_write(0x25,                 0xB8); // 0x25
+    _spi_write(0x2a,                 0x1e);
+    _spi_write(0x6e,                 0x0E); //case RATE_57.6K
+    _spi_write(0x6f,                 0xBF); //case RATE_57.6K
+    _spi_write(0x30,                 0x8c); // enable packet handler, msb first, enable crc,
+    _spi_write(0x32,                 0xf3); // 0x32address enable for headere byte 0, 1,2,3, receive header check for byte 0, 1,2,3
+    _spi_write(0x33,                 0x42); // header 3, 2, 1,0 used for head length, fixed packet length, synchronize word length 3, 2,
+    _spi_write(0x34,                 0x07); // 7 default value or   // 64 nibble = 32byte preamble
+    _spi_write(0x36,                 0x2d); // synchronize word
+    _spi_write(0x37,                 0xd4);
+    _spi_write(0x38,                 0x00);
+    _spi_write(0x39,                 0x00);
+    _spi_write(0x3a,            RF_Header[0]); // tx header
+    _spi_write(0x3b,            RF_Header[1]);
+    _spi_write(0x3c,            RF_Header[2]);
+    _spi_write(0x3d,            RF_Header[3]);
+    _spi_write(0x3e,                   17); // total tx 17 byte
     //RX HEADER
-    _spi_write(0x3f, RF_Header[0]);   // check hearder
-    _spi_write(0x40, RF_Header[1]);
-    _spi_write(0x41, RF_Header[2]);
-    _spi_write(0x42, RF_Header[3]);
-    _spi_write(0x43, 0xff);    // all the bit to be checked
-    _spi_write(0x44, 0xff);    // all the bit to be checked
-    _spi_write(0x45, 0xff);    // all the bit to be checked
-    _spi_write(0x46, 0xff);    // all the bit to be checked
-    _spi_write(0x6d, 0x07); // 7 set power max power
-    _spi_write(0x79, 0x00);    // no hopping
-    _spi_write(0x7a, 0x06);    // 60khz step size (10khz x value) // no hopping
-    _spi_write(0x71, 0x23); // Gfsk, fd[8] =0, no invert for Tx/Rx data, fifo mode, txclk -->gpio
+    _spi_write(0x3f,            RF_Header[0]); // check hearder
+    _spi_write(0x40,            RF_Header[1]);
+    _spi_write(0x41,            RF_Header[2]);
+    _spi_write(0x42,            RF_Header[3]);
+    _spi_write(0x43,                 0xff); // all the bit to be checked
+    _spi_write(0x44,                 0xff); // all the bit to be checked
+    _spi_write(0x45,                 0xff); // all the bit to be checked
+    _spi_write(0x46,                 0xff); // all the bit to be checked
+    _spi_write(0x6d,                 0x07); // 7 set power max power
+    _spi_write(0x79,                 0x00); // no hopping
+    _spi_write(0x7a,                 0x06); // 60khz step size (10khz x value) // no hopping
+    _spi_write(0x71,                 0x23); // Gfsk, fd[8] =0, no invert for Tx/Rx data, fifo mode, txclk -->gpio
     //_spi_write(0x72, 0x1F); // frequency deviation setting to 19.6khz (for 38.4kbps)
-    _spi_write(0x72, 0x2E); // frequency deviation setting to 28.8khz(for 57.6kbps)
-    _spi_write(0x73, 0x00);
-    _spi_write(0x74, 0x00);    // no offset
+    _spi_write(0x72,                 0x2E); // frequency deviation setting to 28.8khz(for 57.6kbps)
+    _spi_write(0x73,                 0x00);
+    _spi_write(0x74,                 0x00); // no offset
     //band 435.000
-    _spi_write(0x75, 0x53);
-    _spi_write(0x76, 0x7D);
-    _spi_write(0x77, 0x00);
+    _spi_write(0x75,                 0x53);
+    _spi_write(0x76,                 0x7D);
+    _spi_write(0x77,                 0x00);
 }
 
 #if !defined(OPENLRS_V2)
@@ -273,18 +277,19 @@ void checkPots()
     pot_P = pot_P / 25; //+-20
     pot_I = pot_I / 25; //+-20
 }
+
 #endif
 
 void configureReceiver(void)
 {
     pinMode(GREEN_LED_pin, OUTPUT);
-    pinMode(RED_LED_pin, OUTPUT);
+    pinMode(RED_LED_pin,   OUTPUT);
     //RF module pins
-    pinMode(SDO_pin, INPUT); //SDO
-    pinMode(SDI_pin, OUTPUT); //SDI
-    pinMode(SCLK_pin, OUTPUT); //SCLK
-    pinMode(IRQ_pin, INPUT); //IRQ
-    pinMode(nSel_pin, OUTPUT); //nSEL
+    pinMode(SDO_pin,        INPUT); //SDO
+    pinMode(SDI_pin,       OUTPUT); //SDI
+    pinMode(SCLK_pin,      OUTPUT); //SCLK
+    pinMode(IRQ_pin,        INPUT); //IRQ
+    pinMode(nSel_pin,      OUTPUT); //nSEL
 #if !defined(OPENLRS_V2)
     checkPots(); // OpenLRS Multi board hardware pot check;
 #endif
@@ -293,15 +298,16 @@ void configureReceiver(void)
 //-----------------------------------------------------------------------
 void rx_reset(void)
 {
-    _spi_write(0x07, RF22B_PWRSTATE_READY);
-    _spi_write(0x7e, 36);    // threshold for rx almost full, interrupt when 1 byte received
-    _spi_write(0x08, 0x03);    //clear fifo disable multi packet
-    _spi_write(0x08, 0x00);    // clear fifo, disable multi packet
-    _spi_write(0x07, RF22B_PWRSTATE_RX);  // to rx mode
+    _spi_write(0x07,               RF22B_PWRSTATE_READY);
+    _spi_write(0x7e,                                 36); // threshold for rx almost full, interrupt when 1 byte received
+    _spi_write(0x08,                               0x03); //clear fifo disable multi packet
+    _spi_write(0x08,                               0x00); // clear fifo, disable multi packet
+    _spi_write(0x07,                  RF22B_PWRSTATE_RX); // to rx mode
     _spi_write(0x05, RF22B_Rx_packet_received_interrupt);
     ItStatus1 = _spi_read(0x03);  //read the Interrupt Status1 register
     ItStatus2 = _spi_read(0x04);
 }
+
 //-----------------------------------------------------------------------
 
 //--------------------------------------------------------------
@@ -325,11 +331,12 @@ void to_sleep_mode(void)
 {
     //  TXEN = RXEN = 0;
     //LED_RED = 0;
-    _spi_write(0x07, RF22B_PWRSTATE_READY);
+    _spi_write(0x07,     RF22B_PWRSTATE_READY);
     ItStatus1 = _spi_read(0x03);  //read the Interrupt Status1 register
     ItStatus2 = _spi_read(0x04);
     _spi_write(0x07, RF22B_PWRSTATE_POWERDOWN);
 }
+
 //--------------------------------------------------------------
 
 void frequency_configurator(uint32_t frequency)
@@ -347,7 +354,7 @@ void frequency_configurator(uint32_t frequency)
 }
 
 //############# FREQUENCY HOPPING FUNCTIONS #################
-#if (FREQUENCY_HOPPING==1)
+#if (FREQUENCY_HOPPING == 1)
 void Hopping(void)
 {
     hopping_channel++;
@@ -359,6 +366,7 @@ void Hopping(void)
 
     _spi_write(0x79, hop_list[hopping_channel]);
 }
+
 #endif
 
 void Config_OpenLRS()
@@ -366,7 +374,7 @@ void Config_OpenLRS()
     RF22B_init_parameter(); // Configure the RFM22B's registers
     frequency_configurator(CARRIER_FREQUENCY); // Calibrate the RFM22B to this frequency, frequency hopping starts from here.
     to_rx_mode();
-#if (FREQUENCY_HOPPING==1)
+#if (FREQUENCY_HOPPING == 1)
     Hopping(); //Hop to the next frequency
 #endif
 }
@@ -380,6 +388,7 @@ void computeRC()
 {
     uint8_t i, tx_data_length;
     uint8_t first_data = 0;
+
     //rcData[RX_RSSI_CHAN] =0;
     //rx_rssi=0;
 
@@ -389,11 +398,11 @@ void computeRC()
         to_rx_mode();
     }
 
-    if ((currentTime - last_hopping_time > 25000)) //automatic hopping for clear channel when rf link down for 25ms.
+    if ( (currentTime - last_hopping_time > 25000) ) //automatic hopping for clear channel when rf link down for 25ms.
     {
         Red_LED_ON;
         last_hopping_time = currentTime;
-#if (FREQUENCY_HOPPING==1)
+#if (FREQUENCY_HOPPING == 1)
         Hopping(); //Hop to the next frequency
 #endif
     }
@@ -409,8 +418,8 @@ void computeRC()
         }
 
 #if defined(RX_RSSI_CHAN)
-        rx_rssi =  _spi_read(0x26); // Read the RSSI value
-        rcData[RX_RSSI_CHAN] =   map(constrain(rx_rssi, 45, 120), 40, 120, 0, 2000);
+        rx_rssi = _spi_read(0x26);  // Read the RSSI value
+        rcData[RX_RSSI_CHAN] = map(constrain(rx_rssi, 45, 120), 40, 120, 0, 2000);
 #endif
         rx_reset();
 
@@ -420,7 +429,7 @@ void computeRC()
             {
                 temp_int = (256 * RF_Rx_Buffer[1 + (2 * i)]) + RF_Rx_Buffer[2 + (2 * i)];
 
-                if ((temp_int > 1500) && (temp_int < 4500))
+                if ( (temp_int > 1500) && (temp_int < 4500) )
                 {
                     Servo_Buffer[i] = temp_int / 2;
                 }
@@ -435,7 +444,6 @@ void computeRC()
             rcData[AUX3] = Servo_Buffer[6];
             rcData[AUX4] = Servo_Buffer[7];
 #if defined(FAILSAFE)
-
             if (failsafeCnt > 20) // Valid frame, clear FailSafe counter
             {
                 failsafeCnt -= 20;
@@ -444,11 +452,10 @@ void computeRC()
             {
                 failsafeCnt = 0;
             }
-
 #endif
         }
 
-#if (FREQUENCY_HOPPING==1)
+#if (FREQUENCY_HOPPING == 1)
         Hopping(); //Hop to the next frequency
 #endif
         delay(1);

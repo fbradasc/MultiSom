@@ -5,7 +5,7 @@
 //RAW RC values will be store here
 volatile uint16_t rcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502}; // interval [1000;2000]
 
-static uint8_t rcChannel[RC_CHANS]  = {ROLLPIN, PITCHPIN, YAWPIN, THROTTLEPIN, AUX1PIN, AUX2PIN, AUX3PIN, AUX4PIN};
+static uint8_t rcChannel[RC_CHANS] = {ROLLPIN, PITCHPIN, YAWPIN, THROTTLEPIN, AUX1PIN, AUX2PIN, AUX3PIN, AUX4PIN};
 static uint8_t PCInt_RX_Pins[PCINT_PIN_COUNT] = {PCINT_RX_BITS}; // if this slowes the PCINT readings we can switch to a define for each pcint bit
 
 void rxInt(void);
@@ -30,14 +30,14 @@ void configureReceiver()
     PCICR = PCIR_PORT_BIT;
     /*************    atmega328P's Specific Aux2 Pin Setup    *********************/
 #if defined(PROMINI)
-#if defined(RCAUXPIN)
-    PCICR  |= (1 << 0) ; // PCINT activated also for PINS [D8-D13] on port B
-#if defined(RCAUXPIN8)
+# if defined(RCAUXPIN)
+    PCICR |= (1 << 0);   // PCINT activated also for PINS [D8-D13] on port B
+#  if defined(RCAUXPIN8)
     PCMSK0 = (1 << 0);
-#else // defined(RCAUXPIN12)
+#  else // defined(RCAUXPIN12)
     PCMSK0 = (1 << 4);
-#endif
-#endif
+#  endif
+# endif
 #endif
     /***************   atmega32u4's Specific RX Pin Setup   **********************/
 #if defined(PROMICRO)
@@ -47,16 +47,16 @@ void configureReceiver()
     EICRB |= (1 << ISC60);
     EIMSK |= (1 << INT6); // enable interuppt
     // Aux2 pin on PBO (D17/RXLED)
-#if defined(RCAUX2PIND17)
+# if defined(RCAUX2PIND17)
     DDRB &= ~(1 << 0); // set D17 to input
-#endif
+# endif
     // Aux2 pin on PD2 (RX0)
-#if defined(RCAUX2PINRXO)
+# if defined(RCAUX2PINRXO)
     DDRD &= ~(1 << 2); // RX to input
     PORTD |= (1 << 2); // enable pullups
     EICRA |= (1 << ISC20);
     EIMSK |= (1 << INT2); // enable interuppt
-#endif
+# endif
 #endif
 }
 
@@ -67,42 +67,48 @@ void configureReceiver()
 /* stick scaling http://mifi.no/blog/?p=95 */
 #if defined(FAILSAFE) && !defined(PROMICRO)
 // predefined PC pin block (thanks to lianj)  - Version with failsafe
-#define RX_PIN_CHECK(pin_pos, rc_value_pos)                        \
-    if (mask & PCInt_RX_Pins[pin_pos]) \
-    {                             \
-        if (!(pin & PCInt_RX_Pins[pin_pos])) \
-        {                         \
-            dTime = cTime-edgeTime[pin_pos];                             \
-            if (900<dTime && dTime<2200) \
-            {                               \
-                rcValue[rc_value_pos] = dTime;                             \
-                if ((rc_value_pos==THROTTLEPIN || rc_value_pos==YAWPIN ||   \
-                     rc_value_pos==PITCHPIN || rc_value_pos==ROLLPIN)       \
-                    && dTime>FAILSAFE_DETECT_TRESHOLD) \
-                {                   \
-                    GoodPulses |= (1<<rc_value_pos);                     \
-                }                                                            \
-            }                                                            \
-        } else { \
-            edgeTime[pin_pos] = cTime;                              \
-        } \
+# define RX_PIN_CHECK(pin_pos, rc_value_pos)                                   \
+    if (mask & PCInt_RX_Pins[pin_pos])                                         \
+    {                                                                          \
+        if (!(pin & PCInt_RX_Pins[pin_pos]) )                                  \
+        {                                                                      \
+            dTime = cTime - edgeTime[pin_pos];                                 \
+            if (900 < dTime && dTime < 2200)                                   \
+            {                                                                  \
+                rcValue[rc_value_pos] = dTime;                                 \
+                if ( (rc_value_pos == THROTTLEPIN || rc_value_pos == YAWPIN || \
+                      rc_value_pos == PITCHPIN || rc_value_pos == ROLLPIN)     \
+                     && dTime > FAILSAFE_DETECT_TRESHOLD )                     \
+                {                                                              \
+                    GoodPulses |= (1 << rc_value_pos);                         \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            edgeTime[pin_pos] = cTime;                                         \
+        }                                                                      \
     }
+
 #else
 // predefined PC pin block (thanks to lianj)  - Version without failsafe
-#define RX_PIN_CHECK(pin_pos, rc_value_pos)                        \
-    if (mask & PCInt_RX_Pins[pin_pos]) \
-    {                             \
-        if (!(pin & PCInt_RX_Pins[pin_pos])) \
-        {                         \
-            dTime = cTime-edgeTime[pin_pos];                             \
-            if (900<dTime && dTime<2200) \
-            {                               \
-                rcValue[rc_value_pos] = dTime;                             \
-            }                                                            \
-        } else { \
-            edgeTime[pin_pos] = cTime;                              \
-        } \
+# define RX_PIN_CHECK(pin_pos, rc_value_pos)   \
+    if (mask & PCInt_RX_Pins[pin_pos])         \
+    {                                          \
+        if (!(pin & PCInt_RX_Pins[pin_pos]) )  \
+        {                                      \
+            dTime = cTime - edgeTime[pin_pos]; \
+            if (900 < dTime && dTime < 2200)   \
+            {                                  \
+                rcValue[rc_value_pos] = dTime; \
+            }                                  \
+        }                                      \
+        else                                   \
+        {                                      \
+            edgeTime[pin_pos] = cTime;         \
+        }                                      \
     }
+
 #endif
 
 // port change Interrupt
@@ -113,6 +119,7 @@ ISR(RX_PC_INTERRUPT) //this ISR is common to every receiver channel, it is call 
     uint16_t cTime, dTime;
     static uint16_t edgeTime[8];
     static uint8_t PCintLast;
+
 #if defined(FAILSAFE) && !defined(PROMICRO)
     static uint8_t GoodPulses;
 #endif
@@ -146,8 +153,7 @@ ISR(RX_PC_INTERRUPT) //this ISR is common to every receiver channel, it is call 
     RX_PIN_CHECK(7, 3);
 #endif
 #if defined(FAILSAFE) && !defined(PROMICRO)
-
-    if (GoodPulses == (1 << THROTTLEPIN) + (1 << YAWPIN) + (1 << ROLLPIN) + (1 << PITCHPIN)) // If all main four chanells have good pulses, clear FailSafe counter
+    if (GoodPulses == (1 << THROTTLEPIN) + (1 << YAWPIN) + (1 << ROLLPIN) + (1 << PITCHPIN) ) // If all main four chanells have good pulses, clear FailSafe counter
     {
         GoodPulses = 0;
 
@@ -160,12 +166,11 @@ ISR(RX_PC_INTERRUPT) //this ISR is common to every receiver channel, it is call 
             failsafeCnt = 0;
         }
     }
-
 #endif
 }
 /*********************      atmega328P's Aux2 Pins      *************************/
 #if defined(PROMINI)
-#if defined(RCAUXPIN)
+# if defined(RCAUXPIN)
 /* this ISR is a simplification of the previous one for PROMINI on port D
    it's simplier because we know the interruption deals only with one PIN:
    bit 0 of PORT B, ie Arduino PIN 8
@@ -176,19 +181,19 @@ ISR(PCINT0_vect)
     uint8_t pin;
     uint16_t cTime, dTime;
     static uint16_t edgeTime;
+
     pin = PINB;
     cTime = micros();
     sei();
-#if defined(RCAUXPIN8)
-
-    if (!(pin & 1 << 0))   //indicates if the bit 0 of the arduino port [B0-B7] is not at a high state (so that we match here only descending PPM pulse)
-#else // defined(RCAUXPIN12)
-    if (!(pin & 1 << 4))   //indicates if the bit 4 of the arduino port [B0-B7] is not at a high state (so that we match here only descending PPM pulse)
-#endif
+#  if defined(RCAUXPIN8)
+    if (!(pin & 1 << 0) )   //indicates if the bit 0 of the arduino port [B0-B7] is not at a high state (so that we match here only descending PPM pulse)
+#  else // defined(RCAUXPIN12)
+    if (!(pin & 1 << 4) )   //indicates if the bit 4 of the arduino port [B0-B7] is not at a high state (so that we match here only descending PPM pulse)
+#  endif
     {
         dTime = cTime - edgeTime;
 
-        if (900 < dTime && dTime < 2200) // just a verification: the value must be in the range [1000;2000] + some margin
+        if ( (900 < dTime) && (dTime < 2200) ) // just a verification: the value must be in the range [1000;2000] + some margin
         {
             rcValue[0] = dTime;
         }
@@ -198,7 +203,7 @@ ISR(PCINT0_vect)
         edgeTime = cTime;    // if the bit 2 is at a high state (ascending PPM pulse), we memorize the time
     }
 }
-#endif
+# endif
 #endif
 
 /****************      atmega32u4's Throttle & Aux2 Pin      *******************/
@@ -208,17 +213,17 @@ ISR(INT6_vect)
 {
     static uint16_t now, diff;
     static uint16_t last = 0;
+
     now = micros();
 
-    if (!(PINE & (1 << 6)))
+    if (!(PINE & (1 << 6) ) )
     {
         diff = now - last;
 
-        if (900 < diff && diff < 2200)
+        if ( (900 < diff) && (diff < 2200) )
         {
             rcValue[3] = diff;
-#if defined(FAILSAFE)
-
+# if defined(FAILSAFE)
             if (diff > FAILSAFE_DETECT_TRESHOLD)      // if Throttle value is higher than FAILSAFE_DETECT_TRESHOLD
             {
                 if (failsafeCnt > 20)
@@ -230,8 +235,7 @@ ISR(INT6_vect)
                     failsafeCnt = 0;    // If pulse present on THROTTLE pin (independent from ardu version), clear FailSafe counter  - added by MIS
                 }
             }
-
-#endif
+# endif
         }
     }
     else
@@ -240,18 +244,19 @@ ISR(INT6_vect)
     }
 }
 // Aux 2
-#if defined(RCAUX2PINRXO)
+# if defined(RCAUX2PINRXO)
 ISR(INT2_vect)
 {
     static uint16_t now, diff;
     static uint16_t last = 0;
+
     now = micros();
 
-    if (!(PIND & (1 << 2)))
+    if (!(PIND & (1 << 2) ) )
     {
         diff = now - last;
 
-        if (900 < diff && diff < 2200)
+        if ( (900 < diff) && (diff < 2200) )
         {
             rcValue[7] = diff;
         }
@@ -261,7 +266,7 @@ ISR(INT2_vect)
         last = now;
     }
 }
-#endif
+# endif
 #endif
 
 /**************************************************************************************/
@@ -272,11 +277,12 @@ uint16_t readRawRC(uint8_t chan)
 {
     uint16_t data;
     uint8_t oldSREG;
+
     oldSREG = SREG;
     cli(); // Let's disable interrupts
     data = rcValue[rcChannel[chan]]; // Let's copy the data Atomically
     SREG = oldSREG;        // Let's restore interrupt state
-    return data; // We return the value correctly copied when the IRQ's where disabled
+    return(data); // We return the value correctly copied when the IRQ's where disabled
 }
 
 /**************************************************************************************/
@@ -290,6 +296,7 @@ void computeRC()
     static uint8_t rc4ValuesIndex = 0;
     uint8_t chan, a;
     uint8_t failsafeGoodCondition = 1;
+
     rc4ValuesIndex++;
 
     if (rc4ValuesIndex == AVERAGING_ARRAY_LENGTH - 1)
@@ -303,13 +310,12 @@ void computeRC()
 #if defined(STICK_SCALING_FACTOR)
         if (chan < 4)
         {
-            rcDataTmp = ((int16_t)readRawRC(chan) - 1500) * STICK_SCALING_FACTOR + 1500;
+            rcDataTmp = ( (int16_t)readRawRC(chan) - 1500 ) * STICK_SCALING_FACTOR + 1500;
         }
         else
         {
             rcDataTmp = readRawRC(chan);
         }
-
 #else
         rcDataTmp = readRawRC(chan);
 #endif
@@ -326,7 +332,7 @@ void computeRC()
                 rcDataMean += rcData4Values[chan][a];
             }
 
-            rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2)) / AVERAGING_ARRAY_LENGTH;
+            rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2) ) / AVERAGING_ARRAY_LENGTH;
 
             if (rcDataMean < (uint16_t) rcData[chan] - 3)
             {
@@ -342,19 +348,19 @@ void computeRC()
         }
 
 #if 0
-
         if (!supress_data_from_rx)
         {
         }
-        else if (supress_data_from_rx)
+        else
+        if (supress_data_from_rx)
         {
             //if (chan<8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
             if (chan < 8) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
             {
                 //rcSerialCount--;
-#if defined(FAILSAFE)
+# if defined(FAILSAFE)
                 failsafeCnt = 0;
-#endif
+# endif
 
                 if (rcSerial[chan] > 900)
                 {
@@ -365,7 +371,7 @@ void computeRC()
                         rcDataMean += rcData4Values[chan][a];
                     }
 
-                    rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2)) / AVERAGING_ARRAY_LENGTH;
+                    rcDataMean = (rcDataMean + (AVERAGING_ARRAY_LENGTH / 2) ) / AVERAGING_ARRAY_LENGTH;
 
                     if (rcDataMean < (uint16_t)rcData[chan] - 3)
                     {
@@ -378,23 +384,20 @@ void computeRC()
                     }
 
                     rcData4Values[chan][rc4ValuesIndex] = rcDataTmp;
-#if 0
-
+# if 0
                     if (rcSerial[chan] > 900) // only relevant channels are overridden
                     {
                         rcData[chan] = rcSerial[chan];
                     }
-
-#endif
+# endif
                 }
             }
         }
-
 #endif
 
-        if (chan < 8 && rcSerialCount > 0) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
+        if ( (chan < 8) && (rcSerialCount > 0) ) // rcData comes from MSP and overrides RX Data until rcSerialCount reaches 0
         {
-            rcSerialCount --;
+            rcSerialCount--;
 #if defined(FAILSAFE)
             failsafeCnt = 0;
 #endif

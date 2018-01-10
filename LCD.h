@@ -37,8 +37,8 @@ void output_accX();
 void output_accY();
 void output_accZ();
 
-void output_debug0() ;
-void output_debug1() ;
-void output_debug2() ;
-void output_debug3() ;
+void output_debug0();
+void output_debug1();
+void output_debug2();
+void output_debug3();
 #endif /* LCD_H_ */

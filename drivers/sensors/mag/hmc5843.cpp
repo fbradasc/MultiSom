@@ -4,20 +4,18 @@
 // ************************************************************************************************************
 // I2C adress: 0x3C (8bit)   0x1E (7bit)
 // ************************************************************************************************************
-#define MAG_ADDRESS 0x1E
-#define MAG_DATA_REGISTER 0x03
+# define MAG_ADDRESS 0x1E
+# define MAG_DATA_REGISTER 0x03
 
-void
-getADC()
+void getADC()
 {
     i2c_getSixRawADC(MAG_ADDRESS, MAG_DATA_REGISTER);
-    MAG_ORIENTATION(((rawADC[0] << 8) | rawADC[1]),
-                    ((rawADC[2] << 8) | rawADC[3]),
-                    ((rawADC[4] << 8) | rawADC[5]));
+    MAG_ORIENTATION( ( (rawADC[0] << 8) | rawADC[1] ),
+                     ( (rawADC[2] << 8) | rawADC[3] ),
+                     ( (rawADC[4] << 8) | rawADC[5] ) );
 }
 
-void
-Mag_init()
+void Mag_init()
 {
     delay(100);
     // force positiveBias
@@ -41,12 +39,12 @@ Mag_init()
     i2c_writeReg(MAG_ADDRESS, 0x02, 0x00);  //Mode register             -- 000000 00    continuous Conversion Mode
 }
 
-#if !defined(MPU6050_I2C_AUX_MASTER)
-void
-Device_Mag_getADC()
+# if !defined(MPU6050_I2C_AUX_MASTER)
+void Device_Mag_getADC()
 {
     getADC();
 }
-#endif
+
+# endif
 #else // IMPLEMENTATION
 #endif // IMPLEMENTATION
