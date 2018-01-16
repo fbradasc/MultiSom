@@ -183,6 +183,7 @@ function onClosed(result) {
 }
 
 function read_serial(info) {
+console.log('read_serial');
     if (!CONFIGURATOR.cliActive) {
         MSP.read(info);
     } else if (CONFIGURATOR.cliActive) {

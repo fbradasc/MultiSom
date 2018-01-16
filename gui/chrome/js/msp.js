@@ -77,7 +77,10 @@ var MSP = {
     read: function (readInfo) {
         var data = new Uint8Array(readInfo.data);
 
+console.log('Received data: ' + data.length);
+
         for (var i = 0; i < data.length; i++) {
+console.log(data[i]);
             switch (this.state) {
                 case 0: // sync char 1
                     if (data[i] == 36) { // $
