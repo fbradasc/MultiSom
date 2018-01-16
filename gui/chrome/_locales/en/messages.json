@@ -1,0 +1,758 @@
+{
+    "translation_version": {
+        "message": "0"
+    },
+
+    "options_title": {
+        "message": "Application Options"
+    },
+    "options_receive_app_notifications": {
+        "message": "Receive desktop <strong>notification</strong> when application updates"
+    },
+    "options_improve_configurator": {
+        "message": "Send anonymous usage data to the developer team"
+    },
+
+    "reviewHead": {
+        "message": "Application Review"
+    },
+    "reviewInitial": {
+        "message": "Do you like this app?"
+    },
+    "reviewStore": {
+        "message": "We are glad to hear that, would you like to send a review to make the application more popular?"
+    },
+    "reviewBug": {
+        "message": "We are sorry to hear that, would you like to submit a ticker and tell us what bothers you?"
+    },
+    "reviewYes": {
+        "message": "Yes"
+    },
+    "reviewNo": {
+        "message": "No"
+    },
+
+    "connect": {
+        "message": "Connect"
+    },
+    "connecting": {
+        "message": "Connecting"
+    },
+    "disconnect": {
+        "message": "Disconnect"
+    },
+    "autoConnect": {
+        "message": "Auto-Connect"
+    },
+    "autoConnectEnabled": {
+        "message": "Auto-Connect: Enabled - Configurator automatically tries to connect when new port is detected"
+    },
+    "autoConnectDisabled": {
+        "message": "Auto-Connect: Disabled - User needs to select the correct serial port and click \"Connect\" button on its own"
+    },
+    "deviceRebooting": {
+        "message": "Device - <span style=\"color: red\">Rebooting</span>"
+    },
+    "deviceReady": {
+        "message": "Device - <span style=\"color: green\">Ready</span>"
+    },
+
+    "backupFileIncompatible": {
+        "message": "Backup file provided was generated for older version of configurator and is incompatible with this version of configurator. Sorry"
+    },
+
+    "tabSetup": {
+        "message": "Setup"
+    },
+    "tabConfiguration": {
+        "message": "Configuration"
+    },
+    "tabPidTuning": {
+        "message": "PID Tuning"
+    },
+    "tabReceiver": {
+        "message": "Receiver"
+    },
+    "tabModeSelection": {
+        "message": "Mode Selection"
+    },
+    "tabServos": {
+        "message": "Servos"
+    },
+    "tabGPS": {
+        "message": "GPS"
+    },
+    "tabMotorTesting": {
+        "message": "Motor Testing"
+    },
+    "tabRawSensorData": {
+        "message": "Raw Sensor Data"
+    },
+    "tabCLI": {
+        "message": "CLI"
+    },
+    "tabLogging": {
+        "message": "Logging"
+    },
+
+    "serialPortOpened": {
+        "message": "Serial port <span style=\"color: green\">successfully</span> opened with ID: $1"
+    },
+    "serialPortOpenFail": {
+        "message": "<span style=\"color: red\">Failed</span> to open serial port"
+    },
+    "serialPortClosedOk": {
+        "message": "Serial port <span style=\"color: green\">successfully</span> closed"
+    },
+    "serialPortClosedFail": {
+        "message": "<span style=\"color: red\">Failed</span> to close serial port"
+    },
+
+    "noConfigurationReceived": {
+        "message": "No configuration received within <span style=\"color: red\">10 seconds</span>, communication <span style=\"color: red\">failed</span>"
+    },
+    "firmwareVersionNotSupported": {
+        "message": "This firmware version is <span style=\"color: red\">not supported</span>. Please upgrade to version <strong>$1</strong> or higher"
+    },
+    "firmwareVersion": {
+        "message": "Firmware Version: <strong>$1</strong>"
+    },
+    "uniqueDeviceIdReceived": {
+        "message": "Unique device ID <span style=\"color: green\">received</span> - <strong>0x$1</strong>"
+    },
+
+    "notifications_app_just_updated_to_version": {
+        "message": "Application just updated to version: $1"
+    },
+    "notifications_click_here_to_start_app": {
+        "message": "Click here to start the application"
+    },
+
+    "statusbar_port_utilization": {
+        "message": "Port utilization:"
+    },
+    "statusbar_usage_download": {
+        "message": "D: $1%"
+    },
+    "statusbar_usage_upload": {
+        "message": "U: $1%"
+    },
+    "statusbar_packet_error": {
+        "message": "Packet error:"
+    },
+    "statusbar_i2c_error": {
+        "message": "I2C error:"
+    },
+    "statusbar_cycle_time": {
+        "message": "Cycle Time:"
+    },
+
+    "please_grant_usb_permissions": {
+        "message": "Please click on <strong>\"Request Optional Permissions\"</strong> button to grant application <strong style=\"color: red\">required</strong> <strong>USB</strong> access"
+    },
+    "usb_permissions_granted": {
+        "message": "Optional <strong>USB</strong> permissions <strong style=\"color: green\">granted</strong>"
+    },
+
+    "eeprom_saved_ok": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "default_optional_permissions_head": {
+        "message": "Optional USB Permissions"
+    },
+    "default_optional_permissions_text": {
+        "message": "Due to addition of <strong>Naze32PRO</strong> to the supported hardware family, Configurator <strong style=\"color: red\">requires</strong> USB access to allow firmware flashing via DFU"
+    },
+    "default_request_optional_permissions": {
+        "message": "Request Optional Permissions"
+    },
+    "defaultWelcomeText": {
+        "message": "Welcome to <strong>Baseflight - Configurator</strong>, utility designed to simplify updating, configuring and tuning of your flight controller.<br />Application supports complete family of Baseflight hardware (acro naze, naze32, naze32pro and afromini).<br /><br />&bull; <strong>Baseflight</strong> wiki can be found <a href=\"https://github.com/multiwii/baseflight/wiki\" title=\"www.github.com\" target=\"_blank\">here</a><br />&bull; Latest <strong>CP210x Drivers</strong> can be downloaded from <a href=\"http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx\" title=\"www.silabs.com\" target=\"_blank\">here</a><br />"
+    },
+    "defaultChangelogHead": {
+        "message": "Configurator - Changelog"
+    },
+    "defaultButtonFirmwareFlasher": {
+        "message": "Firmware Flasher"
+    },
+    "defaultDonateHead": {
+        "message": "Open Source / Donation Notice"
+    },
+    "defaultDonateText": {
+        "message": "This utility is fully <strong>open source</strong> and is available free of charge to all <strong>baseflight</strong> users.<br />If you found the utility useful, please consider <strong>supporting</strong> its development by donating."
+    },
+
+    "initialSetupButtonCalibrateAccel": {
+        "message": "Calibrate Accelerometer"
+    },
+    "initialSetupCalibrateAccelText": {
+        "message": "Place board or frame on <strong>leveled</strong> surface, proceed with calibration, ensure platform is not moving during calibration period"
+    },
+    "initialSetupButtonCalibrateMag": {
+        "message": "Calibrate Magnetometer"
+    },
+    "initialSetupCalibrateMagText": {
+        "message": "Move multirotor atleast <strong>360</strong> degrees on all axis of rotation, you have 30 seconds to perform this task"
+    },
+    "initialSetupButtonReset": {
+        "message": "Reset Settings"
+    },
+    "initialSetupResetText": {
+        "message": "Restore settings to <strong>default</strong>"
+    },
+    "initialSetupButtonBackup": {
+        "message": "Backup"
+    },
+    "initialSetupButtonRestore": {
+        "message": "Restore"
+    },
+    "initialSetupBackupRestoreText": {
+        "message": "<strong>Backup</strong> your configuration in case of an accident, <strong>CLI</strong> settings are not included"
+    },
+    "initialSetupBackupSuccess": {
+        "message": "Backup saved <span style=\"color: green\">successfully</span>"
+    },
+    "initialSetupRestoreSuccess": {
+        "message": "Configuration restored <span style=\"color: green\">successfully</span>"
+    },
+    "initialSetupButtonResetZaxis": {
+        "message": "Reset Z axis, offset: 0 deg"
+    },
+    "initialSetupButtonResetZaxisValue": {
+        "message": "Reset Z axis, offset: $1 deg"
+    },
+    "initialSetupMixerHead": {
+        "message": "Mixer Type"
+    },
+    "initialSetupThrottleHead": {
+        "message": "Throttle Settings"
+    },
+    "initialSetupMinimum": {
+        "message": "Minimum:"
+    },
+    "initialSetupMaximum": {
+        "message": "Maximum:"
+    },
+    "initialSetupFailsafe": {
+        "message": "Failsafe:"
+    },
+    "initialSetupMinCommand": {
+        "message": "MinCommand:"
+    },
+    "initialSetupBatteryHead": {
+        "message": "Battery"
+    },
+    "initialSetupMinCellV": {
+        "message": "Min Cell Voltage:"
+    },
+    "initialSetupMaxCellV": {
+        "message": "Max Cell Voltage:"
+    },
+    "initialSetupVoltageScale": {
+        "message": "Voltage Scale:"
+    },
+    "initialSetupAccelTrimsHead": {
+        "message": "Accelerometer trims"
+    },
+    "initialSetupPitch": {
+        "message": "Pitch:"
+    },
+    "initialSetupRoll": {
+        "message": "Roll:"
+    },
+    "initialSetupMagHead": {
+        "message": "Magnetometer"
+    },
+    "initialSetupDeclination": {
+        "message": "Declination:"
+    },
+    "initialSetupInfoHead": {
+        "message": "Info"
+    },
+    "initialSetupBattery": {
+        "message": "Battery voltage:"
+    },
+    "initialSetupBatteryValue": {
+        "message": "$1 V"
+    },
+    "initialSetupDrawn": {
+        "message": "Capacity drawn:"
+    },
+    "initialSetupDrawing": {
+        "message": "Current draw:"
+    },
+    "initialSetupBatteryMahValue": {
+        "message": "$1 mAh"
+    },
+    "initialSetupBatteryAValue": {
+        "message": "$1 A"
+    },
+    "initialSetupRSSI": {
+        "message": "RSSI:"
+    },
+    "initialSetupRSSIValue": {
+        "message": "$1 %"
+    },
+    "initialSetupGPSHead": {
+        "message": "GPS"
+    },
+    "initialSetupButtonSave": {
+        "message": "Save"
+    },
+    "initialSetupModel": {
+        "message": "Model: $1"
+    },
+    "initialSetupHeading": {
+        "message": "Heading: $1 deg"
+    },
+    "initialSetupAccelCalibStarted": {
+        "message": "Accelerometer calibration started"
+    },
+    "initialSetupAccelCalibEnded": {
+        "message": "Accelerometer calibration finished"
+    },
+    "initialSetupMagCalibStarted": {
+        "message": "Magnetometer calibration started"
+    },
+    "initialSetupMagCalibEnded": {
+        "message": "Magnetometer calibration finished"
+    },
+    "initialSetupSettingsRestored": {
+        "message": "Settings restored to <strong>default</strong>"
+    },
+    "initialSetupEepromSaved": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "configurationMixer": {
+        "message": "Mixer"
+    },
+    "configurationFeatures": {
+        "message": "Features"
+    },
+    "configurationBoardAlignment": {
+        "message": "Board Alignment"
+    },
+    "configurationBoardAlignmentRoll": {
+        "message": "Roll Adjustment [deg]"
+    },
+    "configurationBoardAlignmentPitch": {
+        "message": "Pitch Adjustment [deg]"
+    },
+    "configurationBoardAlignmentYaw": {
+        "message": "Yaw Adjustment [deg]"
+    },
+    "configurationAccelTrimMagDec": {
+        "message": "Accelerometer & Magnetometer"
+    },
+    "configurationAccelTrimRoll": {
+        "message": "Accelerometer Roll Trim"
+    },
+    "configurationAccelTrimPitch": {
+        "message": "Accelerometer Pitch Trim"
+    },
+    "configurationMagDeclination": {
+        "message": "Magnetometer Declination [deg]"
+    },
+    "configurationThrottle": {
+        "message": "Throttle"
+    },
+    "configurationThrottleMinimum": {
+        "message": "Minimum Throttle"
+    },
+    "configurationThrottleMid": {
+        "message": "Middle Throttle [RC inputs center value]"
+    },
+    "configurationThrottleMaximum": {
+        "message": "Maximum Throttle"
+    },
+    "configurationThrottleFailsafe": {
+        "message": "Failsafe Throttle"
+    },
+    "configurationThrottleMinimumCommand": {
+        "message": "Minimum Command"
+    },
+    "configurationBatteryVoltage": {
+        "message": "Battery Voltage"
+    },
+    "configurationBatteryMinimum": {
+        "message": "Minimum Cell Voltage"
+    },
+    "configurationBatteryWarning": {
+        "message": "Warning Cell Voltage"
+    },
+    "configurationBatteryMaximum": {
+        "message": "Maximum Cell Voltage"
+    },
+    "configurationBatteryScale": {
+        "message": "Voltage Scale"
+    },
+    "configurationCurrent": {
+        "message": "Current Sensor"
+    },
+    "configurationCurrentScale": {
+        "message": "Scale the output voltage to milliamps [1/10th mV/A]"
+    },
+    "configurationCurrentOffset": {
+        "message": "Offset in millivolt steps"
+    },
+    "configurationBatteryMultiwiiCurrent": {
+        "message": "Enable support for legacy Multiwii MSP current output"
+    },
+    "configurationGPS": {
+        "message": "GPS"
+    },
+    "configurationGPStype": {
+        "message": "Type"
+    },
+    "configurationGPSbaudrate": {
+        "message": "Baudrate"
+    },
+    "configurationGPSubxSbas": {
+        "message": "Ground Assistance Type"
+    },
+    "configurationSerialRX": {
+        "message": "Serial Receiver"
+    },
+    "configurationEepromSaved": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+    "configurationButtonSave": {
+        "message": "Save"
+    },
+
+    "pidTuningName": {
+        "message": "Name"
+    },
+    "pidTuningProportional": {
+        "message": "Proportional"
+    },
+    "pidTuningIntegral": {
+        "message": "Integral"
+    },
+    "pidTuningDerivative": {
+        "message": "Derivative"
+    },
+    "pidTuningRollPitchRate": {
+        "message": "ROLL &amp; PITCH rate"
+    },
+    "pidTuningYawRate": {
+        "message": "YAW rate"
+    },
+    "pidTuningTPA": {
+        "message": "TPA"
+    },
+    "pidTuningButtonSave": {
+        "message": "Save"
+    },
+    "pidTuningButtonRefresh": {
+        "message": "Refresh"
+    },
+    "pidTuningProfileHead": {
+        "message": "Profile"
+    },
+    "pidTuningLoadedProfile": {
+        "message": "Loaded Profile: <strong>$1</strong>"
+    },
+    "pidTuningDataRefreshed": {
+        "message": "PID data <strong>refreshed</strong>"
+    },
+    "pidTuningEepromSaved": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "receiverThrottleMid": {
+        "message": "Throttle MID"
+    },
+    "receiverThrottleExpo": {
+        "message": "Throttle EXPO"
+    },
+    "receiverRcRate": {
+        "message": "RC Rate"
+    },
+    "receiverRcExpo": {
+        "message": "RC Expo"
+    },
+    "receiverChannelMap": {
+        "message": "Channel Map"
+    },
+    "receiverChannelMapTitle": {
+        "message": "You can define your own channel map by clicking inside the box"
+    },
+    "receiverRssiAux": {
+        "message": "RSSI on AUX"
+    },
+    "receiverRefreshRateTitle": {
+        "message": "Graph refresh rate"
+    },
+    "receiverButtonSave": {
+        "message": "Save"
+    },
+    "receiverButtonRefresh": {
+        "message": "Refresh"
+    },
+    "receiverDataRefreshed": {
+        "message": "RC Tuning data <strong>refreshed</strong>"
+    },
+    "receiverEepromSaved": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "auxiliaryName": {
+        "message": "Name"
+    },
+    "auxiliaryLow": {
+        "message": "LOW"
+    },
+    "auxiliaryMed": {
+        "message": "MED"
+    },
+    "auxiliaryHigh": {
+        "message": "HIGH"
+    },
+    "auxiliaryButtonSave": {
+        "message": "Save"
+    },
+    "auxiliaryEepromSaved": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "servosModel": {
+        "message": "Model:"
+    },
+    "servosChangeDirection": {
+        "message": "Change Direction in TX To Match"
+    },
+    "servosGyroAccelDirection": {
+        "message": "Gyroscope / Accelerometer Direction"
+    },
+    "servosName": {
+        "message": "Name"
+    },
+    "servosMid": {
+        "message": "MID"
+    },
+    "servosMin": {
+        "message": "MIN"
+    },
+    "servosMax": {
+        "message": "MAX"
+    },
+    "servosDirection": {
+        "message": "Direction"
+    },
+    "servosLiveMode": {
+        "message": "Enable Live mode:"
+    },
+    "servosButtonSave": {
+        "message": "Save"
+    },
+    "servosModelNoSupport": {
+        "message": "This model doesn't support servos"
+    },
+    "servosNormal": {
+        "message": "Normal"
+    },
+    "servosReverse": {
+        "message": "Reverse"
+    },
+    "servosEepromSave": {
+        "message": "EEPROM <span style=\"color: green\">saved</span>"
+    },
+
+    "gpsHead": {
+        "message": "GPS"
+    },
+    "gps3dFix": {
+        "message": "3D Fix:"
+    },
+    "gpsFixTrue": {
+        "message": "<span style=\"color: green\">True</span>"
+    },
+    "gpsFixFalse": {
+        "message": "<span style=\"color: red\">False</span>"
+    },
+    "gpsAltitude": {
+        "message": "Altitude:"
+    },
+    "gpsLat": {
+        "message": "Latitude:"
+    },
+    "gpsLon": {
+        "message": "Longitude:"
+    },
+    "gpsSpeed": {
+        "message": "Speed:"
+    },
+    "gpsSats": {
+        "message": "Sats:"
+    },
+    "gpsDistToHome": {
+        "message": "Dist to Home:"
+    },
+    "gpsSignalStrHead": {
+        "message": "GPS Signal Strength"
+    },
+    "gpsSignalStr": {
+        "message": "Signal Strength"
+    },
+
+    "motorsMaster": {
+        "message": "Master"
+    },
+    "motorsNotice": {
+        "message": "<strong>Motor Test Mode Notice:</strong><br />Moving the sliders will cause the motors to <strong>spin up</strong>.<br />In order to prevent injury <strong style=\"color: red\">remove ALL propellers</strong> before using this feature.<br />If you understand these instructions check the <strong>box</strong> below to <strong style=\"color: green\">enable</strong> motor test.<br /><br /><label><input type=\"checkbox\" /> Check</label>"
+    },
+
+    "sensorsInfo": {
+        "message": "Keep in mind that using fast update periods and rendering multiple graphs at the same time is resource heavy and will burn your battery quicker if you use a laptop.<br />We recommend to only render graphs for sensors you are interested in while using reasonable update periods."
+    },
+    "sensorsRefresh": {
+        "message": "Refresh:"
+    },
+    "sensorsScale": {
+        "message": "Scale:"
+    },
+
+    "cliInfo": {
+        "message": "<span style=\"color: red\">Note</span>: Leaving CLI tab or pressing Disconnect will <strong>automatically</strong> send \"<strong>exit</strong>\" to the board, which will make the controller save all the changes and <span style=\"color: red\">restart</span>."
+    },
+    "cliInputPlaceholder": {
+        "message": "Write your command here"
+    },
+
+    "loggingNote": {
+        "message": "Data will be logged in this tab <span style=\"color: red\">only</span>, leaving the tab will <span style=\"color: red\">cancel</span> logging and application will return to its normal <strong>\"configurator\"</strong> state.<br /> You are free to select the global update period, data will be written into the log file every <strong>1</strong> second for performance reasons."
+    },
+    "loggingSamplesSaved": {
+        "message": "Samples Saved:"
+    },
+    "loggingLogSize": {
+        "message": "Log Size:"
+    },
+    "loggingButtonLogFile": {
+        "message": "Select Log File"
+    },
+    "loggingStart": {
+        "message": "Start Logging"
+    },
+    "loggingStop": {
+        "message": "Stop Logging"
+    },
+    "loggingBack": {
+        "message": "Leave Logging / Disconnect"
+    },
+    "loggingErrorNotConnected": {
+        "message": "You need to <strong>connect</strong> first"
+    },
+    "loggingErrorLogFile": {
+        "message": "Please select log file"
+    },
+    "loggingErrorOneProperty": {
+        "message": "Please select at least one property to log"
+    },
+    "loggingAutomaticallyRetained": {
+        "message": "Automatically loaded previous log file: <strong>$1</strong>"
+    },
+
+    "firmwareFlasherPath": {
+        "message": "Path:"
+    },
+    "firmwareFlasherSize": {
+        "message": "Size:"
+    },
+    "firmwareFlasherStatus": {
+        "message": "Status:"
+    },
+    "firmwareFlasherProgress": {
+        "message": "Progress:"
+    },
+    "firmwareFlasherLoadFirmwareFile": {
+        "message": "Please load firmware file"
+    },
+    "firmwareFlasherNoReboot": {
+        "message": "No reboot sequence"
+    },
+    "firmwareFlasherOnlineReleasesDescription": {
+        "message": "Available online firmware releases"
+    },
+    "firmwareFlasherNoRebootDescription": {
+        "message": "Check if you are flashing board with bootloader pins shorted"
+    },
+    "firmwareFlasherFlashOnConnect": {
+        "message": "Flash on connect"
+    },
+    "firmwareFlasherFlashOnConnectDescription": {
+        "message": "Attempt to flash the board automatically (triggered by newly detected serial port)"
+    },
+    "firmwareFlasherFullChipErase": {
+        "message": "Full Chip Erase"
+    },
+    "firmwareFlasherFullChipEraseDescription": {
+        "message": "Wipes all configuration data currently stored on the board"
+    },
+    "firmwareFlasherFlashDevelopmentFirmware": {
+        "message": "Use Development Firmware"
+    },
+    "firmwareFlasherFlashDevelopmentFirmwareDescription": {
+        "message": "Flash most recent (untested) development firmware"
+    },
+    "firmwareFlasherFlashSlowly": {
+        "message": "Flash slowly"
+    },
+    "firmwareFlasherFlashSlowlyDescription": {
+        "message": "Use 115200 baudrate for flashing (useful for flashing via bluetooth)"
+    },
+    "firmwareFlasherButtonLoadLocal": {
+        "message": "Load Firmware [Local]"
+    },
+    "firmwareFlasherButtonLoadOnline": {
+        "message": "Load Firmware [Online]"
+    },
+    "firmwareFlasherFlashFirmware": {
+        "message": "Flash Firmware"
+    },
+    "firmwareFlasherGithubInfoHead": {
+        "message": "Github Firmware Info"
+    },
+    "firmwareFlasherCommiter": {
+        "message": "Committer:"
+    },
+    "firmwareFlasherDate": {
+        "message": "Date:"
+    },
+    "firmwareFlasherHash": {
+        "message": "Hash:"
+    },
+    "firmwareFlasherUrl": {
+        "message": "Go to GitHub to review this commit..."
+    },
+    "firmwareFlasherMessage": {
+        "message": "Message:"
+    },
+    "firmwareFlasherWarninghead": {
+        "message": "Warning"
+    },
+    "firmwareFlasherWarningText": {
+        "message": "Please do not try to flash <strong>non-baseflight</strong> hardware with this firmware flasher (it wont work).<br />Do not <strong>disconnect</strong> the board or <strong>turn off</strong> your computer while flashing.<br /><br />Note: <strong>STM32</strong> bootloader is stored in <strong>ROM</strong>, it cannot be bricked.<br />Note: <strong>Auto-Connect</strong> is always disabled while you are inside firmware flasher.<br />"
+    },
+    "firmwareFlasherButtonLeave": {
+        "message": "Leave Firmware Flasher"
+    },
+    "firmwareFlasherFirmwareNotLoaded": {
+        "message": "Firmware not loaded"
+    },
+    "firmwareFlasherHexCorrupted": {
+        "message": "HEX file appears to be corrupted"
+    },
+    "firmwareFlasherRemoteFirmwareLoaded": {
+        "message": "<span style=\"color: green\">Remote Firmware loaded, ready for flashing</span>"
+    },
+    "firmwareFlasherFailedToLoadOnlineFirmware": {
+        "message": "Failed to load remote firmware"
+    },
+    "firmwareFlasherWaitForFinish": {
+        "message": "You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ..."
+    }
+}

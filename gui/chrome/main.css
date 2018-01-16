@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style: none;
+    outline: none;
+}
+html, body {
+    height: 100%;
+}
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #303030;
+    background-color: #dfddd0;
+}
+a {
+    color: #303030;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: none;
+}
+input[type="number"]::-webkit-inner-spin-button {
+    opacity: 1; /* required for chromium 33+ beta */
+    margin-left: 5px;
+}
+.clear-both {
+    clear: both;
+}
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+#main-wrapper {
+    padding: 5px 5px 0 5px;
+    height: calc(100% - 5px);
+}
+#port-picker {
+    float: left;
+
+    height: 20px;
+    margin-bottom: 5px;
+}
+#port-picker li {
+    float: left;
+}
+#port-picker select {
+    height: 20px;
+    line-height: 20px;
+
+    float: left;
+    margin-right: 5px;
+
+    border: 1px solid silver;
+}
+#port-picker #port {
+    width: 120px;
+}
+#port-picker #baud {
+    width: 80px;
+}
+#port-picker #delay {
+    width: 60px;
+}
+#port-picker a {
+    float: left;
+
+    display: block;
+
+    width: 80px;
+    height: 18px;
+    border: 1px solid silver;
+
+    line-height: 18px;
+    text-align: center;
+}
+#port-picker a.connect {
+    margin-right: 10px;
+
+    background-color: #be2222;
+    color: white;
+
+    font-weight: bold;
+}
+#port-picker a.connect:hover {
+    text-decoration: none;
+    background-color: #ea3131;
+}
+#port-picker a.connect.active {
+    background-color: #0fab16;
+}
+#port-picker a.connect.active:hover {
+    background-color: #13d81d;
+}
+#port-picker input.auto_connect {
+    float: left;
+
+    margin-top: 4px;
+}
+#port-picker span.auto_connect {
+    float: left;
+
+    margin: 3px 0 0 5px;
+}
+#sensor-status {
+    float: right;
+
+    margin-right: 10px;
+
+    height: 22px;
+    line-height: 22px;
+}
+#sensor-status li {
+    float: left;
+
+    padding: 0 12px 0 12px;
+
+    height: 18px;
+    line-height: 18px;
+
+    color: white;
+    text-align: center;
+
+    border: 1px solid #c0c0c0;
+    border-right: 0;
+
+    background-color: #e32424;
+}
+#sensor-status li:last-child {
+    border-right: 1px solid #c0c0c0;
+}
+#sensor-status .on {
+    background-color: #b8cf02;
+}
+#options {
+    float: right;
+
+    width: 20px;
+    height: 20px;
+
+    background-image: url('./images/ic_settings_24px.svg');
+    background-position: -1px -1px;
+    background-repeat: no-repeat;
+
+    opacity: 0.6;
+}
+#options:hover {
+    opacity: 0.7;
+}
+#options.active {
+    opacity: 0.7;
+}
+#options.active:hover {
+    opacity: 0.85;
+}
+#options-window {
+    display: none;
+    position: fixed;
+
+    right: 30px;
+    top: 15px;
+
+    padding: 5px;
+
+    line-height: 20px;
+
+    border: 1px solid silver;
+    background-color: white;
+}
+#options-window input {
+    float: left;
+
+    margin-top: 3px;
+    margin-right: 5px;
+}
+#log {
+    margin-bottom: 4px;
+
+    height: 65px;
+
+    border: 1px solid silver;
+    background-color: white;
+
+    overflow-y: scroll;
+}
+#log .wrapper {
+    padding: 5px;
+
+    -webkit-user-select: text;
+}
+#log a {
+    font-weight: bold;
+}
+#log a:hover {
+    text-decoration: underline;
+}
+#tabs {
+    position: absolute;
+    margin-top: 1px;
+
+    z-index: 10;
+
+    font-weight: bold;
+}
+#tabs li {
+    float: left;
+    margin-right: 5px;
+
+    border: 1px solid #848484;
+    border-bottom: 0;
+}
+#tabs li a {
+    display: block;
+
+    height: 15px;
+
+    padding: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+
+    background-color: #d0d0d0;
+}
+#tabs li a:hover {
+    text-decoration: none;
+    background-color: #acacac;
+}
+#tabs li.active {
+}
+#tabs li.active a {
+    height: 16px;
+
+    background-color: white;
+}
+#tabs li.active a:hover {
+    cursor: default;
+    background-color: white;
+}
+#content {
+    margin-top: 31px;
+    padding: 10px;
+
+    height: calc(100% - 171px); /* - (port picker, log, tab, status bar) */
+
+    background-color: white;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border: 1px solid #848484;
+
+    -webkit-transform: rotateX(0deg); /* DO NOT REMOVE! this fixes the UI freezing bug on MAC OS X */
+}
+#status-bar {
+    position: fixed;
+
+    bottom: 0px;
+
+    width: calc(100% - 20px);
+    height: 20px;
+    line-height: 20px;
+
+    padding: 0 10px 0 10px;
+
+    border-top: 1px solid #7d7d79;
+    background-color: #bfbeb5;
+}
+#status-bar div {
+    float: left;
+
+    padding-right: 10px;
+    margin-right: 10px;
+
+    border-right: 1px solid #7d7d79;
+}
+#status-bar .version {
+    float: right;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+#cache {
+    display: none;
+}
+.data-loading {
+    width: 100%;
+    height: 100%;
+
+    background-image: url('../images/loading-bars.svg');
+    background-repeat: no-repeat;
+    background-position: center 45%;
+}
+.data-loading p {
+    position: relative;
+    top: calc(45% + 45px);
+
+    text-align: center;
+    font-weight: bold;
+}
+#dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border: 1px solid silver;
+    background-color: white;
+    display: none;
+    z-index: 1001;
+}
+#dialog.review {
+    width: 300px;
+}
+#dialog.review .head {
+    line-height: 20px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid silver;
+    background-color: #3f4241;
+}
+#dialog.review .wrapper {
+    padding: 5px;
+}
+#dialog.review p {
+    display: none;
+    padding: 5px;
+    text-align: center;
+}
+#dialog.review .buttons {
+    float: right;
+    margin: 5px 0 0 0;
+}
+#dialog.review .yes,
+#dialog.review .no {
+    display: block;
+    float: left;
+    margin: 0 0 0 5px;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 10px 0 10px;
+    font-weight: bold;
+    border: 1px solid #dddddd;
+    background-color: #f1f1f1;
+}

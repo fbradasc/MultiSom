@@ -374,24 +374,19 @@ void serialCom()
             }
 
             c = SerialRead(port);
-            LCDprint('(');
-            LCDprintInt16(port);
-            LCDprint(':');
-            LCDprintInt16(c);
-            LCDprint(':');
-            LCDprint(c);
-            LCDprint(')');
-            LCDcrlf();
+
+// LCDprint('('); LCDprintInt16(port); LCDprint(':'); LCDprintInt16(c); LCDprint(':'); LCDprint(c); LCDprint(')'); LCDcrlf();
+
 #ifdef SUPPRESS_ALL_SERIAL_MSP
             evaluateOtherData(c); // no MSP handling, so go directly
 #else //SUPPRESS_ALL_SERIAL_MSP
             state = c_state[port];
-            // LCDprint('('); LCDprint('0'+state); LCDprint(')');
+// LCDprint('('); LCDprint('0'+state); LCDprint(')');
 
             // regular data handling to detect and handle MSP and other data
             if (state == IDLE)
             {
-                // LCDprint('['); LCDprint('I'); LCDprint(']');
+LCDprintChar("$");
                 if (c == '$')
                 {
                     state = HEADER_START;
@@ -400,32 +395,27 @@ void serialCom()
                 {
                     evaluateOtherData(c); // evaluate all other incoming serial data
                 }
-
-                // LCDprint('('); LCDprint('0'+state); LCDprint(')');
             }
             else
             if (state == HEADER_START)
             {
-                // LCDprint('['); LCDprint('S'); LCDprint(']');
+LCDprintChar("S");
                 state = (c == 'M') ? HEADER_M : IDLE;
-                // LCDprint('('); LCDprint('0'+state); LCDprint(')');
             }
             else
             if (state == HEADER_M)
             {
-                // LCDprint('['); LCDprint('M'); LCDprint(']');
+LCDprintChar("M");
                 state = (c == '<') ? HEADER_ARROW : IDLE;
-                // LCDprint('('); LCDprint('0'+state); LCDprint(')');
             }
             else
             if (state == HEADER_ARROW)
             {
-                // LCDprint('['); LCDprint('A'); LCDprint(']');
+LCDprintChar("A");
                 if (c > INBUF_SIZE)
                 {
                     // now we are expecting the payload size
                     state = IDLE;
-                    // LCDprint('('); LCDprint('0'+state); LCDprint(')');
                     continue;
                 }
 
@@ -434,21 +424,20 @@ void serialCom()
                 offset[port] = 0;
                 indRX[port] = 0;
                 state = HEADER_SIZE;  // the command is to follow
-                // LCDprint('('); LCDprint('0'+state); LCDprint(')');
+LCDprint('{'); LCDprintInt16(c); LCDprint('}');
             }
             else
             if (state == HEADER_SIZE)
             {
-                // LCDprint('['); LCDprint('Z'); LCDprint(']');
                 cmdMSP[port] = c;
                 checksum[port] ^= c;
                 state = HEADER_CMD;
-                // LCDprint('('); LCDprint('0'+state); LCDprint(')');
+LCDprintChar("Z:"); LCDprintInt16(c);
             }
             else
             if (state == HEADER_CMD)
             {
-                // LCDprint('['); LCDprint('C'); LCDprint(']');
+LCDprintChar("C: "); LCDprintInt16(offset[port]); LCDprint('-'); LCDprintInt16(dataSize[port]);
                 if (offset[port] < dataSize[port])
                 {
                     checksum[port] ^= c;
@@ -456,6 +445,7 @@ void serialCom()
                 }
                 else
                 {
+LCDprint('/'); LCDprintInt16(checksum[port]); LCDprint('-'); LCDprintInt16(c); LCDprint(':');
                     if (checksum[port] == c) // compare calculated and transferred checksum
                     {
                         evaluateCommand(cmdMSP[port]); // we got a valid packet, evaluate it
@@ -463,7 +453,6 @@ void serialCom()
 
                     state = IDLE;
                     cc = 0; // no more than one MSP per port and per cycle
-                    // LCDprint('('); LCDprint('0'+state); LCDprint(')');
                 }
             }
 
@@ -518,6 +507,8 @@ void evaluateCommand(uint8_t c)
     // uint8_t zczxczxczxc = 0;
     const char *build = __DATE__;
 
+// LCDprint('>'); LCDprintInt16(c); LCDprint('-');
+
     switch (c)
     {
         // adding this message as a comment will return an error status for MSP_PRIVATE (end of switch), allowing third party tools to distinguish the implementation of this message
@@ -526,6 +517,7 @@ void evaluateCommand(uint8_t c)
         //  break;
 #if defined(CLEANFLIGHT)
         case MSP_API_VERSION:
+LCDprintChar("MSP_API_VERSION");
             headSerialReply(1 + API_VERSION_LENGTH);
             serialize8(MSP_PROTOCOL_VERSION);
             serialize8(API_VERSION_MAJOR);
@@ -535,6 +527,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_FC_VARIANT:
+LCDprintChar("MSP_FC_VARIANT");
             headSerialReply(FLIGHT_CONTROLLER_IDENTIFIER_LENGTH);
 
             for (i = 0; i < FLIGHT_CONTROLLER_IDENTIFIER_LENGTH; i++)
@@ -546,6 +539,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_FC_VERSION:
+LCDprintChar("MSP_FC_VERSION");
             headSerialReply(FLIGHT_CONTROLLER_VERSION_LENGTH);
             serialize8(FC_VERSION_MAJOR);
             serialize8(FC_VERSION_MINOR);
@@ -554,6 +548,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_BOARD_INFO:
+LCDprintChar("MSP_BOARD_INFO");
             headSerialReply(
                 BOARD_IDENTIFIER_LENGTH +
                 BOARD_HARDWARE_REVISION_LENGTH
@@ -573,18 +568,10 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_BF_BUILD_INFO: // BASEFLIGHT
-            headSerialReply(11 + 4 + 4);
-
-            for (i = 0; i < 11; i++)
-            {
-                serialize8(build[i]);    // MMM DD YYYY as ascii, MMM = Jan/Feb... etc
-            }
-
-            serialize32(0); // future exp
-            serialize32(0); // future exp
-            tailSerialReply();
-
-        case MSP_BUILD_INFO: // CLEANFLIGHT
+        case MSP_BUILD_INFO:    // CLEANFLIGHT
+if (c==MSP_BF_BUILD_INFO) LCDprintChar("MSP_BF_BUILD_INFO:");
+if (c==MSP_BUILD_INFO   ) LCDprintChar("MSP_BUILD_INFO");
+LCDprintChar(build);
             headSerialReply(11 + 4 + 4);
 
             for (i = 0; i < 11; i++)
@@ -615,6 +602,7 @@ void evaluateCommand(uint8_t c)
 #endif
 
         case MSP_SUPRESS_DATA_FROM_RX:
+LCDprintChar("MSP_SUPRESS_DATA_FROM_RX");
             supress_data_from_rx = read8();
             headSerialReply(1);
             serialize8( (uint8_t)supress_data_from_rx );
@@ -622,16 +610,19 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_SET_RAW_RC:
+LCDprintChar("MSP_SET_RAW_RC");
             s_struct_w( (uint8_t *)&rcSerial, 16 );
             rcSerialCount = 150; // 1s transition
             break;
 
         case MSP_SET_PID:
+LCDprintChar("MSP_SET_PID");
             mspAck();
             s_struct_w( (uint8_t *)&conf.pid[0].P8, 3 * PIDITEMS );
             break;
 
         case MSP_SET_BOX:
+LCDprintChar("MSP_SET_BOX");
             mspAck();
 #if EXTAUX
             s_struct_w( (uint8_t *)&conf.activate[0], CHECKBOXITEMS * 4 );
@@ -641,12 +632,14 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_SET_RC_TUNING:
+LCDprintChar("MSP_SET_RC_TUNING");
             mspAck();
             s_struct_w( (uint8_t *)&conf.rcRate8, 7 );
             break;
 
 #if !defined(DISABLE_SETTINGS_TAB)
         case MSP_SET_MISC:
+LCDprintChar("MSP_SET_MISC");
             struct
             {
                 uint16_t a, b, c, d, e, f;
@@ -677,6 +670,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_MISC:
+LCDprintChar("MSP_MISC");
             struct
             {
 # if defined(CLEANFLIGHT)
@@ -784,6 +778,7 @@ void evaluateCommand(uint8_t c)
             //    #endif
 #ifdef MULTIPLE_CONFIGURATION_PROFILES
         case MSP_SELECT_SETTING:
+LCDprintChar("MSP_SELECT_SETTING");
 
             if (!f.ARMED)
             {
@@ -803,11 +798,13 @@ void evaluateCommand(uint8_t c)
 #endif
 
         case MSP_SET_HEAD:
+LCDprintChar("MSP_SET_HEAD");
             mspAck();
             s_struct_w( (uint8_t *)&magHold, 2 );
             break;
 
         case MSP_IDENT:
+LCDprintChar("MSP_IDENT");
             struct
             {
                 uint8_t v, t, msp_v;
@@ -823,6 +820,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_STATUS:
+LCDprintChar("MSP_STATUS");
             struct
             {
                 uint16_t cycleTime, i2c_errors_count, sensor;
@@ -993,24 +991,29 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_SERVO:
+LCDprintChar("MSP_SERVO");
             s_struct( (uint8_t *)&servo, 16 );
             break;
 
         case MSP_SERVO_CONF:
+LCDprintChar("MSP_SERVO_CONF");
             s_struct( (uint8_t *)&conf.servoConf[0].min, 56 ); // struct servo_conf_ is 7 bytes length: min:2 / max:2 / middle:2 / rate:1    ----     8 servo =>  8x7 = 56
             break;
 
         case MSP_SET_SERVO_CONF:
+LCDprintChar("MSP_SET_SERVO_CONF");
             mspAck();
             s_struct_w( (uint8_t *)&conf.servoConf[0].min, 56 );
             break;
 
         case MSP_MOTOR:
+LCDprintChar("MSP_MOTOR");
             s_struct( (uint8_t *)&motor, 16 );
             break;
 
 #ifndef SLIM_WING
         case MSP_ACC_TRIM:
+LCDprintChar("MSP_ACC_TRIM");
             headSerialReply(4);
             s_struct_partial( (uint8_t *)&conf.angleTrim[PITCH], 2 );
             s_struct_partial( (uint8_t *)&conf.angleTrim[ROLL],  2 );
@@ -1018,6 +1021,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_SET_ACC_TRIM:
+LCDprintChar("MSP_SET_ACC_TRIM");
             mspAck();
             s_struct_w( (uint8_t *)&conf.angleTrim[PITCH], 2 );
             s_struct_w( (uint8_t *)&conf.angleTrim[ROLL],  2 );
@@ -1025,12 +1029,14 @@ void evaluateCommand(uint8_t c)
 #endif
 
         case MSP_RC:
+LCDprintChar("MSP_RC");
             s_struct( (uint8_t *)&rcData, RC_CHANS * 2 );
             break;
 
 #if GPS
 # ifndef SLIM_WING
         case MSP_SET_RAW_GPS:
+LCDprintChar("MSP_SET_RAW_GPS");
             struct
             {
                 uint8_t a, b;
@@ -1053,6 +1059,7 @@ void evaluateCommand(uint8_t c)
 # endif
 
         case MSP_RAW_GPS:
+LCDprintChar("MSP_RAW_GPS");
             struct
             {
                 uint8_t a, b;
@@ -1073,6 +1080,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_GPSSVINFO:
+LCDprintChar("MSP_GPSSVINFO");
             headSerialReply(1 + (GPS_numCh * 4) );
             serialize8(GPS_numCh);
 
@@ -1088,6 +1096,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_COMP_GPS:
+LCDprintChar("MSP_COMP_GPS");
             struct
             {
                 uint16_t a;
@@ -1103,6 +1112,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_PIPAK:
+LCDprintChar("MSP_PIPAK");
             struct
             {
                 uint32_t a, b;
@@ -1125,15 +1135,18 @@ void evaluateCommand(uint8_t c)
 
 # if defined(USE_MSP_WP)
         case MSP_SET_NAV_CONFIG:
+LCDprintChar("MSP_SET_NAV_CONFIG");
             mspAck();
             s_struct_w( (uint8_t *)&GPS_conf, sizeof(GPS_conf) );
             break;
 
         case MSP_NAV_CONFIG:
+LCDprintChar("MSP_NAV_CONFIG");
             s_struct( (uint8_t *)&GPS_conf, sizeof(GPS_conf) );
             break;
 
         case MSP_NAV_STATUS: // to move to struct transmission
+LCDprintChar("MSP_NAV_STATUS");
             headSerialReply(7);
             serialize8(f.GPS_mode);
             serialize8(NAV_state);
@@ -1146,6 +1159,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_WP: // to move to struct transmission
+LCDprintChar("MSP_WP");
         {
             uint8_t wp_no;
             uint8_t flag;
@@ -1210,6 +1224,7 @@ void evaluateCommand(uint8_t c)
         }
 
         case MSP_SET_WP: // to move to struct transmission
+LCDprintChar("MSP_SET_WP");
         {
             uint8_t wp_no = read8(); //Get the step number
 
@@ -1289,31 +1304,38 @@ void evaluateCommand(uint8_t c)
 #endif //GPS
 
         case MSP_ATTITUDE:
+LCDprintChar("MSP_ATTITUDE");
             s_struct( (uint8_t *)&att, 6 );
             break;
 
         case MSP_ALTITUDE:
+LCDprintChar("MSP_ALTITUDE");
             s_struct( (uint8_t *)&alt, 6 );
             break;
 
         case MSP_ANALOG:
+LCDprintChar("MSP_ANALOG");
             s_struct( (uint8_t *)&analog, 7 );
             break;
 
         case MSP_RC_TUNING:
+LCDprintChar("MSP_RC_TUNING");
             s_struct( (uint8_t *)&conf.rcRate8, 7 );
             break;
 
         case MSP_PID:
+LCDprintChar("MSP_PID");
             s_struct( (uint8_t *)&conf.pid[0].P8, 3 * PIDITEMS );
             break;
 
         case MSP_PIDNAMES:
+LCDprintChar("MSP_PIDNAMES");
             serializeNames(pidnames);
             break;
 
 #if defined(CLEANFLIGHT)
         case MSP_PID_CONTROLLER:
+LCDprintChar("MSP_PID_CONTROLLER");
             headSerialReply(1);
             //s_struct((uint8_t *) PID_CONTROLLER, 7);
             serialize8(PID_CONTROLLER - 1);
@@ -1322,6 +1344,7 @@ void evaluateCommand(uint8_t c)
 #endif
 
         case MSP_BOX:
+LCDprintChar("MSP_BOX");
 #if EXTAUX
             s_struct( (uint8_t *)&conf.activate[0], 4 * CHECKBOXITEMS );
 #else
@@ -1330,10 +1353,12 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_BOXNAMES:
+LCDprintChar("MSP_BOXNAMES");
             serializeNames(boxnames);
             break;
 
         case MSP_BOXIDS:
+LCDprintChar("MSP_BOXIDS");
             headSerialReply(CHECKBOXITEMS);
 
             for (uint8_t i = 0; i < CHECKBOXITEMS; i++)
@@ -1345,10 +1370,12 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_MOTOR_PINS:
+LCDprintChar("MSP_MOTOR_PINS");
             s_struct( (uint8_t *)&PWM_PIN, 8 );
             break;
 
         case MSP_RESET_CONF:
+LCDprintChar("MSP_RESET_CONF");
 
             if (!f.ARMED)
             {
@@ -1359,6 +1386,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_ACC_CALIBRATION:
+LCDprintChar("MSP_ACC_CALIBRATION");
 
             if (!f.ARMED)
             {
@@ -1370,6 +1398,7 @@ void evaluateCommand(uint8_t c)
 
 #if GYRO
         case MSP_GYRO_CALIBRATION:
+LCDprintChar("MSP_GYRO_CALIBRATION");
 
             if (!f.ARMED)
             {
@@ -1381,6 +1410,7 @@ void evaluateCommand(uint8_t c)
 #endif
 #if MAG
         case MSP_MAG_CALIBRATION:
+LCDprintChar("MSP_MAG_CALIBRATION");
 
             if (!f.ARMED)
             {
@@ -1392,22 +1422,26 @@ void evaluateCommand(uint8_t c)
 #endif
 #if defined(SPEK_BIND)
         case MSP_BIND:
+LCDprintChar("MSP_BIND");
             spekBind();
             mspAck();
             break;
 #endif
 
         case MSP_EEPROM_WRITE:
+LCDprintChar("MSP_EEPROM_WRITE");
             writeParams(0);
             mspAck();
             break;
 
         case MSP_DEBUG:
+LCDprintChar("MSP_DEBUG");
             s_struct( (uint8_t *)&debug, 8 );
             break;
 
 #if defined(CLEANFLIGHT)
         case MSP_BF_CONFIG:
+LCDprintChar("MSP_BF_CONFIG");
             headSerialReply(1 + 4 + 1 + 2 + 2 + 2 + 2 + 2 + 2 + 2);
             serialize8( (uint8_t) MULTITYPE ); // QUADX
             // features
@@ -1442,6 +1476,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_CF_SERIAL_CONFIG:
+LCDprintChar("MSP_CF_SERIAL_CONFIG");
             headSerialReply(
                 ( (sizeof(uint8_t) + sizeof(uint16_t) + (sizeof(uint8_t) * 4) ) * 4 )
                 );
@@ -1460,6 +1495,7 @@ void evaluateCommand(uint8_t c)
             break;
 
         case MSP_UID:
+LCDprintChar("MSP_UID");
             headSerialReply(12);
             serialize32(U_ID_0);
             serialize32(U_ID_1);
@@ -1469,6 +1505,7 @@ void evaluateCommand(uint8_t c)
 #endif
 #ifdef DEBUGMSG
         case MSP_DEBUGMSG:
+LCDprintChar("MSP_DEBUGMSG");
         {
             uint8_t size = debugmsg_available();
 
@@ -1485,10 +1522,12 @@ void evaluateCommand(uint8_t c)
 #endif
 
         default:  // we do not know how to handle the (valid) message, indicate error MSP $M!
+LCDprintChar("Unknown");
             headSerialError();
             tailSerialReply();
             break;
     }
+LCDcrlf();
 }
 
 // evaluate all other incoming serial data
