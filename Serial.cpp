@@ -461,21 +461,23 @@ uint8_t SerialUsedTXBuff(uint8_t port)
 void SerialSerialize(uint8_t port, uint8_t a)
 {
 #if defined(SW_SERIAL)
-    if (port == 1)
+    if (port > 0)
     {
         swSerial.write(a);
     }
-#else
-    uint8_t t = serialHeadTX[port];
-
-    if (++t >= TX_BUFFER_SIZE)
-    {
-        t = 0;
-    }
-
-    serialBufferTX[t][port] = a;
-    serialHeadTX[port] = t;
+    else
 #endif
+    {
+        uint8_t t = serialHeadTX[port];
+
+        if (++t >= TX_BUFFER_SIZE)
+        {
+            t = 0;
+        }
+
+        serialBufferTX[t][port] = a;
+        serialHeadTX[port] = t;
+    }
 }
 
 void SerialWrite(uint8_t port, uint8_t c)
